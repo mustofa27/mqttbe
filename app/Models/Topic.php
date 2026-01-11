@@ -3,8 +3,31 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Topic extends Model
 {
-    //
+    protected $fillable = [
+        'project_id',
+        'code',
+        'template',
+        'enabled',
+    ];
+
+    /**
+     * Get the project that owns this topic.
+     */
+    public function project(): BelongsTo
+    {
+        return $this->belongsTo(Project::class);
+    }
+
+    /**
+     * Get all permissions for this topic.
+     */
+    public function permissions(): HasMany
+    {
+        return $this->hasMany(Permission::class, 'topic_code', 'code');
+    }
 }
