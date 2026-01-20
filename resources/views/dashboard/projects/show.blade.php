@@ -14,7 +14,7 @@
                 <strong>Status:</strong> <span style="background: {{ $project->active ? '#10b981' : '#ef4444' }}; color: white; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.85rem;">{{ $project->active ? 'Active' : 'Inactive' }}</span>
             </p>
             <p style="color: #666; margin-bottom: 0.5rem; word-break: break-all;">
-                <strong>Project Key:</strong><br><code style="background: #f3f4f6; padding: 0.5rem; border-radius: 4px; font-size: 0.85rem;">{{ $project->project_key }}</code>
+                <strong>Project Key:</strong><br><code style="background: #f3f4f6; padding: 0.5rem; border-radius: 4px; font-size: 0.85rem; word-wrap: break-word; overflow-wrap: break-word;">{{ $project->project_key }}</code>
             </p>
             <p style="color: #666; margin-bottom: 1rem; word-break: break-all;">
                 <strong>Created:</strong> {{ $project->created_at->format('M d, Y') }}
