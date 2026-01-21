@@ -16,6 +16,12 @@ class MqttAuthController extends Controller
          * password  -> project_secret (plaintext)
          * clientid  -> device_id
          */
+        Log::info('MQTT AUTH RAW', [
+            'all' => $request->all(),
+            'input' => $request->getContent(),
+            'headers' => $request->headers->all(),
+        ]);
+
 
         if (!$request->username || !$request->password) {
             return response('deny', 403);
