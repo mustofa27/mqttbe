@@ -17,7 +17,7 @@ class MqttAclController extends Controller
             !$request->username ||
             !$request->clientid ||
             !$request->topic ||
-            !$request->access
+            !$request->acc
         ) {
             return response('deny', 403);
         }
@@ -74,7 +74,7 @@ class MqttAclController extends Controller
                 /**
                  * STEP 5 — Access check
                  */
-                if ($this->accessAllowed($permission->access, $request->access)) {
+                if ($this->accessAllowed($permission->access, $request->acc)) {
                     return response('allow', 200);
                 }
 
