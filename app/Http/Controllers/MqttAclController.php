@@ -98,12 +98,12 @@ class MqttAclController extends Controller
     /**
      * Mapping akses
      */
-    private function accessAllowed(string $rule, string $request): bool
+    private function accessAllowed(string $rule, int $request): bool
     {
         return match ($rule) {
-            'read' => $request === 'read',
-            'write' => $request === 'write',
-            'readwrite' => in_array($request, ['read', 'write']),
+            'read' => $request === 1,
+            'write' => $request === 2,
+            'readwrite' => in_array($request, [1, 2, 3]),
             default => false,
         };
     }
