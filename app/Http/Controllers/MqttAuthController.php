@@ -25,11 +25,11 @@ class MqttAuthController extends Controller
         ]);
 
 
-        if (empty($data['username']) || empty($data['password'])) {
+        if (!$request->username || !$request->password) {
             return response('deny', 403);
         }
 
-        $project = Project::where('project_key', $data['username'])->first();
+        $project = Project::where('project_key', $request->username)->first();
 
         if (!$project) {
             return response('deny', 403);
@@ -39,7 +39,7 @@ class MqttAuthController extends Controller
             return response('deny', 403);
         }
 
-        if (!Hash::check($data['password'], $project->project_secret)) {
+        if (!Hash::check($request->password, $project->project_secret)) {
             return response('deny', 403);
         }
 
