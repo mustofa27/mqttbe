@@ -51,10 +51,15 @@ class MqttAclController extends Controller
             return response('deny', 403);
         }
 
+        if($device->type === "dashboard") {
+            // Dashboard selalu diizinkan
+            return response('allow', 200);
+        }
+
         /**
          * STEP 3 — Topic match
          */
-        $topics = Topic::where('enabled', true)->get();
+        $topics = Topic::where('project_id', $project->id)->where('enabled', true)->get();
 
         foreach ($topics as $topic) {
             $pattern = str_replace(
