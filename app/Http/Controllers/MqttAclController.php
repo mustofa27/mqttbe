@@ -7,11 +7,17 @@ use App\Models\Project;
 use App\Models\Device;
 use App\Models\Topic;
 use App\Models\Permission;
+use Illuminate\Support\Facades\Log;
 
 class MqttAclController extends Controller
 {
     public function acl(Request $request)
     {
+        Log::info('MQTT AUTH RAW', [
+            'all' => $request->all(),
+            'input' => $request->getContent(),
+            'headers' => $request->headers->all(),
+        ]);
         // Validasi minimal payload
         if (
             !$request->username ||
