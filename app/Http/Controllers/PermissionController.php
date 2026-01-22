@@ -35,7 +35,7 @@ class PermissionController extends Controller
             'project_id' => 'required|exists:projects,id',
             'device_type' => 'required|string|max:255',
             'topic_code' => 'required|string|max:255',
-            'access' => 'required|in:read,write,readwrite',
+            'access' => 'required|in:read,write,readwrite,subscribe,readsubscribe,writesubscribe,readwritesubscribe',
         ]);
 
         $project = Project::findOrFail($validated['project_id']);
@@ -62,7 +62,7 @@ class PermissionController extends Controller
             'project_id' => 'required|exists:projects,id',
             'device_type' => 'required|string|max:255',
             'topic_code' => 'required|string|max:255',
-            'access' => 'required|in:read,write,readwrite',
+            'access' => 'required|in:read,write,readwrite,subscribe,readsubscribe,writesubscribe,readwritesubscribe',
         ]);
 
         $permission->update($validated);

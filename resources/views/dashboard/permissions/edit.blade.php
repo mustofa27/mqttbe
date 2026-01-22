@@ -46,6 +46,10 @@
                 <option value="read" {{ old('access', $permission->access) == 'read' ? 'selected' : '' }}>Read Only</option>
                 <option value="write" {{ old('access', $permission->access) == 'write' ? 'selected' : '' }}>Write Only</option>
                 <option value="readwrite" {{ old('access', $permission->access) == 'readwrite' ? 'selected' : '' }}>Read & Write</option>
+                <option value="subscribe" {{ old('access', $permission->access) == 'subscribe' ? 'selected' : '' }}>Subscribe Only</option>
+                <option value="readsubscribe" {{ old('access', $permission->access) == 'readsubscribe' ? 'selected' : '' }}>Read & Subscribe</option>
+                <option value="writesubscribe" {{ old('access', $permission->access) == 'writesubscribe' ? 'selected' : '' }}>Write & Subscribe</option>
+                <option value="readwritesubscribe" {{ old('access', $permission->access) == 'readwritesubscribe' ? 'selected' : '' }}>Read, Write & Subscribe</option>
             </select>
             @error('access')
                 <p style="color: #ef4444; font-size: 0.875rem; margin-top: 0.25rem;">{{ $message }}</p>

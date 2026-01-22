@@ -110,6 +110,10 @@ class MqttAclController extends Controller
             'read' => $request === 1,
             'write' => $request === 2,
             'readwrite' => in_array($request, [1, 2, 3]),
+            'subscribe' => $request === 4,
+            'readsubscribe' => in_array($request, [1, 4, 5]),
+            'writesubscribe' => in_array($request, [2, 4, 6]),
+            'readwritesubscribe' => in_array($request, [1, 2, 3, 4, 5, 6, 7]),
             default => false,
         };
     }
