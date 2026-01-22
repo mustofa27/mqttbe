@@ -17,21 +17,10 @@ class MqttAuthController extends Controller
          * password  -> project_secret (plaintext)
          * clientid  -> device_id
          */
-        $content = $request->getContent();
-        $data = [];
-
-        // Try to parse as JSON first
-        $jsonData = json_decode($content, true);
-        if (json_last_error() === JSON_ERROR_NONE) {
-            $data = $jsonData;
-        } else {
-            // If not JSON, parse as form data
-            parse_str($content, $data);
-        }
 
         Log::info('MQTT AUTH RAW', [
-            'data' => $data,
-            'input' => $content,
+            'all' => $request->all(),
+            'input' => $request->getContent(),
             'headers' => $request->headers->all(),
         ]);
 
