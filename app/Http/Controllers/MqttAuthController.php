@@ -17,18 +17,24 @@ class MqttAuthController extends Controller
          * password  -> project_secret (plaintext)
          * clientid  -> device_id
          */
+        $data = $request->all();
+        if (empty($data)) {
+            // If Laravel couldn't parse the request (e.g., invalid JSON or wrong Content-Type), try parsing as form data
+            parse_str($request->getContent(), $data);
+        }
+
         Log::info('MQTT AUTH RAW', [
-            'all' => $request->all(),
+            'all' => $data,
             'input' => $request->getContent(),
             'headers' => $request->headers->all(),
         ]);
 
 
-        if (!$request->username || !$request->password) {
+        if (!$data['username'] ?? false || !$data['password'] ?? false) {
             return response('deny', 403);
         }
 
-        $project = Project::where('project_key', $request->username)->first();
+        $project = Project::where('project_key', $data['username'])->first();
 
         if (!$project) {
             return response('deny', 403);
@@ -38,7 +44,7 @@ class MqttAuthController extends Controller
             return response('deny', 403);
         }
 
-        if (!Hash::check($request->password, $project->project_secret)) {
+        if (!Hash::check($data['password'], $project->project_secret)) {
             return response('deny', 403);
         }
 
