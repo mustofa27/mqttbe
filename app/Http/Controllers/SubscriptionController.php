@@ -54,7 +54,13 @@ class SubscriptionController extends Controller
             $allPlans[$tier] = SubscriptionPlan::getLimits($tier);
         }
 
-        return view('dashboard.subscription.index', compact('user', 'currentLimits', 'usage', 'allPlans'));
+        // Get recent payments
+        $payments = SubscriptionPayment::where('user_id', $user->id)
+            ->orderBy('created_at', 'desc')
+            ->take(10)
+            ->get();
+
+        return view('dashboard.subscription.index', compact('user', 'currentLimits', 'usage', 'allPlans', 'payments'));
     }
 
     /**

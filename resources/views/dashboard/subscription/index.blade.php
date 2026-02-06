@@ -352,4 +352,52 @@
         </tbody>
     </table>
 </div>
+
+@if($payments->count() > 0)
+<div class="features-section">
+    <h2 style="margin-bottom: 1rem;">Payment History</h2>
+    <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+            <tr style="border-bottom: 2px solid #e0e0e0; text-align: left;">
+                <th style="padding: 0.75rem;">Date</th>
+                <th style="padding: 0.75rem;">Plan</th>
+                <th style="padding: 0.75rem;">Amount</th>
+                <th style="padding: 0.75rem;">Status</th>
+                <th style="padding: 0.75rem;">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach($payments as $payment)
+            <tr style="border-bottom: 1px solid #f0f0f0;">
+                <td style="padding: 0.75rem;">{{ $payment->created_at->format('d M Y, H:i') }}</td>
+                <td style="padding: 0.75rem;">{{ ucfirst($payment->tier) }}</td>
+                <td style="padding: 0.75rem;">Rp {{ number_format($payment->amount, 0, ',', '.') }}</td>
+                <td style="padding: 0.75rem;">
+                    @if($payment->status === 'paid')
+                        <span style="background: #d4edda; color: #155724; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.85rem;">✓ Paid</span>
+                    @elseif($payment->status === 'pending')
+                        <span style="background: #fff3cd; color: #856404; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.85rem;">⏳ Pending</span>
+                    @elseif($payment->status === 'expired')
+                        <span style="background: #f8d7da; color: #721c24; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.85rem;">⌛ Expired</span>
+                    @else
+                        <span style="background: #f8d7da; color: #721c24; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.85rem;">✗ Failed</span>
+                    @endif
+                </td>
+                <td style="padding: 0.75rem;">
+                    @if($payment->status === 'pending' && $payment->invoice_url)
+                        <a href="{{ $payment->invoice_url }}" target="_blank" style="color: #667eea; text-decoration: none; font-size: 0.9rem;">
+                            Continue Payment →
+                        </a>
+                    @elseif($payment->status === 'paid')
+                        <span style="color: #999; font-size: 0.9rem;">Completed</span>
+                    @else
+                        <span style="color: #999; font-size: 0.9rem;">-</span>
+                    @endif
+                </td>
+            </tr>
+            @endforeach
+        </tbody>
+    </table>
+</div>
+@endif
 @endsection
