@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>MQTT Dashboard - Manage Your IoT Infrastructure</title>
+    <title>ICMQTT - Manage Your IoT Infrastructure</title>
 
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
@@ -190,6 +190,118 @@
             margin-bottom: 2rem;
         }
 
+        .pricing-section {
+            background: #f8f9fa;
+            padding: 4rem 2rem;
+            margin-top: 2rem;
+        }
+
+        .pricing-section h2 {
+            text-align: center;
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: #333;
+        }
+
+        .pricing-section p {
+            text-align: center;
+            color: #666;
+            margin-bottom: 3rem;
+            font-size: 1.1rem;
+        }
+
+        .pricing-grid {
+            display: flex;
+            gap: 2rem;
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        .pricing-card {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            position: relative;
+            min-width: 280px;
+            flex: 1;
+        }
+
+        .pricing-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.2);
+        }
+
+        .pricing-card.popular {
+            border-color: #667eea;
+            transform: scale(1.05);
+        }
+
+        .popular-badge {
+            position: absolute;
+            top: -12px;
+            right: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 0.25rem 1rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .pricing-tier {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .pricing-price {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 0.25rem;
+            line-height: 1;
+        }
+
+        .pricing-price small {
+            font-size: 0.875rem;
+            color: #666;
+            font-weight: 500;
+            margin-left: 0.25rem;
+        }
+
+        .pricing-features {
+            list-style: none;
+            padding: 0;
+            margin: 1.5rem 0;
+            min-height: 280px;
+        }
+
+        .pricing-features li {
+            padding: 0.5rem 0;
+            color: #666;
+            display: flex;
+            align-items: start;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .pricing-features li::before {
+            content: '✓';
+            color: #28a745;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .pricing-card .btn {
+            width: 100%;
+            margin-top: 1rem;
+        }
+
         .feature-card {
             background: #f8f9fa;
             padding: 2rem;
@@ -274,6 +386,44 @@
                 width: 100%;
                 max-width: 300px;
             }
+
+            .pricing-grid {
+                flex-direction: column;
+            }
+
+            .pricing-card {
+                min-width: 100%;
+            }
+
+            .pricing-card.popular {
+                transform: scale(1);
+            }
+
+            .pricing-features {
+                min-height: auto;
+            }
+        }
+
+        @media (max-width: 1024px) and (min-width: 769px) {
+            .pricing-grid {
+                flex-wrap: wrap;
+            }
+
+            .pricing-card {
+                min-width: calc(50% - 1rem);
+                flex: 1 1 calc(50% - 1rem);
+            }
+
+            .pricing-card.popular {
+                transform: scale(1);
+            }
+        }
+
+        @media (min-width: 1400px) {
+            .pricing-grid {
+                max-width: 1400px;
+                margin: 0 auto;
+            }
         }
     </style>
     </head>
@@ -281,7 +431,7 @@
         <div class="navbar">
             <div class="navbar-container">
                 <a href="{{ url('/') }}" class="navbar-brand">
-                    📡 <span>MQTT</span> Dashboard
+                    📡 <span>ICMQTT</span>
                 </a>
                 @if (Route::has('login'))
                     <nav class="navbar-nav">
@@ -397,6 +547,101 @@
             </div>
         </div>
 
+        <div class="pricing-section">
+            <div class="container">
+                <h2>Simple, Transparent Pricing</h2>
+                <p>Choose the plan that fits your needs. Start free, upgrade anytime.</p>
+                
+                <div class="pricing-grid">
+                    <!-- Free Plan -->
+                    <div class="pricing-card">
+                        <div class="pricing-tier">Free</div>
+                        <div class="pricing-price">Rp 0<small>/bulan</small></div>
+                        <ul class="pricing-features">
+                            <li>1 Project</li>
+                            <li>5 Devices per project</li>
+                            <li>3 Topics per project</li>
+                            <li>100 msg/hour</li>
+                            <li>30 days retention</li>
+                            <li>Basic support</li>
+                        </ul>
+                        @guest
+                            <a href="{{ route('register') }}" class="btn btn-secondary">Start Free</a>
+                        @else
+                            <a href="{{ url('/dashboard') }}" class="btn btn-secondary">Go to Dashboard</a>
+                        @endguest
+                    </div>
+
+                    <!-- Starter Plan -->
+                    <div class="pricing-card">
+                        <div class="pricing-tier">Starter</div>
+                        <div class="pricing-price">Rp 299.000<small>/bulan</small></div>
+                        <ul class="pricing-features">
+                            <li>5 Projects</li>
+                            <li>50 Devices per project</li>
+                            <li>20 Topics per project</li>
+                            <li>1,000 msg/hour</li>
+                            <li>90 days retention</li>
+                            <li>Analytics dashboard</li>
+                            <li>API access</li>
+                            <li>Email support</li>
+                        </ul>
+                        @guest
+                            <a href="{{ route('register') }}" class="btn btn-primary">Get Started</a>
+                        @else
+                            <a href="{{ route('subscription.upgrade') }}" class="btn btn-primary">Upgrade</a>
+                        @endguest
+                    </div>
+
+                    <!-- Professional Plan -->
+                    <div class="pricing-card popular">
+                        <div class="popular-badge">POPULAR</div>
+                        <div class="pricing-tier">Professional</div>
+                        <div class="pricing-price">Rp 1.199.000<small>/bulan</small></div>
+                        <ul class="pricing-features">
+                            <li>20 Projects</li>
+                            <li>500 Devices per project</li>
+                            <li>100 Topics per project</li>
+                            <li>10,000 msg/hour</li>
+                            <li>365 days retention</li>
+                            <li>Advanced analytics</li>
+                            <li>Webhooks integration</li>
+                            <li>Full API access</li>
+                            <li>Priority support</li>
+                        </ul>
+                        @guest
+                            <a href="{{ route('register') }}" class="btn btn-primary">Get Started</a>
+                        @else
+                            <a href="{{ route('subscription.upgrade') }}" class="btn btn-primary">Upgrade</a>
+                        @endguest
+                    </div>
+
+                    <!-- Enterprise Plan -->
+                    <div class="pricing-card">
+                        <div class="pricing-tier">Enterprise</div>
+                        <div class="pricing-price">Rp 4.499.000<small>/bulan</small></div>
+                        <ul class="pricing-features">
+                            <li>Unlimited projects</li>
+                            <li>Unlimited devices</li>
+                            <li>Unlimited topics</li>
+                            <li>Unlimited rate limit</li>
+                            <li>Unlimited retention</li>
+                            <li>Advanced analytics</li>
+                            <li>Webhooks integration</li>
+                            <li>Full API access</li>
+                            <li>Dedicated support</li>
+                            <li>Custom SLA</li>
+                        </ul>
+                        @guest
+                            <a href="{{ route('register') }}" class="btn btn-primary">Contact Sales</a>
+                        @else
+                            <a href="{{ route('subscription.upgrade') }}" class="btn btn-primary">Upgrade</a>
+                        @endguest
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="cta-section">
             <h3>Ready to get started?</h3>
             <p>Deploy your MQTT infrastructure and connect thousands of IoT devices</p>
@@ -406,7 +651,7 @@
         </div>
 
         <div class="footer">
-            <p>&copy; 2026 MQTT IoT Dashboard. All rights reserved.</p>
+            <p>&copy; 2026 ICMQTT. All rights reserved.</p>
         </div>
 
         <style>

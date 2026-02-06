@@ -10,15 +10,17 @@
 
         <div class="form-group">
             <label for="email">Email Address</label>
-            <input 
-                type="email" 
-                id="email" 
-                name="email" 
-                value="{{ old('email') }}"
-                required 
-                autofocus
-                placeholder="you@example.com"
-            >
+            <div class="password-toggle-wrapper">
+                <input 
+                    type="email" 
+                    id="email" 
+                    name="email" 
+                    value="{{ old('email') }}"
+                    required 
+                    autofocus
+                    placeholder="you@example.com"
+                >
+            </div>
             @error('email')
                 <div class="error">{{ $message }}</div>
             @enderror
@@ -40,6 +42,12 @@
             @error('password')
                 <div class="error">{{ $message }}</div>
             @enderror
+        </div>
+
+        <div style="text-align: right; margin-bottom: 1rem;">
+            <a href="{{ route('password.request') }}" style="color: #667eea; text-decoration: none; font-size: 0.9rem;">
+                Forgot your password?
+            </a>
         </div>
 
         <button type="submit" class="btn btn-primary" style="width: 100%;">Login</button>

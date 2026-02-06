@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'MQTT Dashboard')</title>
+    <title>@yield('title', 'ICMQTT')</title>
     @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     @endif
@@ -296,7 +296,7 @@
     <!-- Top Navigation -->
     <nav class="navbar">
         <div class="navbar-content">
-            <a href="{{ url('/') }}" class="navbar-brand">📡 MQTT Dashboard</a>
+            <a href="{{ url('/') }}" class="navbar-brand">📡 ICMQTT</a>
             <div class="navbar-nav">
                 @auth
                     <span>{{ Auth::user()->name }}</span>
@@ -330,6 +330,11 @@
                 <li>
                     <a href="{{ route('profile') }}" class="@if(Route::currentRouteName() === 'profile') active @endif">
                         👤 My Profile
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('subscription.index') }}" class="@if(strpos(Route::currentRouteName(), 'subscription') !== false) active @endif">
+                        💳 Subscription
                     </a>
                 </li>
 

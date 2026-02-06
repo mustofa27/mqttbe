@@ -7,6 +7,8 @@ use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\DeviceController;
 use App\Http\Controllers\TopicController;
 use App\Http\Controllers\PermissionController;
+use App\Http\Controllers\SubscriptionController;
+use App\Http\Controllers\PasswordResetController;
 
 // Public routes
 Route::get('/', function () {
@@ -19,6 +21,12 @@ Route::middleware('guest')->group(function () {
     Route::post('/login', [AuthController::class, 'login']);
     Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
     Route::post('/register', [AuthController::class, 'register']);
+    
+    // Password Reset Routes
+    Route::get('/forgot-password', [PasswordResetController::class, 'showLinkRequestForm'])->name('password.request');
+    Route::post('/forgot-password', [PasswordResetController::class, 'sendResetLinkEmail'])->name('password.email');
+    Route::get('/reset-password/{token}', [PasswordResetController::class, 'showResetForm'])->name('password.reset');
+    Route::post('/reset-password', [PasswordResetController::class, 'reset'])->name('password.update');
 });
 
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->name('logout');
@@ -41,4 +49,14 @@ Route::middleware('auth')->group(function () {
 
     // Permission CRUD routes
     Route::resource('permissions', PermissionController::class);
+
+    // Subscription management routes
+    Route::prefix('subscription')->name('subscription.')->group(function () {
+        Route::get('/', [SubscriptionController::class, 'index'])->name('index');
+        Route::get('/upgrade', [SubscriptionController::class, 'upgrade'])->name('upgrade');
+        Route::post('/upgrade', [SubscriptionController::class, 'processUpgrade'])->name('processUpgrade');
+        Route::post('/cancel', [SubscriptionController::class, 'cancel'])->name('cancel');
+        Route::get('/payment/success', [SubscriptionController::class, 'paymentSuccess'])->name('payment.success');
+        Route::get('/payment/failed', [SubscriptionController::class, 'paymentFailed'])->name('payment.failed');
+    });
 });

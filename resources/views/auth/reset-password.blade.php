@@ -1,30 +1,18 @@
 @extends('layouts.auth')
 
-@section('title', 'Register')
+@section('title', 'Reset Password')
 
 @section('content')
 <div class="auth-container">
-    <form method="POST" action="{{ route('register') }}" class="auth-form">
+    <form method="POST" action="{{ route('password.update') }}" class="auth-form">
         @csrf
-        <h1>Create Account</h1>
+        <input type="hidden" name="token" value="{{ $token }}">
+        <input type="hidden" name="email" value="{{ $email }}">
 
-        <div class="form-group">
-            <label for="name">Full Name</label>
-            <div class="password-toggle-wrapper">
-                <input 
-                    type="text" 
-                    id="name" 
-                    name="name" 
-                    value="{{ old('name') }}"
-                    required 
-                    autofocus
-                    placeholder="John Doe"
-                >
-            </div>
-            @error('name')
-                <div class="error">{{ $message }}</div>
-            @enderror
-        </div>
+        <h1>Create New Password</h1>
+        <p style="color: #666; margin-bottom: 1.5rem; font-size: 0.95rem;">
+            Enter your new password below.
+        </p>
 
         <div class="form-group">
             <label for="email">Email Address</label>
@@ -33,9 +21,10 @@
                     type="email" 
                     id="email" 
                     name="email" 
-                    value="{{ old('email') }}"
+                    value="{{ $email ?? old('email') }}"
                     required
-                    placeholder="you@example.com"
+                    readonly
+                    style="background: #f5f5f5;"
                 >
             </div>
             @error('email')
@@ -44,7 +33,7 @@
         </div>
 
         <div class="form-group">
-            <label for="password">Password</label>
+            <label for="password">New Password</label>
             <div class="password-toggle-wrapper">
                 <input 
                     type="password" 
@@ -62,7 +51,7 @@
         </div>
 
         <div class="form-group">
-            <label for="password_confirmation">Confirm Password</label>
+            <label for="password_confirmation">Confirm New Password</label>
             <div class="password-toggle-wrapper">
                 <input 
                     type="password" 
@@ -79,10 +68,10 @@
             @enderror
         </div>
 
-        <button type="submit" class="btn btn-primary" style="width: 100%;">Register</button>
+        <button type="submit" class="btn btn-primary" style="width: 100%;">Reset Password</button>
 
         <div class="form-footer">
-            Already have an account? <a href="{{ route('login') }}">Login here</a>
+            <a href="{{ route('login') }}">Back to Login</a>
         </div>
     </form>
 </div>

@@ -20,7 +20,7 @@
 </div>
 
 <div class="card" style="text-align: center; padding: 3rem;">
-    <h2>Welcome to MQTT Dashboard</h2>
+    <h2>Welcome to ICMQTT</h2>
     <p style="margin: 1rem 0; color: #666;">
         Manage your MQTT projects, devices, and topics from a single dashboard.
     </p>

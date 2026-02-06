@@ -30,6 +30,15 @@ class DeviceController extends Controller
 
         $project = Project::findOrFail($validated['project_id']);
 
+        // Check subscription limits
+        $user = auth()->user();
+        if (!$user->canAddDevice($project)) {
+            $limits = $user->getSubscriptionLimits();
+            return back()->withErrors([
+                'subscription' => "Your {$user->subscription_tier} plan allows up to {$limits['max_devices_per_project']} devices per project. Please upgrade to add more."
+            ]);
+        }
+
         Device::create($validated + ['active' => true]);
 
         return redirect()->route('devices.index')->with('success', 'Device created successfully!');

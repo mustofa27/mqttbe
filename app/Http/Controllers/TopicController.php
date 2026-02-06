@@ -33,6 +33,21 @@ class TopicController extends Controller
             'enabled' => 'boolean',
         ]);
 
+        // Check subscription limits
+        $user = auth()->user();
+        $project = $user->projects()->find($validated['project_id']);
+        
+        if (!$project) {
+            return back()->withErrors(['project' => 'Project not found']);
+        }
+        
+        if (!$user->canAddTopic($project)) {
+            $limits = $user->getSubscriptionLimits();
+            return back()->withErrors([
+                'subscription' => "Your {$user->subscription_tier} plan allows up to {$limits['max_topics_per_project']} topics per project. Please upgrade to add more."
+            ]);
+        }
+
         // Auto-generate template: {project}/{device_id}/{code}
         $template = '{project}/{device_id}/' . $validated['code'];
 

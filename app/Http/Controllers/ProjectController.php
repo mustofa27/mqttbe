@@ -21,6 +21,15 @@ class ProjectController extends Controller
 
     public function store(Request $request)
     {
+        // Check subscription limits
+        $user = auth()->user();
+        if (!$user->canCreateProject()) {
+            $limits = $user->getSubscriptionLimits();
+            return back()->withErrors([
+                'subscription' => "Your {$user->subscription_tier} plan allows up to {$limits['max_projects']} projects. Please upgrade to add more."
+            ]);
+        }
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'project_key' => 'required|string|max:255|unique:projects,project_key',
