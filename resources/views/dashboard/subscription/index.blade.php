@@ -173,9 +173,9 @@
     @endif
 </div>
 
-@if($user->subscription_expires_at && $user->subscription_expires_at->diffInDays(now()) <= 7 && $user->subscription_expires_at->isFuture())
+@if($user->subscription_expires_at && $user->subscription_expires_at->isFuture() && $user->subscription_expires_at->diffInDays(now()) <= 7)
     <div class="expiry-notice">
-        ⚠️ Your subscription will expire in {{ $user->subscription_expires_at->diffInDays(now()) }} days.
+        ⚠️ Your subscription will expire in {{ $user->subscription_expires_at->diffInDays(now()) }} day(s).
         Please renew to continue using premium features.
     </div>
 @endif
