@@ -232,6 +232,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
     <script>
         let charts = {};
+        const projectDataUrlTemplate = "{{ route('analytics.project-data', ['project' => '__PROJECT__']) }}";
 
         function initializeDatepickers() {
             const today = new Date();
@@ -246,8 +247,17 @@
             const from = document.getElementById('fromDate').value;
             const to = document.getElementById('toDate').value;
 
-            fetch(`/api/analytics/project/${projectId}?from=${from}&to=${to}`)
-                .then(res => res.json())
+            const url = projectDataUrlTemplate.replace('__PROJECT__', projectId) + `?from=${from}&to=${to}`;
+
+            fetch(url, {
+                headers: {
+                    'Accept': 'application/json'
+                }
+            })
+                .then(res => {
+                    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                    return res.json();
+                })
                 .then(data => {
                     renderSummary(data.summary);
                     renderCharts(data);

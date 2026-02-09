@@ -91,6 +91,8 @@ Route::middleware('auth')->group(function () {
     // Analytics routes
     Route::get('/analytics', [AnalyticsController::class, 'dashboard'])->name('analytics.dashboard');
     Route::get('/analytics/project/{project}/device/{device}', [AnalyticsController::class, 'deviceAnalytics'])->name('analytics.device');
+    Route::get('/analytics/project/{project}/data', [AnalyticsController::class, 'projectData'])->name('analytics.project-data');
+    Route::get('/analytics/project/{project}/device/{device}/data', [AnalyticsController::class, 'deviceAnalytics'])->name('analytics.device-data');
 
     // Export routes
     Route::prefix('export')->name('export.')->group(function () {

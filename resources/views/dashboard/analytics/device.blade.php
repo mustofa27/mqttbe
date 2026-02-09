@@ -185,6 +185,7 @@
     const projectId = "{{ $project->id }}";
     const deviceId = "{{ $device->id }}";
     let charts = {};
+    const deviceDataUrlTemplate = "{{ route('analytics.device-data', ['project' => '__PROJECT__', 'device' => '__DEVICE__']) }}";
 
     function initializeDatepickers() {
         const today = new Date();
@@ -198,8 +199,19 @@
         const from = document.getElementById('fromDate').value;
         const to = document.getElementById('toDate').value;
 
-        fetch(`/api/analytics/project/${projectId}/device/${deviceId}?from=${from}&to=${to}`)
-            .then(res => res.json())
+        const url = deviceDataUrlTemplate
+            .replace('__PROJECT__', projectId)
+            .replace('__DEVICE__', deviceId) + `?from=${from}&to=${to}`;
+
+        fetch(url, {
+            headers: {
+                'Accept': 'application/json'
+            }
+        })
+            .then(res => {
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                return res.json();
+            })
             .then(data => {
                 renderStats(data.summary);
                 renderActivityChart(data.activity);
