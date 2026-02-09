@@ -581,14 +581,8 @@ let charts = {};
 
 // Generate filter API URLs using Laravel route names
 function getFilterUrl(endpoint, projectId) {
-    const routeMap = {
-        'options': "{{ url('api/v1/filter/project/') }}/" + projectId + '/options',
-        'summary': "{{ url('api/v1/filter/project/') }}/" + projectId + '/summary',
-        'device-activity': "{{ url('api/v1/filter/project/') }}/" + projectId + '/device-activity',
-        'time-series': "{{ url('api/v1/filter/project/') }}/" + projectId + '/time-series',
-        'messages': "{{ url('api/v1/filter/project/') }}/" + projectId + '/messages'
-    };
-    return routeMap[endpoint] || null;
+    const apiBase = "{{ url('/api/v1/filter/project') }}";
+    return `${apiBase}/${projectId}/${endpoint}`;
 }
 
 document.addEventListener('DOMContentLoaded', function() {

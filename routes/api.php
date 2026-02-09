@@ -28,8 +28,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/analytics/project/{project}/device/{device}', [AnalyticsController::class, 'deviceAnalytics']);
 });
 
-// Advanced filtering and analytics (accessible from web dashboard)
-Route::middleware('auth')->prefix('v1/filter')->name('api.filter.')->group(function () {
+// Advanced filtering and analytics (accessible from web dashboard with CSRF)
+Route::middleware(['web', 'auth'])->prefix('v1/filter')->name('api.filter.')->group(function () {
     Route::get('/project/{project}/messages', [FilterController::class, 'messages'])->name('messages');
     Route::get('/project/{project}/options', [FilterController::class, 'options'])->name('options');
     Route::get('/project/{project}/summary', [FilterController::class, 'summary'])->name('summary');
