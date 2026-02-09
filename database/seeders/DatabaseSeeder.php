@@ -19,6 +19,7 @@ class DatabaseSeeder extends Seeder
             ProjectSeeder::class,
             TopicSeeder::class,
             PermissionSeeder::class,
+            TestDataSeeder::class,
         ]);
         User::factory()->create([
             'name' => 'Admin',

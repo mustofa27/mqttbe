@@ -12,7 +12,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        $middleware->alias([
+            'validate.api.key' => \App\Http\Middleware\ValidateApiKey::class,
+            'enforce.plan.limits' => \App\Http\Middleware\EnforcePlanLimits::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

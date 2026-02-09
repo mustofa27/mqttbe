@@ -10,6 +10,12 @@ use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\PasswordResetController;
 use App\Http\Controllers\ContactController;
+use App\Http\Controllers\UsageController;
+use App\Http\Controllers\ApiKeyController;
+use App\Http\Controllers\WebhookController;
+use App\Http\Controllers\AlertController;
+use App\Http\Controllers\AnalyticsController;
+use App\Http\Controllers\ExportController;
 
 // Public routes
 Route::get('/', function () {
@@ -54,6 +60,46 @@ Route::middleware('auth')->group(function () {
 
     // Permission CRUD routes
     Route::resource('permissions', PermissionController::class);
+
+    // Usage and Analytics routes
+    Route::get('/usage', [UsageController::class, 'dashboard'])->name('usage.dashboard');
+    Route::get('/usage/project/{project}', [UsageController::class, 'projectUsage'])->name('usage.project');
+
+    // API Key management routes
+    Route::get('/api-keys', [ApiKeyController::class, 'index'])->name('api-keys.index');
+    Route::post('/api-keys', [ApiKeyController::class, 'store'])->name('api-keys.store');
+    Route::get('/api-keys/{apiKey}', [ApiKeyController::class, 'show'])->name('api-keys.show');
+    Route::delete('/api-keys/{apiKey}', [ApiKeyController::class, 'destroy'])->name('api-keys.destroy');
+    Route::patch('/api-keys/{apiKey}/deactivate', [ApiKeyController::class, 'deactivate'])->name('api-keys.deactivate');
+    Route::patch('/api-keys/{apiKey}/activate', [ApiKeyController::class, 'activate'])->name('api-keys.activate');
+
+    // Webhooks routes
+    Route::get('/webhooks', [WebhookController::class, 'index'])->name('webhooks.index');
+    Route::post('/webhooks', [WebhookController::class, 'store'])->name('webhooks.store');
+    Route::post('/webhooks/{webhook}/test', [WebhookController::class, 'test'])->name('webhooks.test');
+    Route::patch('/webhooks/{webhook}/toggle', [WebhookController::class, 'toggle'])->name('webhooks.toggle');
+    Route::delete('/webhooks/{webhook}', [WebhookController::class, 'destroy'])->name('webhooks.destroy');
+
+    // Alerts routes
+    Route::get('/alerts', [AlertController::class, 'index'])->name('alerts.index');
+    Route::post('/alerts', [AlertController::class, 'store'])->name('alerts.store');
+    Route::patch('/alerts/{alert}', [AlertController::class, 'update'])->name('alerts.update');
+    Route::patch('/alerts/{alert}/toggle', [AlertController::class, 'toggle'])->name('alerts.toggle');
+    Route::post('/alerts/{alert}/test', [AlertController::class, 'test'])->name('alerts.test');
+    Route::delete('/alerts/{alert}', [AlertController::class, 'destroy'])->name('alerts.destroy');
+
+    // Analytics routes
+    Route::get('/analytics', [AnalyticsController::class, 'dashboard'])->name('analytics.dashboard');
+    Route::get('/analytics/project/{project}/device/{device}', [AnalyticsController::class, 'deviceAnalytics'])->name('analytics.device');
+
+    // Export routes
+    Route::prefix('export')->name('export.')->group(function () {
+        Route::get('/project/{project}/messages', [ExportController::class, 'messagesCSV'])->name('messages');
+        Route::get('/project/{project}/usage', [ExportController::class, 'usageCSV'])->name('usage');
+        Route::get('/project/{project}/analytics', [ExportController::class, 'analyticsSummaryCSV'])->name('analytics');
+        Route::get('/project/{project}/devices', [ExportController::class, 'deviceActivityCSV'])->name('devices');
+        Route::get('/project/{project}/hourly-stats', [ExportController::class, 'hourlyStatsCSV'])->name('hourly');
+    });
 
     // Subscription management routes
     Route::prefix('subscription')->name('subscription.')->group(function () {
