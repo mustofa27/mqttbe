@@ -67,7 +67,7 @@ class AnalyticsController extends Controller
             ->all();
 
         // Fill missing dates with 0
-        $period = \CarbonPeriod::create($from->copy()->startOfDay(), $to->copy()->endOfDay());
+        $period = CarbonPeriod::create($from->copy()->startOfDay(), $to->copy()->endOfDay());
         $labels = [];
         $data = [];
 
@@ -350,7 +350,7 @@ class AnalyticsController extends Controller
             ->map(fn($group) => $group->count())
             ->all();
 
-        $period = \CarbonPeriod::create($from->copy()->startOfDay(), $to->copy()->endOfDay());
+        $period = CarbonPeriod::create($from->copy()->startOfDay(), $to->copy()->endOfDay());
         $labels = [];
         $data = [];
 
