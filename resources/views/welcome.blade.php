@@ -62,6 +62,19 @@
             list-style: none;
         }
 
+        .menu-toggle {
+            display: none;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(102, 126, 234, 0.1);
+            border: 1px solid rgba(102, 126, 234, 0.4);
+            color: #333;
+            padding: 0.45rem 0.85rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
         .navbar-nav a {
             color: #333;
             text-decoration: none;
@@ -365,6 +378,27 @@
         }
 
         @media (max-width: 768px) {
+            .navbar-container {
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+
+            .navbar-nav {
+                width: 100%;
+                flex-direction: column;
+                align-items: center;
+                display: none;
+                padding: 0.5rem 0 0.75rem;
+            }
+
+            .navbar-nav.is-open {
+                display: flex;
+            }
+
+            .menu-toggle {
+                display: inline-flex;
+            }
+
             .hero h1 {
                 font-size: 2rem;
             }
@@ -374,7 +408,7 @@
             }
 
             .navbar-nav {
-                gap: 1rem;
+                gap: 0.75rem;
             }
 
             .hero-buttons {
@@ -434,7 +468,12 @@
                     📡 <span>ICMQTT</span>
                 </a>
                 @if (Route::has('login'))
-                    <nav class="navbar-nav">
+                    <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="primary-menu">
+                        ☰ Menu
+                    </button>
+                    <nav id="primary-menu" class="navbar-nav">
+                        <a href="{{ route('legal.policies') }}">Syarat & Kebijakan</a>
+                        <a href="{{ route('contact.show') }}">Contact</a>
                         @auth
                             <a href="{{ url('/dashboard') }}">Dashboard</a>
                             <form method="POST" action="{{ route('logout') }}" style="display: inline;">
@@ -678,6 +717,22 @@
                 opacity: 0.95;
             }
         </style>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const toggle = document.querySelector('.menu-toggle');
+                const menu = document.getElementById('primary-menu');
+
+                if (!toggle || !menu) {
+                    return;
+                }
+
+                toggle.addEventListener('click', () => {
+                    const isOpen = menu.classList.toggle('is-open');
+                    toggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+                });
+            });
+        </script>
 
         @if (Route::has('login'))
             <div class="h-14.5 hidden lg:block"></div>

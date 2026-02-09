@@ -9,11 +9,16 @@ use App\Http\Controllers\TopicController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\PasswordResetController;
+use App\Http\Controllers\ContactController;
 
 // Public routes
 Route::get('/', function () {
     return view('welcome');
 })->name('home');
+
+Route::view('/kebijakan', 'legal.policies')->name('legal.policies');
+Route::get('/contact', [ContactController::class, 'show'])->name('contact.show');
+Route::post('/contact', [ContactController::class, 'send'])->name('contact.send');
 
 // Authentication routes
 Route::middleware('guest')->group(function () {
