@@ -7,8 +7,10 @@ use App\Models\Project;
 use App\Models\Device;
 use App\Models\Topic;
 use App\Models\Message;
+use App\Models\UsageLog;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
 class TestDataSeeder extends Seeder
@@ -134,6 +136,9 @@ class TestDataSeeder extends Seeder
         // Create realistic messages for the past 30 days
         $this->createRealisticMessages($project1, $project2, $project3, $temperatureTopic, $statusTopic, $humidityTopic);
 
+        // Backfill usage logs from messages
+        $this->createUsageLogsFromMessages();
+
         echo "\n✅ Test data seeded successfully!\n";
         echo "Test Users:\n";
         echo "  - testuser@example.com (password: password)\n";
@@ -227,6 +232,41 @@ class TestDataSeeder extends Seeder
                     ]);
                 }
             }
+        }
+    }
+
+    private function createUsageLogsFromMessages(): void
+    {
+        $projectUsers = Project::pluck('user_id', 'id');
+
+        $hourlyCounts = Message::query()
+            ->selectRaw('project_id, DATE_FORMAT(created_at, "%Y-%m-%d %H:00:00") as hour_start, COUNT(*) as message_count')
+            ->groupBy('project_id', 'hour_start')
+            ->orderBy('hour_start')
+            ->get();
+
+        foreach ($hourlyCounts as $row) {
+            $projectId = (int) $row->project_id;
+            $userId = $projectUsers[$projectId] ?? null;
+            if (!$userId) {
+                continue;
+            }
+
+            $hourStart = Carbon::parse($row->hour_start)->startOfHour();
+            $hourEnd = $hourStart->copy()->endOfHour();
+
+            UsageLog::updateOrCreate(
+                [
+                    'project_id' => $projectId,
+                    'user_id' => $userId,
+                    'period_type' => 'hour',
+                    'period_start' => $hourStart,
+                ],
+                [
+                    'period_end' => $hourEnd,
+                    'message_count' => (int) $row->message_count,
+                ]
+            );
         }
     }
 }
