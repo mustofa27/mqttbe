@@ -22,6 +22,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'is_admin',
         'subscription_tier',
         'subscription_expires_at',
         'subscription_active',

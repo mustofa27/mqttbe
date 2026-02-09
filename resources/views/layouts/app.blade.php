@@ -556,7 +556,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="{{ route('subscription.index') }}" class="@if(strpos(Route::currentRouteName(), 'subscription') !== false) active @endif">
+                    <a href="{{ route('subscription.index') }}" class="@if(strpos(Route::currentRouteName(), 'subscription.') !== false) active @endif">
                         💳 Subscription
                     </a>
                 </li>
@@ -599,6 +599,29 @@
                         🔐 Permissions
                     </a>
                 </li>
+
+                @auth
+                    @if (auth()->user()->is_admin)
+                        <li class="sidebar-section">
+                            <div class="sidebar-section-title">Admin</div>
+                        </li>
+                        <li>
+                            <a href="{{ route('admin.users.index') }}" class="@if(strpos(Route::currentRouteName(), 'admin.users') !== false) active @endif">
+                                👥 Users
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ route('admin.subscription-plans.index') }}" class="@if(strpos(Route::currentRouteName(), 'admin.subscription-plans') !== false) active @endif">
+                                📋 Plans
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ route('admin.subscription-plans.statistics') }}" class="@if(Route::currentRouteName() === 'admin.subscription-plans.statistics') active @endif">
+                                📊 Plan Stats
+                            </a>
+                        </li>
+                    @endif
+                @endauth
             </ul>
         </aside>
 

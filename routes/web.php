@@ -16,6 +16,8 @@ use App\Http\Controllers\WebhookController;
 use App\Http\Controllers\AlertController;
 use App\Http\Controllers\AnalyticsController;
 use App\Http\Controllers\ExportController;
+use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\SubscriptionPlanController;
 
 // Public routes
 Route::get('/', function () {
@@ -111,5 +113,19 @@ Route::middleware('auth')->group(function () {
         Route::post('/cancel', [SubscriptionController::class, 'cancel'])->name('cancel');
         Route::get('/payment/success', [SubscriptionController::class, 'paymentSuccess'])->name('payment.success');
         Route::get('/payment/failed', [SubscriptionController::class, 'paymentFailed'])->name('payment.failed');
+    });
+
+    // Admin routes (require is_admin = true)
+    Route::middleware('admin')->prefix('admin')->name('admin.')->group(function () {
+        // User management
+        Route::resource('users', UserController::class);
+        Route::patch('/users/{user}/toggle-admin', [UserController::class, 'toggleAdmin'])->name('users.toggle-admin');
+
+        // Subscription plan management
+        Route::resource('subscription-plans', SubscriptionPlanController::class, [
+            'only' => ['index', 'edit', 'update']
+        ]);
+        Route::patch('/subscription-plans/{plan}/reset', [SubscriptionPlanController::class, 'reset'])->name('subscription-plans.reset');
+        Route::get('/subscription-plans/statistics', [SubscriptionPlanController::class, 'statistics'])->name('subscription-plans.statistics');
     });
 });
