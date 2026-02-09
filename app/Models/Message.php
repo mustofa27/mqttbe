@@ -35,4 +35,9 @@ class Message extends Model
     {
         return $this->belongsTo(Topic::class);
     }
+
+    public function device(): BelongsTo
+    {
+        return $this->belongsTo(Device::class);
+    }
 }
