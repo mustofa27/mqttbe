@@ -28,6 +28,15 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/analytics/project/{project}/device/{device}', [AnalyticsController::class, 'deviceAnalytics']);
 });
 
+// Advanced filtering and analytics (accessible from web dashboard)
+Route::middleware('auth')->prefix('v1/filter')->name('api.filter.')->group(function () {
+    Route::get('/project/{project}/messages', [FilterController::class, 'messages'])->name('messages');
+    Route::get('/project/{project}/options', [FilterController::class, 'options'])->name('options');
+    Route::get('/project/{project}/summary', [FilterController::class, 'summary'])->name('summary');
+    Route::get('/project/{project}/device-activity', [FilterController::class, 'deviceActivity'])->name('device-activity');
+    Route::get('/project/{project}/time-series', [FilterController::class, 'timeSeries'])->name('time-series');
+});
+
 // API v1 routes (with Bearer token authentication)
 Route::prefix('v1')->middleware(['api', 'validate.api.key', 'enforce.plan.limits'])->group(function () {
     // Projects
@@ -55,13 +64,4 @@ Route::prefix('v1')->middleware(['api', 'validate.api.key', 'enforce.plan.limits
     Route::post('/api-keys', [ApiKeyController::class, 'store']);
     Route::delete('/api-keys/{apiKey}', [ApiKeyController::class, 'destroy']);
     Route::post('/api-keys/{apiKey}/deactivate', [ApiKeyController::class, 'deactivate']);
-
-    // Advanced filtering and analytics
-    Route::prefix('filter')->name('api.filter.')->group(function () {
-        Route::get('/project/{project}/messages', [FilterController::class, 'messages'])->name('messages');
-        Route::get('/project/{project}/options', [FilterController::class, 'options'])->name('options');
-        Route::get('/project/{project}/summary', [FilterController::class, 'summary'])->name('summary');
-        Route::get('/project/{project}/device-activity', [FilterController::class, 'deviceActivity'])->name('device-activity');
-        Route::get('/project/{project}/time-series', [FilterController::class, 'timeSeries'])->name('time-series');
-    });
 });
