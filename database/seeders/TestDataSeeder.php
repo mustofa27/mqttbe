@@ -9,6 +9,7 @@ use App\Models\Topic;
 use App\Models\Message;
 use App\Models\UsageLog;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
@@ -48,6 +49,7 @@ class TestDataSeeder extends Seeder
             [
                 'name' => 'Smart Home System',
                 'project_secret' => Hash::make('SecretKey@2026Home'),
+                'project_secret_plain' => Crypt::encryptString('SecretKey@2026Home'),
                 'active' => true,
             ]
         );
@@ -57,6 +59,7 @@ class TestDataSeeder extends Seeder
             [
                 'name' => 'Weather Monitoring Station',
                 'project_secret' => Hash::make('WeatherSecret@2026'),
+                'project_secret_plain' => Crypt::encryptString('WeatherSecret@2026'),
                 'active' => true,
             ]
         );
@@ -67,6 +70,7 @@ class TestDataSeeder extends Seeder
             [
                 'name' => 'Industrial IoT Platform',
                 'project_secret' => Hash::make('IndustrialSecret@2026'),
+                'project_secret_plain' => Crypt::encryptString('IndustrialSecret@2026'),
                 'active' => true,
             ]
         );

@@ -13,11 +13,13 @@ class Project extends Model
         'name',
         'project_key',
         'project_secret',
+        'project_secret_plain',
         'active',
     ];
 
     protected $hidden = [
         'project_secret',
+        'project_secret_plain',
     ];
 
     /**

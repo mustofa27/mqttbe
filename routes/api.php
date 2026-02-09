@@ -10,9 +10,11 @@ use App\Http\Controllers\Api\MessageController;
 use App\Http\Controllers\Api\ApiKeyController;
 use App\Http\Controllers\Api\FilterController;
 use App\Http\Controllers\AnalyticsController;
+use App\Http\Controllers\MqttMessageController;
 
 Route::post('/mqtt/auth', [MqttAuthController::class, 'auth']);
 Route::post('/mqtt/acl', [MqttAclController::class, 'acl']);
+Route::post('/mqtt/message', [MqttMessageController::class, 'store']);
 
 // Paypool webhook (no auth required)
 Route::post('/paypool/webhook', [PaypoolWebhookController::class, 'handle']);

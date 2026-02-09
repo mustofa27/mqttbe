@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Project;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Hash;
 
 class ProjectController extends Controller
@@ -40,6 +41,7 @@ class ProjectController extends Controller
             'name' => $validated['name'],
             'project_key' => $validated['project_key'],
             'project_secret' => Hash::make($validated['project_secret']),
+            'project_secret_plain' => Crypt::encryptString($validated['project_secret']),
             'active' => true,
         ]);
 

@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Project;
+use Illuminate\Support\Facades\Crypt;
 
 class MqttPublishService
 {
@@ -23,7 +24,14 @@ class MqttPublishService
             $brokerHost = config('mqtt.host') ?? request()->getHost();
             $brokerPort = config('mqtt.port') ?? 1883;
             $username = $project->project_key;
-            $password = $project->project_secret;
+            $password = $project->project_secret_plain
+                ? Crypt::decryptString($project->project_secret_plain)
+                : null;
+
+            if (!$password) {
+                \Log::error("MQTT publish missing plaintext secret for project {$project->id}");
+                return false;
+            }
 
             // Create socket connection to MQTT broker
             $socket = @fsockopen($brokerHost, $brokerPort, $errno, $errstr, 5);

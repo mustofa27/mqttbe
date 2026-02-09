@@ -14,7 +14,7 @@ class MqttAuthController extends Controller
         /**
          * Payload dari Mosquitto biasanya berisi:
          * username  -> project_key
-         * password  -> project_secret (plaintext)
+         * password  -> project_secret (plaintext, verified via hash)
          * clientid  -> device_id
          */
 
