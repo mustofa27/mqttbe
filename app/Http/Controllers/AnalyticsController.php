@@ -8,6 +8,8 @@ use App\Models\Device;
 use App\Services\UsageTrackingService;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Carbon\CarbonPeriod;
+use Illuminate\Support\Facades\DB;
 
 class AnalyticsController extends Controller
 {
@@ -291,7 +293,7 @@ class AnalyticsController extends Controller
 
         $avgMessageSize = Message::where('project_id', $project->id)
             ->whereBetween('created_at', [$from, $to])
-            ->average(\Illuminate\Database\Query\Expression::raw('CHAR_LENGTH(payload)'));
+            ->average(DB::raw('CHAR_LENGTH(payload)'));
 
         $qos1Messages = Message::where('project_id', $project->id)
             ->where('qos', '>=', 1)
