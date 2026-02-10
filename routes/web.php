@@ -48,6 +48,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/profile', [DashboardController::class, 'profile'])->name('profile');
     Route::put('/profile', [DashboardController::class, 'updateProfile'])->name('updateProfile');
+        // Regenerate project secret
+        Route::post('/projects/{project}/regenerate-secret', [ProjectController::class, 'regenerateSecret'])->name('projects.regenerate-secret');
     Route::delete('/profile', [DashboardController::class, 'deleteAccount'])->name('deleteAccount');
 
     // Project CRUD routes

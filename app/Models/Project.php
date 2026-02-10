@@ -45,4 +45,15 @@ class Project extends Model
     {
         return $this->hasMany(Topic::class);
     }
+    
+        /**
+         * Regenerate project secret and update fields.
+         */
+        public function regenerateSecret(): void
+        {
+            $newSecret = bin2hex(random_bytes(32));
+            $this->project_secret = \Illuminate\Support\Facades\Hash::make($newSecret);
+            $this->project_secret_plain = \Illuminate\Support\Facades\Crypt::encryptString($newSecret);
+            $this->save();
+        }
 }

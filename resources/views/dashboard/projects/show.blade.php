@@ -20,6 +20,10 @@
                 <strong>Created:</strong> {{ $project->created_at->format('M d, Y') }}
             </p>
             <a href="{{ route('projects.edit', $project) }}" class="btn btn-primary" style="padding: 0.5rem 1rem;">Edit Project</a>
+            <form method="POST" action="{{ route('projects.regenerate-secret', $project) }}" style="margin-top: 1rem;">
+                @csrf
+                <button type="submit" class="btn btn-warning" style="padding: 0.5rem 1rem; background: #f59e42; color: white; border: none; border-radius: 6px;">Regenerate Secret</button>
+            </form>
         </div>
 
         <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">

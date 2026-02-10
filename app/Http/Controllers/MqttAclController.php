@@ -1,6 +1,5 @@
-use Illuminate\Support\Facades\Redis;
 <?php
-
+use Illuminate\Support\Facades\Redis;
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
