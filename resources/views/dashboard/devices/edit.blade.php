@@ -22,7 +22,7 @@
 
         <div style="margin-bottom: 1.5rem;">
             <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Device ID</label>
-            <input type="text" name="device_id" value="{{ old('device_id', $device->device_id) }}" required style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 6px; font-size: 1rem;">
+            <input type="text" name="device_id" value="{{ old('device_id', substr($device->device_id, 0, -5)) }}" required style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 6px; font-size: 1rem;">
             @error('device_id')
                 <p style="color: #ef4444; font-size: 0.875rem; margin-top: 0.25rem;">{{ $message }}</p>
             @enderror
