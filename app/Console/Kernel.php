@@ -8,6 +8,7 @@ class Kernel extends ConsoleKernel
 {
     protected $commands = [
         \App\Console\Commands\MqttSubscribeCommand::class,
+        \App\Console\Commands\MqttSubscribeAllCommand::class,
     ];
 
     protected function schedule(\Illuminate\Console\Scheduling\Schedule $schedule): void
