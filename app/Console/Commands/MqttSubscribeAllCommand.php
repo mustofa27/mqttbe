@@ -20,6 +20,7 @@ class MqttSubscribeAllCommand extends Command
                 continue;
             }
             $cmd = 'php artisan mqtt:subscribe --project_id=' . $project->id . ' > /dev/null 2>&1 &';
+            \Log::info('Launching command: ' . $cmd);
             exec($cmd);
             $this->info("Started mqtt:subscribe for project ID {$project->id}");
             $count++;
