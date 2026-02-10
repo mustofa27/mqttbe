@@ -206,109 +206,63 @@
 </div>
 
 <div class="pricing-grid">
-    <!-- Starter Plan -->
-    <div class="pricing-card {{ $currentTier === 'starter' ? 'current' : '' }}">
-        @if($currentTier === 'starter')
-            <div class="current-badge">CURRENT PLAN</div>
-        @endif
-        
-        <div class="tier-name">Starter</div>
-        <div class="tier-price">Rp 299.000<small>/bulan</small></div>
-        <div class="tier-description">Perfect for small projects and growing teams</div>
-
-        <ul class="features-list">
-            <li>5 Projects</li>
-            <li>50 Devices per project</li>
-            <li>20 Topics per project</li>
-            <li>1,000 msg/hour rate limit</li>
-            <li>90 days data retention</li>
-            <li>Analytics Dashboard</li>
-            <li>API Access</li>
-            <li>Email Support</li>
-        </ul>
-
-        @if($currentTier === 'starter')
-            <button class="btn-select-plan disabled" disabled>Current Plan</button>
-        @elseif(in_array($currentTier, ['professional', 'enterprise']))
-            <a href="#" class="btn-select-plan secondary" onclick="alert('Please cancel your current subscription first to downgrade.'); return false;">
-                Downgrade to Starter
-            </a>
-        @else
-            <a href="#" class="btn-select-plan primary" onclick="openPaymentModal('starter', 299000); return false;">
-                Upgrade to Starter
-            </a>
-        @endif
-    </div>
-
-    <!-- Professional Plan -->
-    <div class="pricing-card recommended {{ $currentTier === 'professional' ? 'current' : '' }}">
-        @if($currentTier !== 'professional')
-            <div class="recommended-badge">RECOMMENDED</div>
-        @else
-            <div class="current-badge">CURRENT PLAN</div>
-        @endif
-        
-        <div class="tier-name">Professional</div>
-        <div class="tier-price">Rp 1.199.000<small>/bulan</small></div>
-        <div class="tier-description">For professional developers and businesses</div>
-
-        <ul class="features-list">
-            <li>20 Projects</li>
-            <li>500 Devices per project</li>
-            <li>100 Topics per project</li>
-            <li>10,000 msg/hour rate limit</li>
-            <li>365 days data retention</li>
-            <li>Advanced Analytics</li>
-            <li>Webhooks Integration</li>
-            <li>Full API Access</li>
-            <li>Priority Support</li>
-        </ul>
-
-        @if($currentTier === 'professional')
-            <button class="btn-select-plan disabled" disabled>Current Plan</button>
-        @elseif($currentTier === 'enterprise')
-            <a href="#" class="btn-select-plan secondary" onclick="alert('Please cancel your current subscription first to downgrade.'); return false;">
-                Downgrade to Professional
-            </a>
-        @else
-            <a href="#" class="btn-select-plan primary" onclick="openPaymentModal('professional', 1199000); return false;">
-                Upgrade to Professional
-            </a>
-        @endif
-    </div>
-
-    <!-- Enterprise Plan -->
-    <div class="pricing-card {{ $currentTier === 'enterprise' ? 'current' : '' }}">
-        @if($currentTier === 'enterprise')
-            <div class="current-badge">CURRENT PLAN</div>
-        @endif
-        
-        <div class="tier-name">Enterprise</div>
-        <div class="tier-price">Rp 4.499.000<small>/bulan</small></div>
-        <div class="tier-description">Unlimited power for large-scale deployments</div>
-
-        <ul class="features-list">
-            <li>Unlimited Projects</li>
-            <li>Unlimited Devices</li>
-            <li>Unlimited Topics</li>
-            <li>Unlimited rate limit</li>
-            <li>Unlimited data retention</li>
-            <li>Advanced Analytics</li>
-            <li>Webhooks Integration</li>
-            <li>Full API Access</li>
-            <li>Dedicated Support</li>
-            <li>Custom SLA</li>
-            <li>White-label options</li>
-        </ul>
-
-        @if($currentTier === 'enterprise')
-            <button class="btn-select-plan disabled" disabled>Current Plan</button>
-        @else
-            <a href="#" class="btn-select-plan primary" onclick="openPaymentModal('enterprise', 4499000); return false;">
-                Upgrade to Enterprise
-            </a>
-        @endif
-    </div>
+    @php
+        $upgradePlans = \App\Models\SubscriptionPlan::where('tier', '!=', 'free')->orderBy('price')->get();
+    @endphp
+    @foreach ($upgradePlans as $plan)
+        <div class="pricing-card {{ $plan->tier === 'professional' ? 'recommended' : '' }} {{ $currentTier === $plan->tier ? 'current' : '' }}">
+            @if($plan->tier === 'professional' && $currentTier !== 'professional')
+                <div class="recommended-badge">RECOMMENDED</div>
+            @elseif($currentTier === $plan->tier)
+                <div class="current-badge">CURRENT PLAN</div>
+            @endif
+            <div class="tier-name">{{ ucfirst($plan->tier) }}</div>
+            <div class="tier-price">{{ $plan->price == 0 ? 'Free' : 'Rp ' . number_format($plan->price, 0, ',', '.') }}<small>/bulan</small></div>
+            <div class="tier-description">{{ $plan->tier === 'starter' ? 'Perfect for small projects and growing teams' : ($plan->tier === 'professional' ? 'For professional developers and businesses' : 'Unlimited power for large-scale deployments') }}</div>
+            <ul class="features-list">
+                <li>{{ $plan->max_projects == -1 ? 'Unlimited Projects' : $plan->max_projects . ' Projects' }}</li>
+                <li>{{ $plan->max_devices_per_project == -1 ? 'Unlimited Devices' : $plan->max_devices_per_project . ' Devices per project' }}</li>
+                <li>{{ $plan->max_topics_per_project == -1 ? 'Unlimited Topics' : $plan->max_topics_per_project . ' Topics per project' }}</li>
+                <li>{{ $plan->rate_limit_per_hour == -1 ? 'Unlimited rate limit' : number_format($plan->rate_limit_per_hour) . ' msg/hour rate limit' }}</li>
+                <li>{{ $plan->data_retention_days == -1 ? 'Unlimited data retention' : $plan->data_retention_days . ' days data retention' }}</li>
+                @if ($plan->analytics_enabled)
+                    <li>Analytics Dashboard</li>
+                @endif
+                @if ($plan->advanced_analytics_enabled)
+                    <li>Advanced Analytics</li>
+                @endif
+                @if ($plan->webhooks_enabled)
+                    <li>Webhooks Integration</li>
+                @endif
+                @if ($plan->api_access)
+                    <li>API Access</li>
+                @endif
+                @if ($plan->priority_support)
+                    <li>Priority Support</li>
+                @endif
+                @if ($plan->tier === 'enterprise')
+                    <li>Dedicated Support</li>
+                    <li>Custom SLA</li>
+                    <li>White-label options</li>
+                @endif
+            </ul>
+            @if($currentTier === $plan->tier)
+                <button class="btn-select-plan disabled" disabled>Current Plan</button>
+            @elseif(in_array($currentTier, ['professional', 'enterprise']) && $plan->tier === 'starter')
+                <a href="#" class="btn-select-plan secondary" onclick="alert('Please cancel your current subscription first to downgrade.'); return false;">
+                    Downgrade to Starter
+                </a>
+            @elseif($currentTier === 'enterprise' && $plan->tier === 'professional')
+                <a href="#" class="btn-select-plan secondary" onclick="alert('Please cancel your current subscription first to downgrade.'); return false;">
+                    Downgrade to Professional
+                </a>
+            @else
+                <a href="#" class="btn-select-plan primary" onclick="openPaymentModal('{{ $plan->tier }}', {{ $plan->price }}); return false;">
+                    Upgrade to {{ ucfirst($plan->tier) }}
+                </a>
+            @endif
+        </div>
+    @endforeach
 </div>
 
 <div style="text-align: center; margin-top: 3rem; padding: 2rem; background: #f8f9fa; border-radius: 8px;">

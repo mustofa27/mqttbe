@@ -590,93 +590,50 @@
             <div class="container">
                 <h2>Simple, Transparent Pricing</h2>
                 <p>Choose the plan that fits your needs. Start free, upgrade anytime.</p>
-                
                 <div class="pricing-grid">
-                    <!-- Free Plan -->
-                    <div class="pricing-card">
-                        <div class="pricing-tier">Free</div>
-                        <div class="pricing-price">Rp 0<small>/bulan</small></div>
-                        <ul class="pricing-features">
-                            <li>1 Project</li>
-                            <li>5 Devices per project</li>
-                            <li>3 Topics per project</li>
-                            <li>100 msg/hour</li>
-                            <li>30 days retention</li>
-                            <li>Basic support</li>
-                        </ul>
-                        @guest
-                            <a href="{{ route('register') }}" class="btn btn-secondary">Start Free</a>
-                        @else
-                            <a href="{{ url('/dashboard') }}" class="btn btn-secondary">Go to Dashboard</a>
-                        @endguest
-                    </div>
-
-                    <!-- Starter Plan -->
-                    <div class="pricing-card">
-                        <div class="pricing-tier">Starter</div>
-                        <div class="pricing-price">Rp 299.000<small>/bulan</small></div>
-                        <ul class="pricing-features">
-                            <li>5 Projects</li>
-                            <li>50 Devices per project</li>
-                            <li>20 Topics per project</li>
-                            <li>1,000 msg/hour</li>
-                            <li>90 days retention</li>
-                            <li>Analytics dashboard</li>
-                            <li>API access</li>
-                            <li>Email support</li>
-                        </ul>
-                        @guest
-                            <a href="{{ route('register') }}" class="btn btn-primary">Get Started</a>
-                        @else
-                            <a href="{{ route('subscription.upgrade') }}" class="btn btn-primary">Upgrade</a>
-                        @endguest
-                    </div>
-
-                    <!-- Professional Plan -->
-                    <div class="pricing-card popular">
-                        <div class="popular-badge">POPULAR</div>
-                        <div class="pricing-tier">Professional</div>
-                        <div class="pricing-price">Rp 1.199.000<small>/bulan</small></div>
-                        <ul class="pricing-features">
-                            <li>20 Projects</li>
-                            <li>500 Devices per project</li>
-                            <li>100 Topics per project</li>
-                            <li>10,000 msg/hour</li>
-                            <li>365 days retention</li>
-                            <li>Advanced analytics</li>
-                            <li>Webhooks integration</li>
-                            <li>Full API access</li>
-                            <li>Priority support</li>
-                        </ul>
-                        @guest
-                            <a href="{{ route('register') }}" class="btn btn-primary">Get Started</a>
-                        @else
-                            <a href="{{ route('subscription.upgrade') }}" class="btn btn-primary">Upgrade</a>
-                        @endguest
-                    </div>
-
-                    <!-- Enterprise Plan -->
-                    <div class="pricing-card">
-                        <div class="pricing-tier">Enterprise</div>
-                        <div class="pricing-price">Rp 4.499.000<small>/bulan</small></div>
-                        <ul class="pricing-features">
-                            <li>Unlimited projects</li>
-                            <li>Unlimited devices</li>
-                            <li>Unlimited topics</li>
-                            <li>Unlimited rate limit</li>
-                            <li>Unlimited retention</li>
-                            <li>Advanced analytics</li>
-                            <li>Webhooks integration</li>
-                            <li>Full API access</li>
-                            <li>Dedicated support</li>
-                            <li>Custom SLA</li>
-                        </ul>
-                        @guest
-                            <a href="{{ route('register') }}" class="btn btn-primary">Contact Sales</a>
-                        @else
-                            <a href="{{ route('subscription.upgrade') }}" class="btn btn-primary">Upgrade</a>
-                        @endguest
-                    </div>
+                    @php
+                        $plans = \App\Models\SubscriptionPlan::orderBy('price')->get();
+                    @endphp
+                    @foreach ($plans as $plan)
+                        <div class="pricing-card {{ $plan->tier === 'professional' ? 'popular' : '' }}">
+                            @if ($plan->tier === 'professional')
+                                <div class="popular-badge">POPULAR</div>
+                            @endif
+                            <div class="pricing-tier">{{ ucfirst($plan->tier) }}</div>
+                            <div class="pricing-price">{{ $plan->price == 0 ? 'Free' : 'Rp ' . number_format($plan->price, 0, ',', '.') }}<small>/bulan</small></div>
+                            <ul class="pricing-features">
+                                <li>{{ $plan->max_projects == -1 ? 'Unlimited projects' : $plan->max_projects . ' Projects' }}</li>
+                                <li>{{ $plan->max_devices_per_project == -1 ? 'Unlimited devices' : $plan->max_devices_per_project . ' Devices per project' }}</li>
+                                <li>{{ $plan->max_topics_per_project == -1 ? 'Unlimited topics' : $plan->max_topics_per_project . ' Topics per project' }}</li>
+                                <li>{{ $plan->rate_limit_per_hour == -1 ? 'Unlimited rate limit' : number_format($plan->rate_limit_per_hour) . ' msg/hour' }}</li>
+                                <li>{{ $plan->data_retention_days == -1 ? 'Unlimited retention' : $plan->data_retention_days . ' days retention' }}</li>
+                                @if ($plan->analytics_enabled)
+                                    <li>Analytics dashboard</li>
+                                @endif
+                                @if ($plan->advanced_analytics_enabled)
+                                    <li>Advanced analytics</li>
+                                @endif
+                                @if ($plan->webhooks_enabled)
+                                    <li>Webhooks integration</li>
+                                @endif
+                                @if ($plan->api_access)
+                                    <li>API access</li>
+                                @endif
+                                @if ($plan->priority_support)
+                                    <li>Priority support</li>
+                                @endif
+                            </ul>
+                            @guest
+                                <a href="{{ route('register') }}" class="btn btn-{{ $plan->price == 0 ? 'secondary' : 'primary' }}">
+                                    {{ $plan->price == 0 ? 'Start Free' : ($plan->tier === 'enterprise' ? 'Contact Sales' : 'Get Started') }}
+                                </a>
+                            @else
+                                <a href="{{ $plan->price == 0 ? url('/dashboard') : route('subscription.upgrade') }}" class="btn btn-{{ $plan->price == 0 ? 'secondary' : 'primary' }}">
+                                    {{ $plan->price == 0 ? 'Go to Dashboard' : 'Upgrade' }}
+                                </a>
+                            @endguest
+                        </div>
+                    @endforeach
                 </div>
             </div>
         </div>
