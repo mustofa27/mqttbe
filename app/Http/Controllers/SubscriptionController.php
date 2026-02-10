@@ -108,19 +108,14 @@ class SubscriptionController extends Controller
     {
         $validated = $request->validate([
             'tier' => 'required|in:starter,professional,enterprise',
+            'months' => 'nullable|integer|min:1|max:36',
         ]);
 
         $user = auth()->user();
-        
-        // Define pricing
-        $prices = [
-            'starter' => 299000,
-            'professional' => 1199000,
-            'enterprise' => 4499000,
-        ];
-
         $tier = $validated['tier'];
-        $amount = $prices[$tier];
+        $months = isset($validated['months']) ? (int)$validated['months'] : 1;
+        $plan = SubscriptionPlan::where('tier', $tier)->firstOrFail();
+        $amount = (int) $plan->price * $months;
 
         // Generate unique external ID
         $externalId = 'SUB-' . $user->id . '-' . strtoupper($tier) . '-' . time();
@@ -137,6 +132,7 @@ class SubscriptionController extends Controller
                 'user_name' => $user->name,
                 'user_email' => $user->email,
                 'tier' => $tier,
+                'months' => $months,
             ],
         ]);
 
@@ -147,10 +143,11 @@ class SubscriptionController extends Controller
             'currency' => 'IDR',
             'customer_name' => $user->name,
             'customer_email' => $user->email,
-            'description' => 'ICMQTT ' . ucfirst($tier) . ' Subscription',
+            'description' => 'ICMQTT ' . ucfirst($tier) . ' Subscription (' . $months . ' month' . ($months > 1 ? 's' : '') . ')',
             'metadata' => [
                 'user_id' => $user->id,
                 'tier' => $tier,
+                'months' => $months,
                 'payment_id' => $payment->id,
             ],
             'success_redirect_url' => route('subscription.payment.success', ['external_id' => $externalId]),

@@ -287,21 +287,25 @@
         <form method="POST" action="{{ route('subscription.processUpgrade') }}" id="paymentForm">
             @csrf
             <input type="hidden" name="tier" id="selectedTier">
-            
             <div class="form-group">
                 <label>Selected Plan</label>
                 <input type="text" id="displayTier" readonly style="background: #f8f9fa;">
             </div>
-
             <div class="form-group">
                 <label>Monthly Price</label>
                 <input type="text" id="displayPrice" readonly style="background: #f8f9fa;">
             </div>
-
+            <div class="form-group">
+                <label for="months">Duration (months)</label>
+                <input type="number" name="months" id="months" min="1" value="1" style="background: #f8f9fa; width: 100%; padding: 0.5rem; border-radius: 6px; border: 1px solid #d1d5db;" required>
+            </div>
+            <div class="form-group">
+                <label>Total Price</label>
+                <input type="text" id="displayTotal" readonly style="background: #f8f9fa;">
+            </div>
             <p style="color: #666; margin: 1rem 0; font-size: 0.9rem;">
                 You will be redirected to our secure payment gateway (Paypool) to complete the payment.
             </p>
-
             <button type="submit" class="btn btn-primary" style="width: 100%; padding: 1rem; margin-top: 1rem;">
                 Proceed to Payment
             </button>
@@ -314,17 +318,32 @@
 </div>
 
 <script>
+
+    let currentPlanPrice = 0;
     function openPaymentModal(tier, price) {
         const modal = document.getElementById('paymentModal');
         const modalTitle = document.getElementById('modalTitle');
         const selectedTier = document.getElementById('selectedTier');
         const displayTier = document.getElementById('displayTier');
         const displayPrice = document.getElementById('displayPrice');
+        const displayTotal = document.getElementById('displayTotal');
+        const monthsInput = document.getElementById('months');
 
+        currentPlanPrice = price;
         modalTitle.textContent = 'Upgrade to ' + tier.charAt(0).toUpperCase() + tier.slice(1);
         selectedTier.value = tier;
         displayTier.value = tier.charAt(0).toUpperCase() + tier.slice(1);
         displayPrice.value = 'Rp ' + price.toLocaleString('id-ID') + '/bulan';
+        monthsInput.value = 1;
+        displayTotal.value = 'Rp ' + price.toLocaleString('id-ID') + ' / 1 bulan';
+
+        monthsInput.oninput = function() {
+            let months = parseInt(monthsInput.value);
+            if (isNaN(months) || months < 1) months = 1;
+            monthsInput.value = months;
+            const total = price * months;
+            displayTotal.value = 'Rp ' + total.toLocaleString('id-ID') + ' / ' + months + ' bulan';
+        };
 
         modal.classList.add('active');
     }
