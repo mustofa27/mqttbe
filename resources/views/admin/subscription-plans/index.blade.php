@@ -54,6 +54,10 @@
                             <div style="color: #6b7280; font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.25rem;">Rate Limit</div>
                             <div style="font-weight: 700; color: #1f2937; font-size: 1.1rem;">{{ $details['rate_limit_per_hour'] == -1 ? '∞' : $details['rate_limit_per_hour'] }}<span style="font-size: 0.8rem; font-weight: 400;">/hr</span></div>
                         </div>
+                        <div>
+                            <div style="color: #6b7280; font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.25rem;">Retention</div>
+                            <div style="font-weight: 700; color: #1f2937; font-size: 1.1rem;">{{ $details['data_retention_days'] == -1 ? '∞' : $details['data_retention_days'] }}<span style="font-size: 0.8rem; font-weight: 400;"> days</span></div>
+                        </div>
                     </div>
 
                     <div style="border-top: 1px solid #e5e7eb; padding-top: 1rem; margin-bottom: 1rem;">

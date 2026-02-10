@@ -10,10 +10,16 @@ class SubscriptionPlan extends Model
         'name',
         'tier',
         'price',
+        'max_projects',
         'max_devices_per_project',
         'max_topics_per_project',
+        'rate_limit_per_hour',
+        'data_retention_days',
         'analytics_enabled',
         'advanced_analytics_enabled',
+        'webhooks_enabled',
+        'api_access',
+        'priority_support',
     ];
 
     // Optionally, add helper methods to fetch limits by tier
