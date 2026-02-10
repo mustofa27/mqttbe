@@ -43,15 +43,21 @@ class PaypoolWebhookController extends Controller
 
         // If payment is successful, upgrade user subscription
         if ($status === 'paid' && $payment->user) {
+            $months = 1;
+            if (isset($payment->metadata['months']) && is_numeric($payment->metadata['months'])) {
+                $months = (int) $payment->metadata['months'];
+                if ($months < 1) $months = 1;
+            }
             $payment->user->update([
                 'subscription_tier' => $payment->tier,
                 'subscription_active' => true,
-                'subscription_expires_at' => now()->addMonth(), // Monthly billing
+                'subscription_expires_at' => now()->addMonths($months),
             ]);
 
             Log::info('User subscription upgraded', [
                 'user_id' => $payment->user_id,
                 'tier' => $payment->tier,
+                'months' => $months,
             ]);
         }
 
