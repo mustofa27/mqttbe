@@ -1,3 +1,4 @@
+use Illuminate\Support\Facades\Redis;
 <?php
 
 namespace App\Http\Controllers;
@@ -27,7 +28,37 @@ class MqttAclController extends Controller
         ) {
             return response('deny', 403);
         }
-
+        // Rate limit only for publish (acc == 2)
+        if ($request->acc == 2) {
+            // Get project and device first (reuse below logic)
+            $project = Project::where('project_key', $request->username)
+                ->where('active', true)
+                ->first();
+            $device = null;
+            if ($project) {
+                $device = Device::where('project_id', $project->id)
+                    ->where('device_id', $request->clientid)
+                    ->where('active', true)
+                    ->first();
+            }
+            if ($project && $device) {
+                $user = $project->user;
+                $limits = $user->getSubscriptionLimits();
+                $rateLimit = $limits['rate_limit_per_hour'] ?? null;
+                if ($rateLimit && $rateLimit > 0) {
+                    $key = 'mqtt:rate:user:' . $user->id . ':' . date('YmdH');
+                    $count = Redis::incr($key);
+                    if ($count == 1) {
+                        // Set expiry to end of hour
+                        $ttl = 3600 - (time() % 3600);
+                        Redis::expire($key, $ttl);
+                    }
+                    if ($count > $rateLimit) {
+                        return response('rate limit exceeded', 403);
+                    }
+                }
+            }
+        }
         /**
          * STEP 1 — Project
          */

@@ -1,5 +1,4 @@
 <?php
-
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
@@ -127,5 +126,11 @@ Route::middleware('auth')->group(function () {
         ]);
         Route::patch('/subscription-plans/{plan}/reset', [SubscriptionPlanController::class, 'reset'])->name('subscription-plans.reset');
         Route::get('/subscription-plans/statistics', [SubscriptionPlanController::class, 'statistics'])->name('subscription-plans.statistics');
+    });
+    // Message History (only for users with advanced analytics access)
+    Route::middleware(['auth'])->group(function () {
+        Route::get('/messages/history', [App\Http\Controllers\MessageHistoryController::class, 'index'])
+            ->name('messages.history')
+            ->middleware('can:access-advanced-analytics');
     });
 });

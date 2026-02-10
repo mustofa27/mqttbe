@@ -74,7 +74,8 @@ class User extends Authenticatable
      */
     public function getSubscriptionLimits(): array
     {
-        return SubscriptionPlan::getLimits($this->subscription_tier ?? 'free');
+        $plan = SubscriptionPlan::getLimits($this->subscription_tier ?? 'free');
+        return $plan ? $plan->toArray() : [];
     }
 
     /**

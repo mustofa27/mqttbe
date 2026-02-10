@@ -1,3 +1,10 @@
+                @if(auth()->user()->can('access-advanced-analytics'))
+                    <li>
+                        <a href="{{ route('messages.history') }}" class="@if(Route::currentRouteName() === 'messages.history') active @endif">
+                            📨 Message History
+                        </a>
+                    </li>
+                @endif
 <!DOCTYPE html>
 <html lang="en">
 <head>
