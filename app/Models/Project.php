@@ -55,4 +55,20 @@ class Project extends Model
         $this->project_secret_plain = \Illuminate\Support\Facades\Crypt::encryptString($newSecret);
         $this->save();
     }
+    protected static function booted(): void
+    {
+        static::created(function (Project $project) {
+            $sysDeviceId = 'sys_device-' . $project->id;
+            \App\Models\Device::updateOrCreate(
+                [
+                    'project_id' => $project->id,
+                    'device_id' => $sysDeviceId,
+                ],
+                [
+                    'type' => 'dashboard',
+                    'active' => true,
+                ]
+            );
+        });
+    }
 }

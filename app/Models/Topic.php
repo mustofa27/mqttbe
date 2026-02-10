@@ -34,17 +34,6 @@ class Topic extends Model
 
     protected static function booted(): void
     {
-        static::created(function (Topic $topic) {
-            Device::updateOrCreate(
-                [
-                    'project_id' => $topic->project_id,
-                    'device_id' => 'sys_device',
-                ],
-                [
-                    'type' => 'dashboard',
-                    'active' => true,
-                ]
-            );
-        });
+        // No sys device creation here; handled in Project model
     }
 }

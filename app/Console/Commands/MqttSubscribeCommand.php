@@ -35,7 +35,8 @@ class MqttSubscribeCommand extends Command
         }
 
         foreach ($projects as $project) {
-            $clientId = $clientPrefix . '-' . $project->id . '-' . Str::random(6);
+            // Use sys device client_id for this project
+            $clientId = 'sys_device-' . $project->id;
             $mqtt = new MqttClient($host, $port, $clientId);
 
             $projectPassword = $project->project_secret_plain

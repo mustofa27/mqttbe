@@ -39,7 +39,15 @@ class DeviceController extends Controller
             ]);
         }
 
-        Device::create($validated + ['active' => true]);
+        // Add 4-character hash of project name to device_id
+        $hash = substr(md5($project->name), 0, 4);
+        $deviceIdWithHash = $validated['device_id'] . '-' . $hash;
+        Device::create([
+            'project_id' => $validated['project_id'],
+            'device_id' => $deviceIdWithHash,
+            'type' => $validated['type'],
+            'active' => true,
+        ]);
 
         return redirect()->route('devices.index')->with('success', 'Device created successfully!');
     }
@@ -72,7 +80,16 @@ class DeviceController extends Controller
             'active' => 'boolean',
         ]);
 
-        $device->update($validated);
+        $project = Project::findOrFail($validated['project_id']);
+        $hash = substr(md5($project->name), 0, 4);
+        $deviceIdWithHash = $validated['device_id'] . '-' . $hash;
+
+        $device->update([
+            'project_id' => $validated['project_id'],
+            'device_id' => $deviceIdWithHash,
+            'type' => $validated['type'],
+            'active' => $validated['active'],
+        ]);
 
         return redirect()->route('devices.show', $device)->with('success', 'Device updated successfully!');
     }
