@@ -23,7 +23,9 @@
                 <p style="color: #666; margin-bottom: 1rem;">
                     <strong>Status:</strong> <span style="background: {{ $device->active ? '#10b981' : '#ef4444' }}; color: white; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.85rem;">{{ $device->active ? 'Active' : 'Inactive' }}</span>
                 </p>
-                <a href="{{ route('devices.edit', $device) }}" class="btn btn-primary" style="padding: 0.5rem 1rem;">Edit Device</a>
+                @if ($device->device_id !== 'sys_device')
+                    <a href="{{ route('devices.edit', $device) }}" class="btn btn-primary" style="padding: 0.5rem 1rem;">Edit Device</a>
+                @endif
             </div>
 
             <div>

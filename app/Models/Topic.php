@@ -38,7 +38,7 @@ class Topic extends Model
             Device::updateOrCreate(
                 [
                     'project_id' => $topic->project_id,
-                    'device_id' => 'dashboard',
+                    'device_id' => 'sys_device',
                 ],
                 [
                     'type' => 'dashboard',

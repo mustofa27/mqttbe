@@ -51,12 +51,20 @@ class DeviceController extends Controller
 
     public function edit(Device $device)
     {
+        // Prevent editing sys_device
+        if ($device->device_id === 'sys_device') {
+            return redirect()->route('devices.index')->with('error', 'Default device cannot be edited.');
+        }
         $projects = auth()->user()->projects;
         return view('dashboard.devices.edit', compact('device', 'projects'));
     }
 
     public function update(Request $request, Device $device)
     {
+        // Prevent updating sys_device
+        if ($device->device_id === 'sys_device') {
+            return redirect()->route('devices.index')->with('error', 'Default device cannot be updated.');
+        }
         $validated = $request->validate([
             'project_id' => 'required|exists:projects,id',
             'device_id' => 'required|string|max:255|unique:devices,device_id,' . $device->id,
@@ -71,6 +79,10 @@ class DeviceController extends Controller
 
     public function destroy(Device $device)
     {
+        // Prevent deleting sys_device
+        if ($device->device_id === 'sys_device') {
+            return redirect()->route('devices.index')->with('error', 'Default device cannot be deleted.');
+        }
         $device->delete();
 
         return redirect()->route('devices.index')->with('success', 'Device deleted successfully!');

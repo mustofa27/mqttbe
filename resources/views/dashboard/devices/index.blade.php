@@ -33,12 +33,14 @@
                             <td style="padding: 1rem;">
                                 <div style="display: flex; gap: 0.5rem;">
                                     <a href="{{ route('devices.show', $device) }}" class="btn" style="background: #667eea; color: white; padding: 0.4rem 0.8rem; text-decoration: none; border-radius: 4px; font-size: 0.85rem;">View</a>
-                                    <a href="{{ route('devices.edit', $device) }}" class="btn" style="background: #f59e0b; color: white; padding: 0.4rem 0.8rem; text-decoration: none; border-radius: 4px; font-size: 0.85rem;">Edit</a>
-                                    <form method="POST" action="{{ route('devices.destroy', $device) }}" style="display: inline;">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn" style="background: #ef4444; color: white; padding: 0.4rem 0.8rem; border: none; border-radius: 4px; font-size: 0.85rem; cursor: pointer;" onclick="return confirm('Are you sure?')">Delete</button>
-                                    </form>
+                                    @if ($device->device_id !== 'sys_device')
+                                        <a href="{{ route('devices.edit', $device) }}" class="btn" style="background: #f59e0b; color: white; padding: 0.4rem 0.8rem; text-decoration: none; border-radius: 4px; font-size: 0.85rem;">Edit</a>
+                                        <form method="POST" action="{{ route('devices.destroy', $device) }}" style="display: inline;">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn" style="background: #ef4444; color: white; padding: 0.4rem 0.8rem; border: none; border-radius: 4px; font-size: 0.85rem; cursor: pointer;" onclick="return confirm('Are you sure?')">Delete</button>
+                                        </form>
+                                    @endif
                                 </div>
                             </td>
                         </tr>
