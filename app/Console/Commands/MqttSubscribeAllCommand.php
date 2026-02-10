@@ -8,7 +8,7 @@ use Illuminate\Console\Command;
 class MqttSubscribeAllCommand extends Command
 {
     protected $signature = 'mqtt:subscribe:all';
-    protected $description = 'Start mqtt:subtest for each eligible project in the background';
+    protected $description = 'Start mqtt:subscribe for each eligible project in the background';
 
     public function handle(): int
     {
@@ -19,9 +19,9 @@ class MqttSubscribeAllCommand extends Command
             if (!$user || !$user->hasActiveSubscription() || !$user->hasFeature('advanced_analytics_enabled')) {
                 continue;
             }
-            $cmd = 'php artisan mqtt:subtest --project_id=' . $project->id . ' > /dev/null 2>&1 &';
+            $cmd = 'php artisan mqtt:subscribe --project_id=' . $project->id . ' > /dev/null 2>&1 &';
             exec($cmd);
-            $this->info("Started mqtt:subtest for project ID {$project->id}");
+            $this->info("Started mqtt:subscribe for project ID {$project->id}");
             $count++;
         }
         $this->info("Started {$count} project subscriptions.");
