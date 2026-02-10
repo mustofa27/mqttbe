@@ -600,6 +600,7 @@
                     </a>
                 </li>
 
+
                 @auth
                     @if (auth()->user()->is_admin)
                         <li class="sidebar-section">

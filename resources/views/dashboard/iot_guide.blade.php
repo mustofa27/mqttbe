@@ -1,44 +1,18 @@
 @extends('layouts.app')
 
-@section('title', 'Dashboard')
-
 @section('content')
-<div style="margin-bottom: 2rem;">
-    <h1 style="margin-bottom: 0.5rem;">Welcome, {{ Auth::user()->name }}! 👋</h1>
-    <p style="color: #666;">Here's your MQTT management overview</p>
-</div>
-
-<div class="dashboard-grid">
-    <div class="stat-card">
-        <h3>Projects</h3>
-        <div class="value">{{ $projectsCount }}</div>
-    </div>
-    <div class="stat-card">
-        <h3>Devices</h3>
-        <div class="value">{{ $devicesCount }}</div>
-    </div>
-</div>
-
-<div class="card" style="text-align: center; padding: 3rem;">
-    <h2>Welcome to ICMQTT</h2>
-    <p style="margin: 1rem 0; color: #666;">
-        Manage your MQTT projects, devices, and topics from a single dashboard.
-    </p>
-</div>
-
-<div style="margin-top: 2rem; background: white; padding: 2rem; border-radius: 8px; border-left: 4px solid #007bff; max-width: 900px;">
-    <h2 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 1.5rem;">IoT Project Setup Guide</h2>
+<div class="container" style="max-width: 900px; margin: 0 auto; padding: 2rem;">
+    <h1 style="font-size: 2rem; font-weight: 700; margin-bottom: 1.5rem;">IoT Project Setup Guide</h1>
     <ol style="font-size: 1.1rem; line-height: 1.7;">
         <li><strong>Register/Login:</strong> Create an account or log in to your dashboard.</li>
         <li><strong>Create a Project:</strong> Go to <b>Projects</b> and click <b>+ New Project</b>. Fill in the project details and save.</li>
         <li><strong>Add Devices:</strong> In <b>Devices</b>, add your IoT devices. Each device gets a unique <b>Device ID</b> and type (sensor, actuator, dashboard).</li>
         <li><strong>Create Topics:</strong> In <b>Topics</b>, create topics for your project. Each topic is linked to a device and used for MQTT messaging.</li>
-        <li><strong>Add Permissions:</strong> For each device (except <code>sys_device</code>), go to <b>Permissions</b> and add a permission to enable MQTT access. Without a permission, the device cannot connect to the broker.</li>
         <li><strong>Configure MQTT Client:</strong> Use the provided MQTT broker details (host, port, username, password) in your IoT device or application. Use the correct <b>Device ID</b> and <b>Topic</b> template.</li>
         <li><strong>Send/Receive Data:</strong> Publish or subscribe to topics using your device. Data will be processed and stored by the system.</li>
         <li><strong>Monitor & Manage:</strong> Use the dashboard to monitor device status, manage topics, and view analytics.</li>
         <li><strong>Subscription & Payments:</strong> Upgrade your plan as needed for more devices, topics, or advanced features.</li>
-        <li><strong>Support:</strong> For help, contact support or refer to this guide anytime from the dashboard.</li>
+        <li><strong>Support:</strong> For help, contact support or refer to this guide anytime from the dashboard menu.</li>
     </ol>
     <div style="margin-top: 2rem; color: #666; font-size: 1rem;">
         <b>Tip:</b> The default device <code>sys_device</code> is managed by the system and cannot be edited or deleted.
