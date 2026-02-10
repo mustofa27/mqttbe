@@ -25,8 +25,8 @@ class MqttSubscribeCommand extends Command
         $projects = Project::where('active', true)
             ->get();
 
-        if (!$project) {
-            $this->warn("No active project found with id {$projectId}.");
+        if ($projects->isEmpty()) {
+            $this->warn("No active projects found.");
             return self::FAILURE;
         }
         $clientId = $clientPrefix . '-' . uniqid();
