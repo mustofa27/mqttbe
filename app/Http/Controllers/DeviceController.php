@@ -39,8 +39,8 @@ class DeviceController extends Controller
             ]);
         }
 
-        // Add 4-character hash of project name to device_id
-        $hash = substr(md5($project->name), 0, 4);
+        // Add 4-character hash of project id to device_id
+        $hash = substr(md5($project->id), 0, 4);
         $deviceIdWithHash = $validated['device_id'] . '-' . $hash;
         Device::create([
             'project_id' => $validated['project_id'],
@@ -81,7 +81,7 @@ class DeviceController extends Controller
         ]);
 
         $project = Project::findOrFail($validated['project_id']);
-        $hash = substr(md5($project->name), 0, 4);
+        $hash = substr(md5($project->id), 0, 4);
         $deviceIdWithHash = $validated['device_id'] . '-' . $hash;
 
         $device->update([

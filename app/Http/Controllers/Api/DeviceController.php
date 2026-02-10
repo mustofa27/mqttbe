@@ -74,7 +74,10 @@ class DeviceController
             ], 422);
         }
 
-        $device = Device::create($validated);
+        // Add 4-character hash of project id to device_id
+        $hash = substr(md5($project->id), 0, 4);
+        $deviceIdWithHash = $validated['device_id'] . '-' . $hash;
+        $device = Device::create(array_merge($validated, ['device_id' => $deviceIdWithHash]));
 
         return response()->json(['data' => $device], 201);
     }
@@ -90,7 +93,14 @@ class DeviceController
         $validated = $request->validate([
             'name' => ['sometimes', 'string', 'max:255'],
             'status' => ['sometimes', 'in:online,offline,inactive'],
+            'device_id' => ['sometimes', 'string', 'max:255'],
         ]);
+
+        // Add hash if device_id is being updated
+        if (isset($validated['device_id'])) {
+            $hash = substr(md5($device->project_id), 0, 4);
+            $validated['device_id'] = $validated['device_id'] . '-' . $hash;
+        }
 
         $device->update($validated);
 
