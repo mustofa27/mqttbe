@@ -24,10 +24,16 @@ class MqttSubscribeCommand extends Command
         $systemPassword = config('mqtt.password');
         $clientPrefix = config('mqtt.client_id_prefix', 'dashboard-subscriber');
 
+
         $projects = Project::query()
             ->where('active', true)
             ->when($this->option('project_id'), fn ($q) => $q->where('id', $this->option('project_id')))
-            ->get();
+            ->get()
+            ->filter(function ($project) {
+                $user = $project->user;
+                // Only allow if user has active subscription and advanced analytics enabled
+                return $user && $user->hasActiveSubscription() && $user->hasFeature('advanced_analytics_enabled');
+            });
 
         if ($projects->isEmpty()) {
             $this->warn('No active projects found.');
@@ -73,7 +79,17 @@ class MqttSubscribeCommand extends Command
                         Carbon::now()
                     );
                 } catch (\Throwable $e) {
-                    // swallow to keep subscriber alive
+                    // Log the exception to keep subscriber alive
+                    \Log::error('MQTT Ingest Exception', [
+                        'project_key' => $projectKey,
+                        'device_id' => $deviceId,
+                        'topic' => $topic,
+                        'message' => $message,
+                        'qos' => $qos,
+                        'retained' => $retained,
+                        'exception' => $e->getMessage(),
+                        'trace' => $e->getTraceAsString(),
+                    ]);
                 }
             }, 0);
 
