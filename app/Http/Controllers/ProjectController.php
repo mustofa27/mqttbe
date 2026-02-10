@@ -53,16 +53,19 @@ class ProjectController extends Controller
         return view('dashboard.projects.show', compact('project'));
     }
 
-        /**
-         * Regenerate the project secret.
-         */
-        public function regenerateSecret(Project $project)
-        {
-            $this->authorize('update', $project);
-            $project->regenerateSecret();
-            return redirect()->route('projects.show', $project)
-                ->with('success', 'Project secret regenerated successfully!');
-        }
+    /**
+     * Regenerate the project secret.
+     */
+    public function regenerateSecret(Request $request, Project $project)
+    {
+        //$this->authorize('update', $project);
+        $validated = $request->validate([
+            'new_secret' => 'required|string|max:255',
+        ]);
+        $project->regenerateSecret($validated['new_secret']);
+        return redirect()->route('projects.show', $project)
+            ->with('success', 'Project secret regenerated successfully!');
+    }
     public function edit(Project $project)
     {
         return view('dashboard.projects.edit', compact('project'));

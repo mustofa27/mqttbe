@@ -1,5 +1,31 @@
-@extends('layouts.app')
 
+@extends('layouts.app')
+<style>
+    .payment-modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        align-items: center;
+        justify-content: center;
+    }
+    .payment-modal.active {
+        display: flex;
+    }
+    .payment-modal-content {
+        background: white;
+        padding: 2rem;
+        border-radius: 12px;
+        max-width: 500px;
+        width: 90%;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        position: relative;
+    }
+</style>
 @section('content')
 <div class="container" style="max-width: 800px; margin: 0 auto; padding: 2rem;">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
@@ -20,10 +46,25 @@
                 <strong>Created:</strong> {{ $project->created_at->format('M d, Y') }}
             </p>
             <a href="{{ route('projects.edit', $project) }}" class="btn btn-primary" style="padding: 0.5rem 1rem;">Edit Project</a>
-            <form method="POST" action="{{ route('projects.regenerate-secret', $project) }}" style="margin-top: 1rem;">
-                @csrf
-                <button type="submit" class="btn btn-warning" style="padding: 0.5rem 1rem; background: #f59e42; color: white; border: none; border-radius: 6px;">Regenerate Secret</button>
-            </form>
+            <button class="btn btn-warning" style="padding: 0.5rem 1rem; background: #f59e42; color: white; border: none; border-radius: 6px; margin-top: 1rem;" onclick="openSecretModal(); return false;">Regenerate Secret</button>
+
+            <!-- Regenerate Secret Modal -->
+            <div id="secretModal" class="payment-modal">
+                <div class="payment-modal-content">
+                    <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center;">
+                        <h2 style="margin-bottom: 0;">Regenerate Project Secret</h2>
+                        <button class="modal-close" onclick="closeSecretModal()" style="position: absolute; top: 1rem; right: 1rem; font-size: 1.5rem; background: none; border: none; color: #999; cursor: pointer;">×</button>
+                    </div>
+                    <form method="POST" action="{{ route('projects.regenerate-secret', $project) }}">
+                        @csrf
+                        <div class="form-group">
+                            <label for="new_secret">New Secret</label>
+                            <input type="text" name="new_secret" id="new_secret" required maxlength="255" placeholder="Enter new secret" style="background: #f8f9fa; width: 100%; padding: 0.5rem; border-radius: 6px; border: 1px solid #d1d5db;">
+                        </div>
+                        <button type="submit" class="btn btn-danger" style="width: 100%; padding: 1rem; margin-top: 1rem; background: #dc3545; color: white; border: none; border-radius: 6px;">Regenerate Secret</button>
+                    </form>
+                </div>
+            </div>
         </div>
 
         <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
@@ -40,5 +81,19 @@
             <a href="{{ route('devices.index') }}" class="btn btn-primary" style="padding: 0.5rem 1rem;">Manage Devices</a>
         </div>
     </div>
-</div>
 @endsection
+
+<script>
+function openSecretModal() {
+    document.getElementById('secretModal').classList.add('active');
+}
+function closeSecretModal() {
+    document.getElementById('secretModal').classList.remove('active');
+}
+// Close modal when clicking outside
+document.getElementById('secretModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeSecretModal();
+    }
+});
+</script>
