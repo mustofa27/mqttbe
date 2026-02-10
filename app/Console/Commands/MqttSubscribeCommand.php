@@ -56,44 +56,46 @@ class MqttSubscribeCommand extends Command
 
             $mqtt->connect($settings, true);
 
-            $topic = $project->project_key . '/#';
-
-            $mqtt->subscribe($topic, function (string $topic, string $message, bool $retained, int $qos) use ($ingestService) {
-                $parts = explode('/', $topic);
-
-                if (count($parts) < 3) {
-                    return;
+            // Subscribe to each topic template for this project
+            foreach ($project->topics as $topicModel) {
+                if (!$topicModel->enabled || empty($topicModel->template)) {
+                    continue;
                 }
-
-                $projectKey = $parts[0];
-                $deviceId = $parts[1];
-
-                try {
-                    $ingestService->ingest(
-                        $projectKey,
-                        $deviceId,
-                        $topic,
-                        $message,
-                        $qos,
-                        $retained,
-                        Carbon::now()
-                    );
-                } catch (\Throwable $e) {
-                    // Log the exception to keep subscriber alive
-                    \Log::error('MQTT Ingest Exception', [
-                        'project_key' => $projectKey,
-                        'device_id' => $deviceId,
-                        'topic' => $topic,
-                        'message' => $message,
-                        'qos' => $qos,
-                        'retained' => $retained,
-                        'exception' => $e->getMessage(),
-                        'trace' => $e->getTraceAsString(),
-                    ]);
-                }
-            }, 0);
-
-            $this->info("Subscribed to {$topic}");
+                // Replace {project} with project key and {device id} with +
+                $topicTemplate = str_replace(['{project}', '{device id}'], [$project->project_key, '+'], $topicModel->template);
+                $mqtt->subscribe($topicTemplate, function (string $topic, string $message, bool $retained, int $qos) use ($ingestService) {
+                    $parts = explode('/', $topic);
+                    if (count($parts) < 3) {
+                        return;
+                    }
+                    $projectKey = $parts[0];
+                    $deviceId = $parts[1];
+                    try {
+                        $ingestService->ingest(
+                            $projectKey,
+                            $deviceId,
+                            $topic,
+                            $message,
+                            $qos,
+                            $retained,
+                            Carbon::now()
+                        );
+                    } catch (\Throwable $e) {
+                        // Log the exception to keep subscriber alive
+                        \Log::error('MQTT Ingest Exception', [
+                            'project_key' => $projectKey,
+                            'device_id' => $deviceId,
+                            'topic' => $topic,
+                            'message' => $message,
+                            'qos' => $qos,
+                            'retained' => $retained,
+                            'exception' => $e->getMessage(),
+                            'trace' => $e->getTraceAsString(),
+                        ]);
+                    }
+                }, 0);
+                $this->info("Subscribed to {$topicTemplate}");
+            }
 
             $mqtt->loop(true);
             $mqtt->disconnect();
