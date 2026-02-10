@@ -62,7 +62,7 @@ class MqttSubscribeCommand extends Command
                     continue;
                 }
                 // Replace {project} with project key and {device id} with +
-                $topicTemplate = str_replace(['{project}', '{device id}'], [$project->project_key, '+'], $topicModel->template);
+                $topicTemplate = str_replace(['{project}', '{device_id}'], [$project->project_key, '+'], $topicModel->template);
                 $mqtt->subscribe($topicTemplate, function (string $topic, string $message, bool $retained, int $qos) use ($ingestService) {
                     $parts = explode('/', $topic);
                     if (count($parts) < 3) {
