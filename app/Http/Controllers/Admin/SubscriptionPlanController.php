@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\SubscriptionPlan;
+use App\Models\User;
 
 class SubscriptionPlanController extends Controller
 {
@@ -12,14 +14,15 @@ class SubscriptionPlanController extends Controller
      */
     public function index()
     {
+        $defaultTier = self::getDefaultPlanTier();
         $plans = [
             'free' => $this->getPlanDetails('free'),
             'starter' => $this->getPlanDetails('starter'),
             'professional' => $this->getPlanDetails('professional'),
             'enterprise' => $this->getPlanDetails('enterprise'),
         ];
-
-        return view('admin.subscription-plans.index', compact('plans'));
+        // Optionally, highlight or select the default plan in the view
+        return view('admin.subscription-plans.index', compact('plans', 'defaultTier'));
     }
 
     /**
@@ -47,6 +50,7 @@ class SubscriptionPlanController extends Controller
         }
 
         $validated = $request->validate([
+            'price' => 'required|numeric|min:0',
             'max_projects' => 'required|integer',
             'max_devices_per_project' => 'required|integer',
             'max_topics_per_project' => 'required|integer',
@@ -58,11 +62,10 @@ class SubscriptionPlanController extends Controller
             'priority_support' => 'boolean',
         ]);
 
-        // Store plan configuration in a cache or database
-        // For now, we'll use Laravel cache to store temporary overrides
-        cache()->put("subscription_plan_{$plan}", $validated, now()->addDays(365));
+        $planModel = SubscriptionPlan::where('tier', $plan)->firstOrFail();
+        $planModel->update($validated);
 
-        return redirect()->route('subscription-plans.index')
+        return redirect()->route('admin.subscription-plans.index')
             ->with('success', ucfirst($plan) . ' subscription plan updated successfully.');
     }
 
@@ -76,23 +79,30 @@ class SubscriptionPlanController extends Controller
             abort(404);
         }
 
-        cache()->forget("subscription_plan_{$plan}");
-
+        // Reset the plan to default values from DB (assume original values are stored in DB)
+        $defaultPlan = SubscriptionPlan::where('tier', $plan)->first();
+        if ($defaultPlan) {
+            $defaultValues = $defaultPlan->getOriginal();
+            // Remove keys that shouldn't be updated
+            unset($defaultValues['id'], $defaultValues['tier'], $defaultValues['created_at'], $defaultValues['updated_at']);
+            $defaultPlan->update($defaultValues);
+        }
         return back()->with('success', ucfirst($plan) . ' subscription plan reset to default.');
     }
-
+    /**
+     * Get the default subscription plan tier.
+     */
+    public static function getDefaultPlanTier()
+    {
+        return 'free';
+    }
     /**
      * Get plan details including cached overrides.
      */
     private function getPlanDetails($plan)
     {
-        // Check if there are cached overrides
-        if (cache()->has("subscription_plan_{$plan}")) {
-            return cache()->get("subscription_plan_{$plan}");
-        }
-
-        // Otherwise get from SubscriptionPlan model
-        return \App\Models\SubscriptionPlan::getLimits($plan);
+        $model = SubscriptionPlan::getLimits($plan);
+        return $model ? $model->toArray() : [];
     }
 
     /**
@@ -101,10 +111,10 @@ class SubscriptionPlanController extends Controller
     public function statistics()
     {
         $stats = [
-            'free' => \App\Models\User::where('subscription_tier', 'free')->count(),
-            'starter' => \App\Models\User::where('subscription_tier', 'starter')->count(),
-            'professional' => \App\Models\User::where('subscription_tier', 'professional')->count(),
-            'enterprise' => \App\Models\User::where('subscription_tier', 'enterprise')->count(),
+            'free' => User::where('subscription_tier', 'free')->count(),
+            'starter' => User::where('subscription_tier', 'starter')->count(),
+            'professional' => User::where('subscription_tier', 'professional')->count(),
+            'enterprise' => User::where('subscription_tier', 'enterprise')->count(),
         ];
 
         return view('admin.subscription-plans.statistics', compact('stats'));

@@ -14,8 +14,12 @@
 
             <div style="margin-bottom: 2rem; padding-bottom: 2rem; border-bottom: 1px solid #e5e7eb;">
                 <h3 style="font-size: 1.1rem; font-weight: 700; color: #1f2937; margin-bottom: 1.5rem;">📊 Resource Limits</h3>
-                
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                    <div>
+                        <label for="price" style="display: block; color: #374151; font-weight: 600; margin-bottom: 0.5rem; font-size: 0.95rem;">Price (IDR)</label>
+                        <input type="number" step="0.01" id="price" name="price" value="{{ old('price', $planDetails['price']) }}" required style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 6px; font-size: 1rem; font-family: inherit; transition: all 0.2s ease;" onfocus="this.style.borderColor='#667eea';" onblur="this.style.borderColor='#d1d5db';">
+                        <p style="color: #9ca3af; font-size: 0.8rem; margin-top: 0.25rem;">Set 0 for free plan</p>
+                    </div>
                     <div>
                         <label for="max_projects" style="display: block; color: #374151; font-weight: 600; margin-bottom: 0.5rem; font-size: 0.95rem;">Max Projects</label>
                         <input type="number" id="max_projects" name="max_projects" value="{{ old('max_projects', $planDetails['max_projects']) }}" required style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 6px; font-size: 1rem; font-family: inherit; transition: all 0.2s ease;" onfocus="this.style.borderColor='#667eea';" onblur="this.style.borderColor='#d1d5db';">

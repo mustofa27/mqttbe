@@ -32,6 +32,12 @@
                 
                 <div style="padding: 1.5rem;">
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1.5rem; font-size: 0.9rem;">
+                        <div style="grid-column: span 2; margin-bottom: 1rem;">
+                            <div style="color: #6b7280; font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.25rem;">Price</div>
+                            <div style="font-weight: 700; color: #059669; font-size: 1.1rem;">
+                                {{ $details['price'] == 0 ? 'Free' : 'Rp ' . number_format($details['price'], 2, ',', '.') }}
+                            </div>
+                        </div>
                         <div>
                             <div style="color: #6b7280; font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.25rem;">Projects</div>
                             <div style="font-weight: 700; color: #1f2937; font-size: 1.1rem;">{{ $details['max_projects'] == -1 ? '∞' : $details['max_projects'] }}</div>
