@@ -26,6 +26,10 @@ class MqttAclController extends Controller
         ) {
             return response('deny', 403);
         }
+        if($request->username === config('mqtt.username'); && $request->password === config('mqtt.password')){
+            // System user, allow
+            return response('allow', 200);
+        }
         // Rate limit only for publish (acc == 2)
         if ($request->acc == 2) {
             // Get project and device first (reuse below logic)
