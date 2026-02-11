@@ -14,7 +14,7 @@ class MqttSubscribeCommand extends Command
     protected $signature = 'mqtt:subscribe';
     protected $description = 'Subscribe to MQTT topics and ingest messages into the database (subtest)';
 
-    public function handle(MqttMessageIngestService $ingestService): int
+    public function handle(): int
     {
         $host = config('mqtt.host');
         $port = (int) config('mqtt.port');
@@ -50,36 +50,29 @@ class MqttSubscribeCommand extends Command
                 }
                 // Replace {project} with project key and {device id} with +
                 $topicTemplate = str_replace(['{project}', '{device_id}'], [$project->project_key, '+'], $topicModel->template);
-                $mqtt->subscribe($topicTemplate, function (string $topic, string $message, bool $retained, int $qos) use ($ingestService) {
+                $mqtt->subscribe($topicTemplate, function (string $topic, string $message, bool $retained, int $qos) use ($project, $topicModel) {
                     $parts = explode('/', $topic);
                     if (count($parts) < 3) {
                         return;
                     }
-                    $projectKey = $parts[0];
                     $deviceId = $parts[1];
-                    try {
-                        $ingestService->ingest(
-                            $projectKey,
-                            $deviceId,
-                            $topic,
-                            $message,
-                            $qos,
-                            $retained,
-                            Carbon::now()
-                        );
-                    } catch (\Throwable $e) {
-                        // Log the exception to keep subscriber alive
-                        \Log::error('MQTT Ingest Exception', [
-                            'project_key' => $projectKey,
-                            'device_id' => $deviceId,
-                            'topic' => $topic,
-                            'message' => $message,
-                            'qos' => $qos,
-                            'retained' => $retained,
-                            'exception' => $e->getMessage(),
-                            'trace' => $e->getTraceAsString(),
-                        ]);
-                    }
+                    $device = Device::where('project_id', $project->id)
+                        ->where('device_id', $deviceId)
+                        ->where('active', true)
+                        ->firstOrFail();
+                    // Message creation moved here
+                    $message = Message::create([
+                        'project_id' => $project->id,
+                        'device_id' => $device->id,
+                        'topic_id' => $topicModel->id,
+                        'mqtt_topic' => $topic,
+                        'payload' => (string) $message,
+                        'qos' => $qos,
+                        'retained' => $retained,
+                        'expires_at' => null,
+                        'created_at' => Carbon::now(),
+                        'updated_at' => Carbon::now(),
+                    ]);
                 }, 0);
                 $this->info("Subscribed to {$topicTemplate}");
             }
