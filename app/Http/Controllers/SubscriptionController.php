@@ -154,26 +154,27 @@ class SubscriptionController extends Controller
             'failure_redirect_url' => route('subscription.payment.failed', ['external_id' => $externalId]),
         ]);
 
-        if (!$result['success'] || !isset($result['data']['invoice_url'])) {
+        $url = $result['data']['invoice_url'] ?? $result['data']['payment_url'] ?? null;
+        if (!$result['success'] || !$url) {
             \Log::error('Paypool payment creation response', ['result' => $result]);
             $payment->update(['status' => 'failed']);
             $errorMsg = $result['error'] ?? 'Failed to create payment. Please try again.';
-            if (isset($result['data']) && !isset($result['data']['invoice_url'])) {
-                $errorMsg = 'Payment created but invoice URL is missing. Please contact support.';
+            if (isset($result['data']) && !$url) {
+                $errorMsg = 'Payment created but payment URL is missing. Please contact support.';
             }
             return back()->withErrors([
                 'payment' => $errorMsg
             ]);
         }
 
-        // Update payment with invoice URL
+        // Update payment with invoice/payment URL
         $payment->update([
-            'invoice_url' => $result['data']['invoice_url'],
+            'invoice_url' => $url,
             'expired_at' => $result['data']['expired_at'] ?? now()->addHours(24),
         ]);
 
-        // Redirect to Paypool invoice
-        return redirect($result['data']['invoice_url']);
+        // Redirect to Paypool invoice/payment page
+        return redirect($url);
     }
 
     /**
