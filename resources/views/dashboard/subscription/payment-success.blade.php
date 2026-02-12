@@ -62,17 +62,24 @@
 </style>
 
 <div class="payment-status-card">
-    <div class="status-icon">✅</div>
-    <h1 class="status-title">Payment Successful!</h1>
-    
     @if($payment->status === 'paid')
+        <div class="status-icon">✅</div>
+        <h1 class="status-title">Payment Successful!</h1>
         <p class="status-message">
             Your subscription has been upgraded to <strong>{{ ucfirst($payment->tier) }}</strong> plan.
             You now have access to all premium features!
         </p>
-    @else
+    @elseif($payment->status === 'pending')
+        <div class="status-icon">⏳</div>
+        <h1 class="status-title" style="color: #ffc107;">Payment Pending</h1>
         <p class="status-message">
             Your payment is being processed. Your subscription will be activated shortly.
+        </p>
+    @else
+        <div class="status-icon">❌</div>
+        <h1 class="status-title" style="color: #dc3545;">Payment Failed</h1>
+        <p class="status-message">
+            There was a problem processing your payment. Please try again or contact support.
         </p>
     @endif
 
