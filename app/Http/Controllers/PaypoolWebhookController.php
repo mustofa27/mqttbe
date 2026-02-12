@@ -23,26 +23,37 @@ class PaypoolWebhookController extends Controller
             return response()->json(['message' => 'Event not handled'], 200);
         }
 
-        $externalId = $paymentData['external_id'];
-        $status = $paymentData['status'];
+        $externalId = $paymentData['external_id'] ?? null;
+        $status = $paymentData['status'] ?? null;
 
         // Find payment record
-        $payment = SubscriptionPayment::where('external_id', $externalId)->first();
+        $payment = $externalId ? SubscriptionPayment::where('external_id', $externalId)->first() : null;
 
         if (!$payment) {
             Log::warning('Payment not found for webhook', ['external_id' => $externalId]);
             return response()->json(['message' => 'Payment not found'], 404);
         }
 
+        // Map Midtrans/Paypool statuses to local statuses
+        $statusMap = [
+            'settlement' => 'paid',
+            'capture' => 'paid',
+            'paid' => 'paid',
+            'settled' => 'paid',
+            'expired' => 'expired',
+            'failed' => 'failed',
+        ];
+        $localStatus = $statusMap[$status] ?? $status;
+
         // Update payment record
         $payment->update([
-            'status' => $status,
+            'status' => $localStatus,
             'payment_method' => $paymentData['payment_method'] ?? null,
-            'paid_at' => $status === 'paid' ? ($paymentData['paid_at'] ?? now()) : null,
+            'paid_at' => in_array($localStatus, ['paid']) ? ($paymentData['paid_at'] ?? now()) : null,
         ]);
 
         // If payment is successful, upgrade user subscription
-        if ($status === 'paid' && $payment->user) {
+        if ($localStatus === 'paid' && $payment->user) {
             $months = 1;
             if (isset($payment->metadata['months']) && is_numeric($payment->metadata['months'])) {
                 $months = (int) $payment->metadata['months'];
@@ -58,6 +69,15 @@ class PaypoolWebhookController extends Controller
                 'user_id' => $payment->user_id,
                 'tier' => $payment->tier,
                 'months' => $months,
+            ]);
+        }
+
+        // Log and handle other statuses as needed
+        if (!in_array($localStatus, ['paid', 'expired', 'failed'])) {
+            Log::info('Unhandled payment status received', [
+                'external_id' => $externalId,
+                'status' => $status,
+                'local_status' => $localStatus,
             ]);
         }
 

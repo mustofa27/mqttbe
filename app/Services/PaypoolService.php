@@ -17,15 +17,22 @@ class PaypoolService
     }
 
     /**
-     * Create a payment via Paypool API
+     * Create a payment via Paypool API (Midtrans)
+     * Supports all documented fields: external_id, amount, currency, customer_name, customer_email, customer_phone, description, metadata, success_redirect_url, failure_redirect_url
      */
     public function createPayment(array $data)
     {
+        // Only allow documented fields
+        $allowed = [
+            'external_id', 'amount', 'currency', 'customer_name', 'customer_email', 'customer_phone',
+            'description', 'metadata', 'success_redirect_url', 'failure_redirect_url'
+        ];
+        $payload = array_intersect_key($data, array_flip($allowed));
         try {
             $response = Http::withHeaders([
                 'Authorization' => 'Bearer ' . $this->apiToken,
                 'Content-Type' => 'application/json',
-            ])->post($this->apiUrl . '/api/v1/payments/create', $data);
+            ])->post($this->apiUrl . '/api/v1/payments/create', $payload);
 
             if ($response->successful()) {
                 return [
@@ -46,10 +53,40 @@ class PaypoolService
             ];
         } catch (\Exception $e) {
             Log::error('Paypool API error: ' . $e->getMessage());
-            
             return [
                 'success' => false,
                 'error' => 'Unable to connect to payment gateway',
+            ];
+        }
+    }
+
+    /**
+     * Continue a pending payment (get Snap redirect URL)
+     * Returns the Snap payment page URL for a pending payment
+     */
+    public function continuePayment(string $externalId)
+    {
+        try {
+            $response = Http::withHeaders([
+                'Authorization' => 'Bearer ' . $this->apiToken,
+            ])->get($this->apiUrl . '/api/v1/payments/' . $externalId . '/continue');
+
+            if ($response->successful() && $response->json('success')) {
+                return [
+                    'success' => true,
+                    'redirect_url' => $response->json('redirect_url'),
+                ];
+            }
+
+            return [
+                'success' => false,
+                'error' => $response->json('message') ?? 'Cannot continue payment',
+            ];
+        } catch (\Exception $e) {
+            Log::error('Paypool API error: ' . $e->getMessage());
+            return [
+                'success' => false,
+                'error' => 'Unable to continue payment',
             ];
         }
     }
