@@ -154,11 +154,15 @@ class SubscriptionController extends Controller
             'failure_redirect_url' => route('subscription.payment.failed', ['external_id' => $externalId]),
         ]);
 
-        if (!$result['success']) {
+        if (!$result['success'] || !isset($result['data']['invoice_url'])) {
+            \Log::error('Paypool payment creation response', ['result' => $result]);
             $payment->update(['status' => 'failed']);
-            
+            $errorMsg = $result['error'] ?? 'Failed to create payment. Please try again.';
+            if (isset($result['data']) && !isset($result['data']['invoice_url'])) {
+                $errorMsg = 'Payment created but invoice URL is missing. Please contact support.';
+            }
             return back()->withErrors([
-                'payment' => $result['error'] ?? 'Failed to create payment. Please try again.'
+                'payment' => $errorMsg
             ]);
         }
 
