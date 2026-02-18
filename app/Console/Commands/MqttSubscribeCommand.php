@@ -38,13 +38,16 @@ class MqttSubscribeCommand extends Command
             ->setPassword($systemPassword)
             ->setKeepAliveInterval(60)
             ->setUseTls(true);
-            // ->setTlsOptions([
-            //     'cafile' => $caFile,
-            //     // 'verify_peer' => true, // optional, recommended for production
-            //     // 'verify_peer_name' => true, // optional, recommended for production
-            // ]);
         
-        $mqtt->connect($settings, true);
+        $socketContext = [
+            'ssl' => [
+                'cafile' => $caFile,
+                // 'verify_peer' => true,
+                // 'verify_peer_name' => true,
+            ],
+        ];
+
+        $mqtt->connect($settings, true, $socketContext);
 
         foreach ($projects as $project) {
             $user = $project->user;
