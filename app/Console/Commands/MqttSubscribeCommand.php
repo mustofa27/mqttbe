@@ -22,7 +22,6 @@ class MqttSubscribeCommand extends Command
         $systemUsername = config('mqtt.username');
         $systemPassword = config('mqtt.password');
         $clientPrefix = config('mqtt.client_id_prefix', 'dashboard-subscriber');
-        $caFile = config('mqtt.cafile', 'storage/certs/chain.pem');
 
         $projects = Project::where('active', true)
             ->get();
@@ -38,16 +37,9 @@ class MqttSubscribeCommand extends Command
             ->setPassword($systemPassword)
             ->setKeepAliveInterval(60)
             ->setUseTls(true);
-        
-        $socketContext = [
-            'ssl' => [
-                'cafile' => $caFile,
-                // 'verify_peer' => true,
-                // 'verify_peer_name' => true,
-            ],
-        ];
 
-        $mqtt->connect($settings, true, $socketContext);
+
+        $mqtt->connect($settings, true);
 
         foreach ($projects as $project) {
             $user = $project->user;
