@@ -7,6 +7,7 @@ use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Crypt;
 use PhpMqtt\Client\MqttClient;
+use Illuminate\Support\Facades\Log;
 use PhpMqtt\Client\ConnectionSettings;
 
 class MqttSubscribeCommand extends Command
@@ -21,6 +22,7 @@ class MqttSubscribeCommand extends Command
         $systemUsername = config('mqtt.username');
         $systemPassword = config('mqtt.password');
         $clientPrefix = config('mqtt.client_id_prefix', 'dashboard-subscriber');
+        $caFile = config('mqtt.cafile', '/etc/mosquitto/ca_certificates/ca.crt');
 
         $projects = Project::where('active', true)
             ->get();
@@ -34,7 +36,13 @@ class MqttSubscribeCommand extends Command
         $settings = (new ConnectionSettings())
             ->setUsername($systemUsername)
             ->setPassword($systemPassword)
-            ->setKeepAliveInterval(60);
+            ->setKeepAliveInterval(60)
+            ->withTls(
+                true, // enable TLS
+                null, // client certificate (not needed for server-side TLS)
+                null, // client key (not needed for server-side TLS)
+                $caFile // CA file to verify broker
+            );
         
         $mqtt->connect($settings, true);
 
@@ -52,7 +60,7 @@ class MqttSubscribeCommand extends Command
                 $topicTemplate = str_replace(['{project}', '{device_id}'], [$project->project_key, '+'], $topicModel->template);
                 $mqtt->subscribe($topicTemplate, function (string $topic, string $message, bool $retained, int $qos) use ($project, $topicModel) {
                     // Log incoming message
-                    \Log::info('MQTT Subscriber received message', [
+                    Log::info('MQTT Subscriber received message', [
                         'topic' => $topic,
                         'message' => $message,
                         'qos' => $qos,
