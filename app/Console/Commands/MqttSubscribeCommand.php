@@ -37,12 +37,12 @@ class MqttSubscribeCommand extends Command
             ->setUsername($systemUsername)
             ->setPassword($systemPassword)
             ->setKeepAliveInterval(60)
-            ->withTls(
-                true, // enable TLS
-                null, // client certificate (not needed for server-side TLS)
-                null, // client key (not needed for server-side TLS)
-                $caFile // CA file to verify broker
-            );
+            ->setUseTls(true)
+            ->setTlsOptions([
+                'cafile' => $caFile,
+                // 'verify_peer' => true, // optional, recommended for production
+                // 'verify_peer_name' => true, // optional, recommended for production
+            ]);
         
         $mqtt->connect($settings, true);
 
