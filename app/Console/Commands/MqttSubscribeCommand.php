@@ -22,7 +22,7 @@ class MqttSubscribeCommand extends Command
         $systemUsername = config('mqtt.username');
         $systemPassword = config('mqtt.password');
         $clientPrefix = config('mqtt.client_id_prefix', 'dashboard-subscriber');
-        $caFile = config('mqtt.cafile', '/etc/mosquitto/ca_certificates/ca.crt');
+        $caFile = config('mqtt.cafile', 'storage/certs/ca.crt');
 
         $projects = Project::where('active', true)
             ->get();
