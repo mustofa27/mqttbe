@@ -347,6 +347,14 @@
                             </td>
                         @endforeach
                     </tr>
+                    <tr style="border-bottom: 1px solid #f0f0f0;">
+                        <td style="padding: 0.75rem;">Secure Connection (SSL/TLS)</td>
+                        @foreach($allPlans as $t => $l)
+                            <td style="text-align: center; padding: 0.75rem; {{ $user->subscription_tier === $t ? 'background: #f0f0ff; font-weight: bold;' : '' }}">
+                                ✅
+                            </td>
+                        @endforeach
+                    </tr>
                 @endif
             @endforeach
         </tbody>

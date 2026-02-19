@@ -602,6 +602,7 @@
                             <div class="pricing-tier">{{ ucfirst($plan->tier) }}</div>
                             <div class="pricing-price">{{ $plan->price == 0 ? 'Free' : 'Rp ' . number_format($plan->price, 0, ',', '.') }}<small>/bulan</small></div>
                             <ul class="pricing-features">
+                                <li>Secure Connection (SSL/TLS)</li>
                                 <li>{{ $plan->max_projects == -1 ? 'Unlimited projects' : $plan->max_projects . ' Projects' }}</li>
                                 <li>{{ $plan->max_devices_per_project == -1 ? 'Unlimited devices' : $plan->max_devices_per_project . ' Devices per project' }}</li>
                                 <li>{{ $plan->max_topics_per_project == -1 ? 'Unlimited topics' : $plan->max_topics_per_project . ' Topics per project' }}</li>

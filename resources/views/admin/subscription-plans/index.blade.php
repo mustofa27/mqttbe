@@ -74,6 +74,7 @@
                             @if ($details['priority_support'])
                                 <span style="display: inline-block; padding: 0.35rem 0.75rem; border-radius: 6px; font-size: 0.75rem; font-weight: 600; background: #fef3c7; color: #92400e;">✓ Priority Support</span>
                             @endif
+                            <span style="display: inline-block; padding: 0.35rem 0.75rem; border-radius: 6px; font-size: 0.75rem; font-weight: 600; background: #e0f2fe; color: #0369a1;">✓ Secure Connection (SSL/TLS)</span>
                         </div>
                     </div>
 

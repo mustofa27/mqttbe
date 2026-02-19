@@ -75,6 +75,11 @@
                         <input type="checkbox" name="priority_support" value="1" {{ old('priority_support', $planDetails['priority_support']) ? 'checked' : '' }} style="width: 18px; height: 18px; cursor: pointer; margin-right: 0.75rem;">
                         <span style="color: #374151; font-weight: 500;">⚡ Priority Support</span>
                     </label>
+
+                    <label style="display: flex; align-items: center; padding: 1rem; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; cursor: pointer; transition: all 0.2s ease;" onmouseover="this.style.background='#f3f4f6';" onmouseout="this.style.background='#f9fafb';">
+                        <input type="checkbox" name="secure_connection" value="1" checked disabled style="width: 18px; height: 18px; cursor: pointer; margin-right: 0.75rem;">
+                        <span style="color: #374151; font-weight: 500;">🔒 Secure Connection (SSL/TLS)</span>
+                    </label>
                 </div>
             </div>
 

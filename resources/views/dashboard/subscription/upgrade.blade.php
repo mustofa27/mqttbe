@@ -245,6 +245,7 @@
                     <li>Custom SLA</li>
                     <li>White-label options</li>
                 @endif
+                <li>Secure Connection (SSL/TLS)</li>
             </ul>
             @if($currentTier === $plan->tier)
                 <button class="btn-select-plan disabled" disabled>Current Plan</button>
