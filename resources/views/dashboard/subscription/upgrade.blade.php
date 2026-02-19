@@ -320,6 +320,20 @@
 
 <script>
 
+    // Prevent double submission
+    document.addEventListener('DOMContentLoaded', function() {
+        const paymentForm = document.getElementById('paymentForm');
+        if (paymentForm) {
+            paymentForm.addEventListener('submit', function(e) {
+                const submitBtn = paymentForm.querySelector('button[type="submit"]');
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.textContent = 'Processing...';
+                }
+            });
+        }
+    });
+
     let currentPlanPrice = 0;
     function openPaymentModal(tier, price) {
         const modal = document.getElementById('paymentModal');

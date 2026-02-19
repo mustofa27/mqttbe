@@ -117,8 +117,8 @@ class SubscriptionController extends Controller
         $plan = SubscriptionPlan::where('tier', $tier)->firstOrFail();
         $amount = (int) $plan->price * $months;
 
-        // Generate unique external ID
-        $externalId = 'SUB-' . $user->id . '-' . strtoupper($tier) . '-' . time();
+        // Generate unique external ID with random string
+        $externalId = 'SUB-' . $user->id . '-' . strtoupper($tier) . '-' . time() . '-' . Str::random(6);
 
         // Create payment record
         $payment = SubscriptionPayment::create([
