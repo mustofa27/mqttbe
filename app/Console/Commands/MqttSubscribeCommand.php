@@ -55,7 +55,7 @@ class MqttSubscribeCommand extends Command
                 $topicTemplate = str_replace(['{project}', '{device_id}'], [$project->project_key, '+'], $topicModel->template);
                 $mqtt->subscribe($topicTemplate, function (string $topic, string $message, bool $retained, int $qos) use ($project, $topicModel) {
                     // Log incoming message
-                    Log::info('MQTT Subscriber received message', [
+                    $this->info('MQTT Subscriber received message', [
                         'topic' => $topic,
                         'message' => $message,
                         'qos' => $qos,
@@ -73,6 +73,10 @@ class MqttSubscribeCommand extends Command
                         ->where('active', true)
                         ->firstOrFail();
                     // Message creation moved here
+                    // Calculate expires_at based on user's subscription retention days
+                    $limits = $project->user ? $project->user->getSubscriptionLimits() : [];
+                    $retentionDays = isset($limits['data_retention_days']) ? (int)$limits['data_retention_days'] : 0;
+                    $expiresAt = $retentionDays > 0 ? Carbon::now()->addDays($retentionDays) : null;
                     $message = Message::create([
                         'project_id' => $project->id,
                         'device_id' => $device->id,
@@ -81,7 +85,7 @@ class MqttSubscribeCommand extends Command
                         'payload' => (string) $message,
                         'qos' => $qos,
                         'retained' => $retained,
-                        'expires_at' => null,
+                        'expires_at' => $expiresAt,
                         'created_at' => Carbon::now(),
                         'updated_at' => Carbon::now(),
                     ]);
