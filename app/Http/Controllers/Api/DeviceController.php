@@ -77,7 +77,13 @@ class DeviceController
         // Add 4-character hash of project id to device_id
         $hash = substr(md5($project->id), 0, 4);
         $deviceIdWithHash = $validated['device_id'] . '-' . $hash;
-        $device = Device::create(array_merge($validated, ['device_id' => $deviceIdWithHash]));
+        $device = Device::firstOrCreate(
+            [
+                'project_id' => $validated['project_id'],
+                'device_id' => $deviceIdWithHash,
+            ],
+            array_merge($validated, ['device_id' => $deviceIdWithHash])
+        );
 
         return response()->json(['data' => $device], 201);
     }

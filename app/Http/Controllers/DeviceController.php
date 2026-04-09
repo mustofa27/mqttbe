@@ -42,12 +42,16 @@ class DeviceController extends Controller
         // Add 4-character hash of project id to device_id
         $hash = substr(md5($project->id), 0, 4);
         $deviceIdWithHash = $validated['device_id'] . '-' . $hash;
-        Device::create([
-            'project_id' => $validated['project_id'],
-            'device_id' => $deviceIdWithHash,
-            'type' => $validated['type'],
-            'active' => true,
-        ]);
+        Device::firstOrCreate(
+            [
+                'project_id' => $validated['project_id'],
+                'device_id' => $deviceIdWithHash,
+            ],
+            [
+                'type' => $validated['type'],
+                'active' => true,
+            ]
+        );
 
         return redirect()->route('devices.index')->with('success', 'Device created successfully!');
     }
