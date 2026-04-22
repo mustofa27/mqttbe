@@ -21,14 +21,14 @@ class AnalyticsController extends Controller
     }
 
     /**
-     * Enforce advanced analytics access based on active subscription + feature access.
+     * Enforce analytics dashboard access based on active subscription + feature access.
      */
     private function ensureAdvancedAnalyticsAccess(Request $request): void
     {
         $user = $request->user();
 
-        if (!$user || !$user->hasActiveSubscription() || !$user->hasFeature('advanced_analytics_enabled')) {
-            abort(403, 'Advanced analytics access is required.');
+        if (!$user || !$user->hasActiveSubscription() || !$user->hasFeature('analytics_enabled')) {
+            abort(403, 'Analytics access is required.');
         }
     }
 

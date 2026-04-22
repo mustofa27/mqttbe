@@ -12,8 +12,8 @@ class MessageHistoryController extends Controller
     {
         $user = Auth::user();
 
-        if (!$user || !$user->hasActiveSubscription() || !$user->hasFeature('advanced_analytics_enabled')) {
-            abort(403, 'Advanced analytics access is required.');
+        if (!$user || !$user->hasActiveSubscription() || !$user->hasFeature('analytics_enabled')) {
+            abort(403, 'Analytics access is required.');
         }
 
         $projects = $user->projects;

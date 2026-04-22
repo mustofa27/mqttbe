@@ -3,7 +3,7 @@
 @section('content')
 <div class="analytics-container">
     <div class="page-header">
-        <h1>📊 Advanced Analytics</h1>
+        <h1>📊 Analytics</h1>
         <div class="header-controls">
             <a id="messageHistoryBtn" href="{{ route('messages.history') }}" class="btn-message-history">📨 Message History</a>
             <select id="projectSelect" class="form-select" onchange="loadProjectAnalytics()">
@@ -16,7 +16,7 @@
         </div>
     </div>
 
-    @if(auth()->user()->hasActiveSubscription() && auth()->user()->hasFeature('advanced_analytics_enabled'))
+    @if(auth()->user()->hasActiveSubscription() && auth()->user()->hasFeature('analytics_enabled'))
     <div class="listener-panel" id="listenerPanel">
         <div class="listener-autofill-trap" aria-hidden="true">
             <input type="text" tabindex="-1" autocomplete="username" name="decoy_username">
