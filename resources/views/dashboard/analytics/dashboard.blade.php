@@ -5,6 +5,7 @@
     <div class="page-header">
         <h1>📊 Advanced Analytics</h1>
         <div class="header-controls">
+            <a id="messageHistoryBtn" href="{{ route('messages.history') }}" class="btn-message-history">📨 Message History</a>
             <select id="projectSelect" class="form-select" onchange="loadProjectAnalytics()">
                 @foreach ($projects as $project)
                     <option value="{{ $project->id }}">{{ $project->name }}</option>
@@ -138,6 +139,28 @@
         .header-controls {
             display: flex;
             gap: 1rem;
+        }
+
+        .btn-message-history {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.75rem 0.9rem;
+            border-radius: 6px;
+            background: #f8f9fa;
+            border: 1px solid #d1d5db;
+            color: #1f2937;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 600;
+            white-space: nowrap;
+            transition: all 0.2s ease;
+        }
+
+        .btn-message-history:hover {
+            background: #eef2ff;
+            border-color: #c7d2fe;
+            color: #3730a3;
         }
 
         .form-select, .form-input {
@@ -420,12 +443,26 @@
     <script>
         let charts = {};
         const projectDataUrlTemplate = "{{ route('analytics.project-data', ['project' => '__PROJECT__']) }}";
+        const messageHistoryBaseUrl = "{{ route('messages.history') }}";
         const listenerStatusUrl = "{{ route('mqtt-listener.status') }}";
         const listenerConfigUrl = "{{ route('mqtt-listener.config') }}";
         const listenerStartUrl = "{{ route('mqtt-listener.start') }}";
         const listenerStopUrl = "{{ route('mqtt-listener.stop') }}";
         const listenerRestartUrl = "{{ route('mqtt-listener.restart') }}";
         const savedPasswordToken = '********';
+
+        function updateMessageHistoryLink() {
+            const projectId = document.getElementById('projectSelect')?.value;
+            const historyBtn = document.getElementById('messageHistoryBtn');
+
+            if (!historyBtn || !projectId) {
+                return;
+            }
+
+            const url = new URL(messageHistoryBaseUrl, window.location.origin);
+            url.searchParams.set('project_id', projectId);
+            historyBtn.href = `${url.pathname}${url.search}`;
+        }
 
         function initializeDatepickers() {
             const today = new Date();
@@ -439,6 +476,8 @@
             const projectId = document.getElementById('projectSelect').value;
             const from = document.getElementById('fromDate').value;
             const to = document.getElementById('toDate').value;
+
+            updateMessageHistoryLink();
 
             const url = projectDataUrlTemplate.replace('__PROJECT__', projectId) + `?from=${from}&to=${to}`;
 

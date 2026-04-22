@@ -555,11 +555,6 @@
                     </li>
                 @endif
                 @if(auth()->user()->hasActiveSubscription() && auth()->user()->hasFeature('advanced_analytics_enabled'))
-                    <li>
-                        <a href="{{ route('messages.history') }}" class="@if(Route::currentRouteName() === 'messages.history') active @endif">
-                            📨 Message History
-                        </a>
-                    </li>
                 @endif
                 <li>
                     <a href="{{ route('subscription.index') }}" class="@if(strpos(Route::currentRouteName(), 'subscription.') !== false) active @endif">

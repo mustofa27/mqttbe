@@ -17,9 +17,22 @@ class MessageHistoryController extends Controller
         }
 
         $projects = $user->projects;
+        $allowedProjectIds = $projects->pluck('id')->map(fn($id) => (int) $id)->all();
+        $selectedProjectId = null;
+
+        if ($request->filled('project_id')) {
+            $candidateProjectId = (int) $request->project_id;
+            if (in_array($candidateProjectId, $allowedProjectIds, true)) {
+                $selectedProjectId = $candidateProjectId;
+            }
+        }
 
         // Only show messages for projects the user owns
         $query = Message::whereIn('project_id', $projects->pluck('id'));
+
+        if (!is_null($selectedProjectId)) {
+            $query->where('project_id', $selectedProjectId);
+        }
 
         // Filter by device, topic, date if provided
         if ($request->filled('device_id')) {
@@ -34,6 +47,6 @@ class MessageHistoryController extends Controller
 
         $messages = $query->orderByDesc('created_at')->paginate(25);
 
-        return view('dashboard.messages.index', compact('messages', 'projects'));
+        return view('dashboard.messages.index', compact('messages', 'projects', 'selectedProjectId'));
     }
 }

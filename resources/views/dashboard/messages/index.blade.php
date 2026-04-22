@@ -7,9 +7,22 @@
     <h1 class="message-history-title">MQTT Message History</h1>
 
     <form method="GET" class="message-history-filters">
+        <select name="project_id" class="filter-input">
+            <option value="">All Projects</option>
+            @foreach ($projects as $project)
+                <option value="{{ $project->id }}" @if((int) request('project_id') === (int) $project->id) selected @endif>{{ $project->name }}</option>
+            @endforeach
+        </select>
+
+        @php
+            $deviceProjects = isset($selectedProjectId) && !is_null($selectedProjectId)
+                ? $projects->where('id', $selectedProjectId)
+                : $projects;
+        @endphp
+
         <select name="device_id" class="filter-input">
             <option value="">All Devices</option>
-            @foreach ($projects as $project)
+            @foreach ($deviceProjects as $project)
                 @foreach ($project->devices as $device)
                     <option value="{{ $device->id }}" @if(request('device_id') == $device->id) selected @endif>{{ $device->device_id }}</option>
                 @endforeach
@@ -93,7 +106,7 @@
     .message-history-filters {
         margin-bottom: 2rem;
         display: grid;
-        grid-template-columns: minmax(200px, 1fr) minmax(180px, 1fr) auto auto;
+        grid-template-columns: minmax(190px, 1fr) minmax(190px, 1fr) minmax(180px, 1fr) auto auto;
         gap: 0.75rem;
         align-items: center;
     }
