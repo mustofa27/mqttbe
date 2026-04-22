@@ -17,16 +17,20 @@
 
     @if(auth()->user()->hasActiveSubscription() && auth()->user()->hasFeature('advanced_analytics_enabled'))
     <div class="listener-panel" id="listenerPanel">
+        <div class="listener-autofill-trap" aria-hidden="true">
+            <input type="text" tabindex="-1" autocomplete="username" name="decoy_username">
+            <input type="password" tabindex="-1" autocomplete="current-password" name="decoy_password">
+        </div>
         <div class="listener-info">
             <h3>MQTT Listener Service</h3>
             <p class="listener-subtitle">Enter MQTT username, password, and device ID, then start and monitor live process state.</p>
             <div class="listener-input-grid">
-                <input id="listenerUsername" type="text" class="listener-input" placeholder="MQTT Username">
+                <input id="listenerUsername" type="text" class="listener-input" placeholder="MQTT Username" name="listener_mqtt_username" autocomplete="off" autocapitalize="none" spellcheck="false">
                 <div class="listener-password-wrap">
-                    <input id="listenerPassword" type="password" class="listener-input listener-password-input" placeholder="MQTT Password">
+                    <input id="listenerPassword" type="password" class="listener-input listener-password-input" placeholder="MQTT Password" name="listener_mqtt_password" autocomplete="new-password" autocapitalize="none" spellcheck="false">
                     <button id="toggleListenerPassword" type="button" class="listener-password-toggle" aria-label="Show password" onclick="toggleListenerPasswordVisibility()">&#128065;</button>
                 </div>
-                <input id="listenerDeviceId" type="text" class="listener-input" placeholder="Device ID">
+                <input id="listenerDeviceId" type="text" class="listener-input" placeholder="Device ID" name="listener_mqtt_device" autocomplete="off" autocapitalize="none" spellcheck="false">
             </div>
             <div class="listener-status-row">
                 <span id="listenerStateBadge" class="listener-state listener-state-unknown">UNKNOWN</span>
@@ -171,6 +175,15 @@
         .listener-info h3 {
             margin: 0 0 0.25rem;
             font-size: 1rem;
+        }
+
+        .listener-autofill-trap {
+            position: absolute;
+            width: 0;
+            height: 0;
+            opacity: 0;
+            pointer-events: none;
+            overflow: hidden;
         }
 
         .listener-input-grid {
@@ -412,6 +425,7 @@
         const listenerStartUrl = "{{ route('mqtt-listener.start') }}";
         const listenerStopUrl = "{{ route('mqtt-listener.stop') }}";
         const listenerRestartUrl = "{{ route('mqtt-listener.restart') }}";
+        const savedPasswordToken = '********';
 
         function initializeDatepickers() {
             const today = new Date();
@@ -555,6 +569,10 @@
             }
 
             if (passwordInput) {
+                if (service.has_password && passwordInput.value.trim() === '') {
+                    passwordInput.value = savedPasswordToken;
+                    passwordInput.dataset.usingSavedPassword = 'true';
+                }
                 passwordInput.placeholder = service.has_password ? 'Saved password stored' : 'MQTT Password';
             }
 
@@ -642,7 +660,7 @@
 
             runListenerAction(listenerStartUrl, 'Start Listener', startBtn, {
                 username: usernameInput.value.trim(),
-                password: passwordInput.value,
+                password: resolveListenerPasswordPayload(),
                 device_id: deviceIdInput.value.trim()
             });
         }
@@ -666,7 +684,7 @@
 
             runListenerAction(listenerConfigUrl, 'Save Config', saveBtn, {
                 username: usernameInput.value.trim(),
-                password: passwordInput.value,
+                password: resolveListenerPasswordPayload(),
                 device_id: deviceIdInput.value.trim()
             });
         }
@@ -700,9 +718,24 @@
             restartBtn.textContent = 'Restarting...';
             runListenerAction(listenerRestartUrl, 'Restart', restartBtn, {
                 username: usernameInput.value.trim(),
-                password: passwordInput.value,
+                password: resolveListenerPasswordPayload(),
                 device_id: deviceIdInput.value.trim()
             });
+        }
+
+        function resolveListenerPasswordPayload() {
+            const passwordInput = document.getElementById('listenerPassword');
+            if (!passwordInput) {
+                return '';
+            }
+
+            const raw = passwordInput.value;
+            const usingSaved = passwordInput.dataset.usingSavedPassword === 'true';
+            if (usingSaved || raw === savedPasswordToken) {
+                return '';
+            }
+
+            return raw;
         }
 
         function runListenerAction(url, defaultLabel, actionButton, payload = null) {
@@ -729,6 +762,7 @@
                 if (passwordInput && payload) {
                     passwordInput.value = '';
                     passwordInput.type = 'password';
+                    passwordInput.dataset.usingSavedPassword = 'false';
                 }
                 if (toggleButton && payload) {
                     toggleButton.setAttribute('aria-label', 'Show password');
@@ -749,6 +783,27 @@
             initializeDatepickers();
             loadProjectAnalytics();
             loadListenerStatus();
+
+            const passwordInput = document.getElementById('listenerPassword');
+            if (passwordInput) {
+                passwordInput.addEventListener('focus', () => {
+                    if (passwordInput.dataset.usingSavedPassword === 'true') {
+                        passwordInput.value = '';
+                    }
+                });
+
+                passwordInput.addEventListener('input', () => {
+                    if (passwordInput.value !== savedPasswordToken) {
+                        passwordInput.dataset.usingSavedPassword = 'false';
+                    }
+                });
+
+                passwordInput.addEventListener('blur', () => {
+                    if (passwordInput.value.trim() === '') {
+                        passwordInput.dataset.usingSavedPassword = 'true';
+                    }
+                });
+            }
 
             // Auto-refresh every 30 seconds
             setInterval(loadProjectAnalytics, 30000);
