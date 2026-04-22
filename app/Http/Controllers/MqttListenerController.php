@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Device;
 use App\Models\Project;
+use App\Models\SubscriptionPlan;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -29,9 +30,9 @@ class MqttListenerController extends Controller
         }
 
         $users = $usersQuery->orderBy('id')->get();
-        $maxPerUser = max(1, (int) config('mqtt.listener.max_processes_per_user', 1));
 
-        $data = $users->map(function (User $user) use ($maxPerUser) {
+        $data = $users->map(function (User $user) {
+            $maxPerUser = $this->resolveListenerLimitForUser($user);
             $service = $this->resolveStatus((int) $user->id);
             $runningCount = $this->countRunningProcessesForUser((int) $user->id);
 
@@ -45,8 +46,8 @@ class MqttListenerController extends Controller
                 ],
                 'service' => $service,
                 'running_count' => $runningCount,
-                'limit' => $maxPerUser,
-                'limit_reached' => $runningCount >= $maxPerUser,
+                'limit' => $maxPerUser === PHP_INT_MAX ? -1 : $maxPerUser,
+                'limit_reached' => $maxPerUser === PHP_INT_MAX ? false : $runningCount >= $maxPerUser,
             ];
         })->values();
 
@@ -169,10 +170,10 @@ class MqttListenerController extends Controller
                 ]);
             }
 
-            $maxPerUser = max(1, (int) config('mqtt.listener.max_processes_per_user', 1));
+            $maxPerUser = $this->resolveListenerLimitForUser($request->user());
             $runningCount = $this->countRunningProcessesForUser($userId);
 
-            if ($runningCount >= $maxPerUser) {
+            if ($maxPerUser !== PHP_INT_MAX && $runningCount >= $maxPerUser) {
                 return response()->json([
                     'ok' => false,
                     'action' => 'start',
@@ -569,6 +570,18 @@ class MqttListenerController extends Controller
         }
 
         return $count;
+    }
+
+    private function resolveListenerLimitForUser(User $user): int
+    {
+        $limits = $user->getSubscriptionLimits();
+        $maxProjects = isset($limits['max_projects']) ? (int) $limits['max_projects'] : 0;
+
+        if (SubscriptionPlan::isUnlimited($maxProjects)) {
+            return PHP_INT_MAX;
+        }
+
+        return max(1, $maxProjects);
     }
 
     private function startLockPath(int $userId, int $projectId): string
