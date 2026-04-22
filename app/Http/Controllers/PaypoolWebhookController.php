@@ -16,15 +16,45 @@ class PaypoolWebhookController extends Controller
     {
         Log::info('Paypool webhook received', $request->all());
 
-        $event = $request->input('event');
-        $paymentData = $request->input('payment');
+        $event = $request->input('event')
+            ?? $request->input('event_type')
+            ?? $request->input('type');
 
-        if ($event !== 'payment.updated') {
+        $paymentData = $request->input('payment');
+        if (!is_array($paymentData)) {
+            // Some providers send payment fields at the root payload level.
+            $paymentData = $request->all();
+        }
+
+        $supportedEvents = [
+            'payment.updated',
+            'payment_update',
+            'payment.paid',
+            'payment.settled',
+            'manual_paid',
+            'manual-settled',
+            'transaction_status',
+        ];
+
+        if ($event && !in_array($event, $supportedEvents, true)) {
+            Log::info('Webhook event ignored', ['event' => $event]);
             return response()->json(['message' => 'Event not handled'], 200);
         }
 
-        $externalId = $paymentData['external_id'] ?? null;
-        $status = $paymentData['status'] ?? null;
+        $externalId = $paymentData['external_id']
+            ?? $paymentData['order_id']
+            ?? $request->input('external_id')
+            ?? $request->input('order_id');
+
+        $status = $paymentData['status']
+            ?? $paymentData['payment_status']
+            ?? $paymentData['transaction_status']
+            ?? $request->input('status')
+            ?? $request->input('transaction_status');
+
+        if (!$status && in_array($event, ['manual_paid', 'payment.paid', 'payment.settled'], true)) {
+            $status = 'paid';
+        }
 
         // Find payment record
         $payment = $externalId ? SubscriptionPayment::where('external_id', $externalId)->first() : null;
@@ -40,16 +70,23 @@ class PaypoolWebhookController extends Controller
             'capture' => 'paid',
             'paid' => 'paid',
             'settled' => 'paid',
+            'manual_paid' => 'paid',
+            'success' => 'paid',
+            'completed' => 'paid',
             'expired' => 'expired',
             'failed' => 'failed',
+            'deny' => 'failed',
+            'cancel' => 'failed',
+            'pending' => 'pending',
         ];
-        $localStatus = $statusMap[$status] ?? $status;
+        $statusKey = is_string($status) ? strtolower(trim($status)) : null;
+        $localStatus = $statusKey ? ($statusMap[$statusKey] ?? $statusKey) : 'pending';
 
         // Update payment record
         $payment->update([
             'status' => $localStatus,
-            'payment_method' => $paymentData['payment_method'] ?? null,
-            'paid_at' => in_array($localStatus, ['paid']) ? ($paymentData['paid_at'] ?? now()) : null,
+            'payment_method' => $paymentData['payment_method'] ?? $payment->payment_method,
+            'paid_at' => $localStatus === 'paid' ? ($paymentData['paid_at'] ?? $payment->paid_at ?? now()) : $payment->paid_at,
         ]);
 
         // If payment is successful, upgrade user subscription

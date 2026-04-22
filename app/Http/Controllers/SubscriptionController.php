@@ -201,7 +201,15 @@ class SubscriptionController extends Controller
      */
     public function paymentSuccess(Request $request)
     {
-        $externalId = $request->query('external_id');
+        $externalId = $request->query('external_id') ?? $request->query('order_id');
+
+        \Log::info('Payment success callback query received', [
+            'external_id' => $request->query('external_id'),
+            'order_id' => $request->query('order_id'),
+            'status_code' => $request->query('status_code'),
+            'transaction_status' => $request->query('transaction_status'),
+            'resolved_external_id' => $externalId,
+        ]);
         
         if (!$externalId) {
             return redirect()->route('subscription.index')
@@ -217,6 +225,59 @@ class SubscriptionController extends Controller
                 ->with('error', 'Payment not found.');
         }
 
+        // Fallback sync in case webhook payload format changed or was delayed.
+        try {
+            $gateway = app(PaypoolService::class)->getPayment($externalId);
+            if (($gateway['success'] ?? false) && isset($gateway['data']) && is_array($gateway['data'])) {
+                $paymentData = $gateway['data'];
+                $gatewayStatus = strtolower((string) ($paymentData['status'] ?? $paymentData['payment_status'] ?? $paymentData['transaction_status'] ?? ''));
+
+                $statusMap = [
+                    'settlement' => 'paid',
+                    'capture' => 'paid',
+                    'paid' => 'paid',
+                    'settled' => 'paid',
+                    'manual_paid' => 'paid',
+                    'success' => 'paid',
+                    'completed' => 'paid',
+                    'expired' => 'expired',
+                    'failed' => 'failed',
+                    'deny' => 'failed',
+                    'cancel' => 'failed',
+                    'pending' => 'pending',
+                ];
+
+                if ($gatewayStatus !== '') {
+                    $localStatus = $statusMap[$gatewayStatus] ?? $gatewayStatus;
+                    $payment->update([
+                        'status' => $localStatus,
+                        'payment_method' => $paymentData['payment_method'] ?? $payment->payment_method,
+                        'paid_at' => $localStatus === 'paid' ? ($paymentData['paid_at'] ?? $payment->paid_at ?? now()) : $payment->paid_at,
+                    ]);
+
+                    if ($localStatus === 'paid' && $payment->user) {
+                        $months = 1;
+                        if (isset($payment->metadata['months']) && is_numeric($payment->metadata['months'])) {
+                            $months = max(1, (int) $payment->metadata['months']);
+                        }
+
+                        $payment->user->update([
+                            'subscription_tier' => $payment->tier,
+                            'subscription_active' => true,
+                            'subscription_expires_at' => now()->addMonths($months),
+                        ]);
+                    }
+
+                    $payment->refresh();
+                }
+            }
+        } catch (\Throwable $e) {
+            \Log::warning('Payment success sync failed', [
+                'external_id' => $externalId,
+                'error' => $e->getMessage(),
+            ]);
+        }
+
         return view('dashboard.subscription.payment-success', compact('payment'));
     }
 
@@ -225,7 +286,15 @@ class SubscriptionController extends Controller
      */
     public function paymentFailed(Request $request)
     {
-        $externalId = $request->query('external_id');
+        $externalId = $request->query('external_id') ?? $request->query('order_id');
+
+        \Log::info('Payment failed callback query received', [
+            'external_id' => $request->query('external_id'),
+            'order_id' => $request->query('order_id'),
+            'status_code' => $request->query('status_code'),
+            'transaction_status' => $request->query('transaction_status'),
+            'resolved_external_id' => $externalId,
+        ]);
         
         $payment = null;
         if ($externalId) {
