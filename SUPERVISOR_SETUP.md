@@ -1,6 +1,6 @@
 # Supervisor Setup Guide for ICMQTT
 
-This guide will help you set up Supervisor to manage Laravel queue workers and the scheduler for the ICMQTT application.
+This guide will help you set up Supervisor for queue workers and the scheduler, plus systemd for restoring per-user MQTT subscriber processes after reboot.
 
 ## Prerequisites
 
@@ -65,6 +65,10 @@ user=www-data
 numprocs=1
 redirect_stderr=true
 stdout_logfile=/var/www/icmqtt/storage/logs/scheduler.log
+
+; MQTT subscribers are no longer managed here as one shared process.
+; Per-user listeners are restored after reboot through systemd using:
+;     php artisan mqtt:listeners:restore
 ```
 
 ### Step 2: Copy Configuration to Supervisor Directory
@@ -107,7 +111,59 @@ icmqtt-worker:icmqtt-worker_00       RUNNING   pid 12346, uptime 0:00:10
 icmqtt-worker:icmqtt-worker_01       RUNNING   pid 12347, uptime 0:00:10
 ```
 
-## 4. Managing Supervisor Processes
+## 4. Configure systemd for MQTT Subscriber Restore
+
+Per-user MQTT subscribers are started from the application with user-specific credentials and device IDs. Because of that, they should not run as one shared Supervisor program. Instead, restore them on boot with systemd.
+
+### Step 1: Review the systemd unit template
+
+This project includes:
+
+```bash
+deploy/systemd/mqtt-listeners-restore.service
+```
+
+Update these values inside the service file before installing it:
+
+1. `User`
+2. `Group`
+3. `WorkingDirectory`
+4. `ExecStart` PHP path and project path
+5. log output path if your deployment path differs
+
+### Step 2: Copy the unit file into systemd
+
+```bash
+sudo cp deploy/systemd/mqtt-listeners-restore.service /etc/systemd/system/mqtt-listeners-restore.service
+```
+
+### Step 3: Reload systemd and enable restore on boot
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable mqtt-listeners-restore.service
+```
+
+### Step 4: Test it now
+
+```bash
+sudo systemctl start mqtt-listeners-restore.service
+sudo systemctl status mqtt-listeners-restore.service
+```
+
+### Step 5: Check restore logs
+
+```bash
+tail -f /var/www/icmqtt/storage/logs/mqtt-listeners-restore.log
+```
+
+What this service does:
+
+1. runs `php artisan mqtt:listeners:restore` once after boot
+2. reads saved per-user listener metadata
+3. restores only users who still have active advanced analytics access
+
+## 5. Managing Supervisor Processes
 
 ### Stop All ICMQTT Processes
 ```bash
@@ -132,7 +188,7 @@ sudo supervisorctl tail icmqtt-worker:icmqtt-worker_00
 sudo supervisorctl tail -f icmqtt-scheduler  # Follow mode
 ```
 
-## 5. What Each Process Does
+## 6. What Each Process Does
 
 ### Queue Worker (`icmqtt-worker`)
 - Processes background jobs from the `database` queue
@@ -147,7 +203,13 @@ sudo supervisorctl tail -f icmqtt-scheduler  # Follow mode
 - Downgrades expired subscriptions to free tier
 - Runs other scheduled tasks defined in `routes/console.php`
 
-## 6. Troubleshooting
+### MQTT Subscriber Restore (`mqtt-listeners-restore.service`)
+- Runs once during boot via systemd
+- Restores saved per-user MQTT listener processes
+- Uses `php artisan mqtt:listeners:restore`
+- Replaces the old shared subscriber service model
+
+## 7. Troubleshooting
 
 ### Check if Supervisor is Running
 ```bash
@@ -158,6 +220,7 @@ sudo systemctl status supervisor
 ```bash
 tail -f /var/www/icmqtt/storage/logs/worker.log
 tail -f /var/www/icmqtt/storage/logs/scheduler.log
+tail -f /var/www/icmqtt/storage/logs/mqtt-listeners-restore.log
 tail -f /var/log/supervisor/supervisord.log
 ```
 
@@ -180,7 +243,14 @@ tail -f /var/log/supervisor/supervisord.log
    cd /var/www/icmqtt
    php artisan queue:work database --once
    php artisan schedule:list
+   php artisan mqtt:listeners:restore --dry-run
    ```
+
+### Check systemd restore unit
+```bash
+sudo systemctl status mqtt-listeners-restore.service
+journalctl -u mqtt-listeners-restore.service -n 100 --no-pager
+```
 
 ### Remove Configuration
 ```bash
@@ -189,7 +259,14 @@ sudo supervisorctl reread
 sudo supervisorctl update
 ```
 
-## 7. After Code Updates
+### Remove restore unit
+```bash
+sudo systemctl disable mqtt-listeners-restore.service
+sudo rm /etc/systemd/system/mqtt-listeners-restore.service
+sudo systemctl daemon-reload
+```
+
+## 8. After Code Updates
 
 When you deploy new code to your VPS:
 
@@ -213,9 +290,12 @@ php artisan view:cache
 # Restart workers
 sudo supervisorctl start icmqtt-worker:*
 sudo supervisorctl restart icmqtt-scheduler:
+
+# Re-run subscriber restore if needed
+sudo systemctl restart mqtt-listeners-restore.service
 ```
 
-## 8. Monitoring
+## 9. Monitoring
 
 ### Check Queue Status
 ```bash
@@ -232,7 +312,12 @@ php artisan queue:failed
 php artisan queue:retry all
 ```
 
-## 9. Performance Tuning
+### Check restored listener sessions
+```bash
+php artisan mqtt:listeners:restore --dry-run
+```
+
+## 10. Performance Tuning
 
 ### Increase Worker Count
 Edit `/etc/supervisor/conf.d/icmqtt.conf` and change:
@@ -258,4 +343,5 @@ For issues, check:
 - `/var/www/icmqtt/storage/logs/laravel.log` - Application logs
 - `/var/www/icmqtt/storage/logs/worker.log` - Queue worker logs
 - `/var/www/icmqtt/storage/logs/scheduler.log` - Scheduler logs
+- `/var/www/icmqtt/storage/logs/mqtt-listeners-restore.log` - Subscriber restore logs
 - `/var/log/supervisor/supervisord.log` - Supervisor logs
