@@ -88,7 +88,7 @@
                 <h3>Projects</h3>
             </div>
             <div class="stat-content">
-                <div class="stat-value">{{ count($usageData) }}</div>
+                <div class="stat-value">{{ number_format($projectsCount) }}</div>
                 <div class="stat-label">
                     @if($limits['max_projects'] === -1)
                         Unlimited projects
@@ -96,6 +96,28 @@
                         of {{ $limits['max_projects'] }} max
                     @endif
                 </div>
+            </div>
+        </div>
+
+        <!-- Devices Count -->
+        <div class="stat-card">
+            <div class="stat-header">
+                <h3>Devices</h3>
+            </div>
+            <div class="stat-content">
+                <div class="stat-value">{{ number_format($devicesCount) }}</div>
+                <div class="stat-label">registered devices</div>
+            </div>
+        </div>
+
+        <!-- Topics Count -->
+        <div class="stat-card">
+            <div class="stat-header">
+                <h3>Topics</h3>
+            </div>
+            <div class="stat-content">
+                <div class="stat-value">{{ number_format($topicsCount) }}</div>
+                <div class="stat-label">configured topics</div>
             </div>
         </div>
 
@@ -115,48 +137,6 @@
                 <div class="stat-label">messages/hour</div>
             </div>
         </div>
-    </div>
-
-    <!-- Projects Usage Table -->
-    <div class="card" style="margin-top: 2rem;">
-        <h2>Projects Usage</h2>
-        
-        @if(count($usageData) > 0)
-            <div class="table-responsive">
-                <table class="usage-table">
-                    <thead>
-                        <tr>
-                            <th>Project</th>
-                            <th>Current Hour</th>
-                            <th>Today</th>
-                            <th>Total (30d)</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($usageData as $data)
-                            <tr>
-                                <td>
-                                    <strong>{{ $data['project']->name }}</strong>
-                                    <br>
-                                    <small style="color: #999;">{{ $data['project']->description ?? 'No description' }}</small>
-                                </td>
-                                <td>{{ number_format($data['current_hour']) }}</td>
-                                <td>{{ number_format($data['current_day']) }}</td>
-                                <td>{{ number_format($data['total_usage']) }}</td>
-                                <td>
-                                    <a href="{{ route('usage.project', $data['project']->id) }}" class="btn btn-small">View Details</a>
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
-        @else
-            <p style="color: #999; padding: 2rem; text-align: center;">
-                No projects yet. <a href="{{ route('projects.create') }}">Create your first project</a>
-            </p>
-        @endif
     </div>
 
     <!-- Plan Limits Reference -->

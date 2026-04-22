@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\ApiKey;
+use App\Models\Device;
 use App\Models\Project;
+use App\Models\Topic;
 use App\Models\UsageLog;
 use App\Services\UsageTrackingService;
 use Illuminate\Http\Request;
@@ -26,28 +28,23 @@ class UsageController extends Controller
         $limits = \App\Models\SubscriptionPlan::getLimits($user->subscription_tier ?? 'free');
 
         $projects = Project::where('user_id', $user->id)->get();
+        $projectIds = $projects->pluck('id');
+        $projectsCount = $projects->count();
+        $devicesCount = Device::whereIn('project_id', $projectIds)->count();
+        $topicsCount = Topic::whereIn('project_id', $projectIds)->count();
         
         // Get current hour usage from Redis (using ACL controller pattern: mqtt:rate:user:{user_id}:{YmdH})
         $now = Carbon::now();
         $redisKey = 'mqtt:rate:user:' . $user->id . ':' . $now->format('YmdH');
         $currentHourUsage = (int) Redis::get($redisKey) ?? 0;
-        
-        $usageData = [];
-        foreach ($projects as $project) {
-            $summary = $this->usageService->getUsageSummary($project->id);
-            $usageData[$project->id] = [
-                'project' => $project,
-                'current_hour' => $this->usageService->getCurrentHourUsage($project->id),
-                'current_day' => $this->usageService->getCurrentDayUsage($project->id),
-                'total_usage' => $summary['total_usage'],
-            ];
-        }
 
         return view('dashboard.usage', [
             'user' => $user,
             'limits' => $limits,
             'currentHourUsage' => $currentHourUsage,
-            'usageData' => $usageData,
+            'projectsCount' => $projectsCount,
+            'devicesCount' => $devicesCount,
+            'topicsCount' => $topicsCount,
             'rateLimit' => $limits['rate_limit_per_hour'],
         ]);
     }
