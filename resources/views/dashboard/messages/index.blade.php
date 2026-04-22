@@ -20,6 +20,19 @@
         <button type="submit" class="btn btn-primary">Filter</button>
     </form>
 
+    <div class="message-history-toolbar">
+        <p class="message-history-summary">
+            @if($messages->count() > 0)
+                Showing {{ $messages->firstItem() }}-{{ $messages->lastItem() }} of {{ $messages->total() }} messages
+            @else
+                No messages found
+            @endif
+        </p>
+        <div class="pagination-wrap">
+            {{ $messages->links() }}
+        </div>
+    </div>
+
     <div class="message-history-table-wrap">
         <table class="message-history-table">
             <thead>
@@ -45,10 +58,6 @@
                 @endforelse
             </tbody>
         </table>
-    </div>
-
-    <div class="pagination-wrap">
-        {{ $messages->links() }}
     </div>
 </div>
 
@@ -86,6 +95,21 @@
         border-radius: 12px;
         overflow-x: auto;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .message-history-toolbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 0.9rem;
+    }
+
+    .message-history-summary {
+        margin: 0;
+        color: #6b7280;
+        font-size: 0.92rem;
+        font-weight: 600;
     }
 
     .message-history-table {
@@ -130,7 +154,7 @@
     }
 
     .pagination-wrap {
-        margin-top: 1.5rem;
+        margin-top: 0;
     }
 
     .pagination-wrap svg {
@@ -158,6 +182,15 @@
 
         .message-history-filters {
             grid-template-columns: 1fr;
+        }
+
+        .message-history-toolbar {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .message-history-summary {
+            text-align: center;
         }
 
         .message-history-table {
