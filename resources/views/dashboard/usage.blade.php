@@ -33,6 +33,32 @@
         </div>
     </div>
 
+    @php
+        $maxProjects = $limits['max_projects'];
+        $projectsAvailable = $maxProjects === -1 ? null : max(0, $maxProjects - $projectsCount);
+        $projectsPercent = ($maxProjects === -1 || $maxProjects === 0)
+            ? 0
+            : min(100, ($projectsCount / $maxProjects) * 100);
+
+        $maxDevicesPerProject = $limits['max_devices_per_project'];
+        $devicesCapacity = ($maxProjects === -1 || $maxDevicesPerProject === -1)
+            ? null
+            : ($maxProjects * $maxDevicesPerProject);
+        $devicesAvailable = is_null($devicesCapacity) ? null : max(0, $devicesCapacity - $devicesCount);
+        $devicesPercent = (is_null($devicesCapacity) || $devicesCapacity === 0)
+            ? 0
+            : min(100, ($devicesCount / $devicesCapacity) * 100);
+
+        $maxTopicsPerProject = $limits['max_topics_per_project'];
+        $topicsCapacity = ($maxProjects === -1 || $maxTopicsPerProject === -1)
+            ? null
+            : ($maxProjects * $maxTopicsPerProject);
+        $topicsAvailable = is_null($topicsCapacity) ? null : max(0, $topicsCapacity - $topicsCount);
+        $topicsPercent = (is_null($topicsCapacity) || $topicsCapacity === 0)
+            ? 0
+            : min(100, ($topicsCount / $topicsCapacity) * 100);
+    @endphp
+
     <div class="dashboard-grid">
         <!-- Current Hour Usage Card -->
         <div class="stat-card">
@@ -90,11 +116,16 @@
             <div class="stat-content">
                 <div class="stat-value">{{ number_format($projectsCount) }}</div>
                 <div class="stat-label">
-                    @if($limits['max_projects'] === -1)
+                    @if($maxProjects === -1)
                         Unlimited projects
                     @else
-                        of {{ $limits['max_projects'] }} max
+                        {{ number_format($projectsAvailable) }} available of {{ number_format($maxProjects) }}
                     @endif
+                </div>
+            </div>
+            <div class="stat-progress">
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: {{ $projectsPercent }}%;"></div>
                 </div>
             </div>
         </div>
@@ -106,7 +137,18 @@
             </div>
             <div class="stat-content">
                 <div class="stat-value">{{ number_format($devicesCount) }}</div>
-                <div class="stat-label">registered devices</div>
+                <div class="stat-label">
+                    @if(is_null($devicesCapacity))
+                        Unlimited device slots
+                    @else
+                        {{ number_format($devicesAvailable) }} available of {{ number_format($devicesCapacity) }}
+                    @endif
+                </div>
+            </div>
+            <div class="stat-progress">
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: {{ $devicesPercent }}%;"></div>
+                </div>
             </div>
         </div>
 
@@ -117,7 +159,18 @@
             </div>
             <div class="stat-content">
                 <div class="stat-value">{{ number_format($topicsCount) }}</div>
-                <div class="stat-label">configured topics</div>
+                <div class="stat-label">
+                    @if(is_null($topicsCapacity))
+                        Unlimited topic slots
+                    @else
+                        {{ number_format($topicsAvailable) }} available of {{ number_format($topicsCapacity) }}
+                    @endif
+                </div>
+            </div>
+            <div class="stat-progress">
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: {{ $topicsPercent }}%;"></div>
+                </div>
             </div>
         </div>
 
