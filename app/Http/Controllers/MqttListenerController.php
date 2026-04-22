@@ -66,7 +66,16 @@ class MqttListenerController extends Controller
             return $denied;
         }
 
-        return response()->json($this->resolveStatus($request->user()->id));
+        $validated = $request->validate([
+            'project_id' => ['nullable', 'integer'],
+        ]);
+
+        $selectedProjectId = null;
+        if (isset($validated['project_id']) && $validated['project_id'] !== null && $validated['project_id'] !== '') {
+            $selectedProjectId = (int) $validated['project_id'];
+        }
+
+        return response()->json($this->resolveStatus($request->user()->id, $selectedProjectId));
     }
 
     public function saveConfig(Request $request): JsonResponse
@@ -335,9 +344,10 @@ class MqttListenerController extends Controller
         return $baseDeviceId . '-' . $hash;
     }
 
-    private function resolveStatus(int $userId): array
+    private function resolveStatus(int $userId, ?int $selectedProjectId = null): array
     {
         $meta = $this->readListenerMetadata($userId, true);
+        $metaProjectId = isset($meta['project_id']) ? (int) $meta['project_id'] : null;
         $pid = isset($meta['pid']) ? (int) $meta['pid'] : 0;
         $running = $pid > 0 && $this->isProcessRunning($pid);
 
@@ -347,16 +357,34 @@ class MqttListenerController extends Controller
                 'started_at' => null,
             ]));
             $meta = $this->readListenerMetadata($userId, true);
+            $metaProjectId = isset($meta['project_id']) ? (int) $meta['project_id'] : null;
             $pid = 0;
         }
 
+        $isSelectedProject = $selectedProjectId === null || $selectedProjectId <= 0 || $metaProjectId === null
+            ? true
+            : $metaProjectId === $selectedProjectId;
+
+        $selectedProjectRunning = $running && $isSelectedProject;
+
+        $rawStatus = $selectedProjectRunning
+            ? ('PID ' . $pid . ' active')
+            : 'No active process';
+
+        if ($running && !$selectedProjectRunning && $selectedProjectId !== null && $selectedProjectId > 0) {
+            $rawStatus = 'Listener active for project #' . $metaProjectId . '. Switch project or restart listener for current selection.';
+        }
+
         return [
-            'program' => 'mqtt:subscribe --user_id=' . $userId,
+            'program' => 'mqtt:subscribe --user_id=' . $userId . ($metaProjectId ? ' --project_id=' . $metaProjectId : ''),
             'user_id' => $userId,
+            'project_id' => $metaProjectId,
+            'selected_project_id' => $selectedProjectId,
             'pid' => $pid,
-            'running' => $running,
-            'state' => $running ? 'RUNNING' : 'STOPPED',
-            'raw' => $running ? ('PID ' . $pid . ' active') : 'No active process',
+            'running' => $selectedProjectRunning,
+            'running_actual' => $running,
+            'state' => $selectedProjectRunning ? 'RUNNING' : 'STOPPED',
+            'raw' => $rawStatus,
             'started_at' => $meta['started_at'] ?? null,
             'log_path' => $meta['log_path'] ?? storage_path("logs/mqtt-subscriber-user-{$userId}.log"),
             'mqtt_username' => $meta['mqtt_username'] ?? null,

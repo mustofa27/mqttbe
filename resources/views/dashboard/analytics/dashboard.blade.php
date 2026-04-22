@@ -403,6 +403,7 @@
             const to = document.getElementById('toDate').value;
 
             updateMessageHistoryLink();
+            loadListenerStatus();
 
             const url = projectDataUrlTemplate.replace('__PROJECT__', projectId) + `?from=${from}&to=${to}`;
 
@@ -550,11 +551,17 @@
 
         function loadListenerStatus() {
             const badge = document.getElementById('listenerStateBadge');
+            const projectId = document.getElementById('projectSelect')?.value;
             if (!badge) {
                 return;
             }
 
-            fetch(listenerStatusUrl, {
+            const url = new URL(listenerStatusUrl, window.location.origin);
+            if (projectId) {
+                url.searchParams.set('project_id', projectId);
+            }
+
+            fetch(`${url.pathname}${url.search}`, {
                 headers: {
                     'Accept': 'application/json'
                 }
