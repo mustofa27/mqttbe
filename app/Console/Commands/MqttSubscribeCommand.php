@@ -64,7 +64,7 @@ class MqttSubscribeCommand extends Command
                 $topicTemplate = str_replace(['{project}', '{device_id}'], [$project->project_key, '+'], $topicModel->template);
                 $mqtt->subscribe($topicTemplate, function (string $topic, string $message, bool $retained, int $qos) use ($project, $topicModel) {
                     // Log incoming message
-                    Log::info('MQTT Subscriber received message', [
+                    $this->info('MQTT Subscriber received message', [
                         'topic' => $topic,
                         'message' => $message,
                         'qos' => $qos,
