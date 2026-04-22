@@ -26,13 +26,13 @@ class MessageHistoryController extends Controller
             $query->where('device_id', $request->device_id);
         }
         if ($request->filled('topic')) {
-            $query->where('topic', $request->topic);
+            $query->where('mqtt_topic', 'like', '%' . $request->topic . '%');
         }
         if ($request->filled('date')) {
-            $query->whereDate('received_at', $request->date);
+            $query->whereDate('created_at', $request->date);
         }
 
-        $messages = $query->orderByDesc('received_at')->paginate(25);
+        $messages = $query->orderByDesc('created_at')->paginate(25);
 
         return view('dashboard.messages.index', compact('messages', 'projects'));
     }

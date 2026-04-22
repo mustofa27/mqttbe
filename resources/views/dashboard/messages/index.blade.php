@@ -31,9 +31,9 @@
             <tbody>
                 @forelse ($messages as $message)
                     <tr style="border-bottom: 1px solid #e5e7eb;">
-                        <td style="padding: 1rem;">{{ $message->received_at ?? $message->created_at }}</td>
+                        <td style="padding: 1rem;">{{ $message->created_at }}</td>
                         <td style="padding: 1rem;">{{ $message->device->device_id ?? 'N/A' }}</td>
-                        <td style="padding: 1rem;">{{ $message->topic }}</td>
+                        <td style="padding: 1rem;">{{ $message->mqtt_topic }}</td>
                         <td style="padding: 1rem; word-break: break-all;">{{ $message->payload }}</td>
                     </tr>
                 @empty
