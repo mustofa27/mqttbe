@@ -31,6 +31,18 @@ class AdvanceDashboardController extends Controller
             ->orderBy('id')
             ->get();
 
+        // Attach distinct device IDs that have sent messages on each widget's topic.
+        $widgets->each(function (AdvanceDashboardWidget $widget) {
+            $widget->setAttribute('available_devices', Message::where('project_id', (int) $widget->project_id)
+                ->where('topic_id', (int) $widget->topic_id)
+                ->distinct()
+                ->orderBy('device_id')
+                ->pluck('device_id')
+                ->filter()
+                ->values()
+                ->all());
+        });
+
         $projectTopics = $projects->mapWithKeys(function ($project) {
             return [
                 (string) $project->id => $project->topics->map(function ($topic) {
@@ -129,11 +141,18 @@ class AdvanceDashboardController extends Controller
             return response()->json(['message' => 'Unauthorized widget access.'], 403);
         }
 
-        $messages = Message::where('project_id', (int) $widget->project_id)
-            ->where('topic_id', (int) $widget->topic_id)
-            ->orderBy('created_at')
+        $deviceId = $request->query('device_id');
+
+        $messagesQuery = Message::where('project_id', (int) $widget->project_id)
+            ->where('topic_id', (int) $widget->topic_id);
+
+        if ($deviceId !== null && $deviceId !== '') {
+            $messagesQuery->where('device_id', (string) $deviceId);
+        }
+
+        $messages = $messagesQuery->orderBy('created_at')
             ->limit(500)
-            ->get(['payload', 'created_at']);
+            ->get(['payload', 'created_at', 'device_id']);
 
         if ($messages->isEmpty()) {
             return response()->json([

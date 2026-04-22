@@ -71,6 +71,7 @@
                 data-widget-id="{{ $widget->id }}"
                 data-url="{{ route('advance-dashboard.widgets.data', $widget) }}"
                 data-size-url="{{ route('advance-dashboard.widgets.update-size', $widget) }}"
+                data-devices="{{ json_encode($widget->available_devices ?? []) }}"
                 draggable="true"
             >
                 <div class="widget-header">
@@ -79,6 +80,10 @@
                         <p>{{ $widget->project->name ?? 'Unknown Project' }} | {{ $widget->topic->code ?? 'Unknown Topic' }}</p>
                     </div>
                     <div class="widget-actions">
+                        <label class="size-label" for="widgetDevice{{ $widget->id }}">Device</label>
+                        <select id="widgetDevice{{ $widget->id }}" class="widget-device-select" data-widget-id="{{ $widget->id }}">
+                            <option value="">All Devices</option>
+                        </select>
                         <label class="size-label" for="widgetSize{{ $widget->id }}">Size</label>
                         <select id="widgetSize{{ $widget->id }}" class="widget-size-select" data-widget-id="{{ $widget->id }}">
                             <option value="small" @if(($widget->size ?? 'medium') === 'small') selected @endif>Small</option>
@@ -132,6 +137,7 @@
     .widget-actions { display: flex; align-items: center; gap: 0.45rem; }
     .size-label { font-size: 0.78rem; color: #64748b; }
     .widget-size-select { border: 1px solid #d1d5db; border-radius: 8px; padding: 0.28rem 0.4rem; font-size: 0.78rem; }
+    .widget-device-select { border: 1px solid #d1d5db; border-radius: 8px; padding: 0.28rem 0.4rem; font-size: 0.78rem; max-width: 130px; }
     .btn-remove { border: 1px solid #dc3545; color: #dc3545; background: #fff; border-radius: 8px; padding: 0.45rem 0.7rem; cursor: pointer; font-size: 0.82rem; font-weight: 700; }
     .drag-handle { color: #94a3b8; cursor: grab; letter-spacing: -2px; margin-right: 0.4rem; }
     .widget-canvas-wrap { min-height: 290px; position: relative; }
@@ -189,11 +195,17 @@
         const dataUrl = card.dataset.url;
         const canvas = document.getElementById(`widgetCanvas${widgetId}`);
         const empty = document.getElementById(`widgetEmpty${widgetId}`);
+        const deviceSelect = document.getElementById(`widgetDevice${widgetId}`);
 
         if (!canvas || !empty || !dataUrl) return;
 
+        const url = new URL(dataUrl, window.location.origin);
+        if (deviceSelect && deviceSelect.value) {
+            url.searchParams.set('device_id', deviceSelect.value);
+        }
+
         try {
-            const res = await fetch(dataUrl, { headers: { 'Accept': 'application/json' } });
+            const res = await fetch(url.pathname + url.search, { headers: { 'Accept': 'application/json' } });
             const payload = await res.json();
             if (!res.ok) throw new Error(payload.message || 'Failed to load chart');
 
@@ -285,6 +297,32 @@
         });
     }
 
+    function setupDeviceFilters() {
+        document.querySelectorAll('.widget-card').forEach((card) => {
+            const widgetId = card.dataset.widgetId;
+            const deviceSelect = document.getElementById(`widgetDevice${widgetId}`);
+            if (!deviceSelect) return;
+
+            let devices = [];
+            try {
+                devices = JSON.parse(card.dataset.devices || '[]');
+            } catch (e) {
+                devices = [];
+            }
+
+            // Populate options
+            deviceSelect.innerHTML = '<option value="">All Devices</option>';
+            devices.forEach((deviceId) => {
+                const opt = document.createElement('option');
+                opt.value = deviceId;
+                opt.textContent = deviceId;
+                deviceSelect.appendChild(opt);
+            });
+
+            deviceSelect.addEventListener('change', () => renderWidget(card));
+        });
+    }
+
     function setupSizeUpdates() {
         document.querySelectorAll('.widget-size-select').forEach((select) => {
             select.addEventListener('change', async (event) => {
@@ -348,6 +386,7 @@
         toggleJsonFields();
 
         document.querySelectorAll('.widget-card').forEach(renderWidget);
+        setupDeviceFilters();
         setupDragDrop();
         setupSizeUpdates();
     });

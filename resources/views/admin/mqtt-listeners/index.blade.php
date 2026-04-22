@@ -9,7 +9,6 @@
         </div>
         <div style="display: flex; gap: 0.75rem; align-items: center;">
             <input id="filterUserName" type="text" placeholder="Filter by user name…" style="padding: 0.65rem 0.8rem; border: 1px solid #d1d5db; border-radius: 8px; width: 200px;">
-            <button id="applyFilterBtn" type="button" style="padding: 0.65rem 1rem; border: 0; border-radius: 8px; color: white; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); font-weight: 600; cursor: pointer;">Apply</button>
             <button id="refreshBtn" type="button" style="padding: 0.65rem 1rem; border: 0; border-radius: 8px; color: white; background: linear-gradient(135deg, #10b981 0%, #059669 100%); font-weight: 600; cursor: pointer;">Refresh</button>
         </div>
     </div>
@@ -68,9 +67,9 @@
     const statLimited = document.getElementById('statLimited');
     const lastUpdated = document.getElementById('lastUpdated');
     const filterInput = document.getElementById('filterUserName');
-    let allRows = [];
-    const applyFilterBtn = document.getElementById('applyFilterBtn');
     const refreshBtn = document.getElementById('refreshBtn');
+    let allRows = [];
+
 
     function escapeHtml(value) {
         if (value === null || value === undefined) return '';
@@ -218,7 +217,6 @@
         });
     }
 
-    applyFilterBtn.addEventListener('click', applyFilter);
     filterInput.addEventListener('input', applyFilter);
     filterInput.addEventListener('keydown', (event) => {
         if (event.key === 'Enter') {
