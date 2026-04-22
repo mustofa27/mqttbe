@@ -230,8 +230,24 @@ class SubscriptionController extends Controller
         try {
             $gateway = app(PaypoolService::class)->getPayment($externalId);
             if (($gateway['success'] ?? false) && isset($gateway['data']) && is_array($gateway['data'])) {
-                $paymentData = $gateway['data'];
-                $gatewayStatus = strtolower((string) ($paymentData['status'] ?? $paymentData['payment_status'] ?? $paymentData['transaction_status'] ?? ''));
+                $gatewayData = $gateway['data'];
+                $paymentData = [];
+
+                if (is_array($gatewayData['payment'] ?? null)) {
+                    $paymentData = $gatewayData['payment'];
+                } elseif (is_array($gatewayData['transaction'] ?? null)) {
+                    $paymentData = $gatewayData['transaction'];
+                } else {
+                    $paymentData = $gatewayData;
+                }
+
+                $gatewayStatus = strtolower((string) ($paymentData['status']
+                    ?? $paymentData['payment_status']
+                    ?? $paymentData['transaction_status']
+                    ?? $gatewayData['status']
+                    ?? $gatewayData['payment_status']
+                    ?? $gatewayData['transaction_status']
+                    ?? ''));
 
                 $statusMap = [
                     'settlement' => 'paid',
@@ -252,8 +268,10 @@ class SubscriptionController extends Controller
                     $localStatus = $statusMap[$gatewayStatus] ?? $gatewayStatus;
                     $payment->update([
                         'status' => $localStatus,
-                        'payment_method' => $paymentData['payment_method'] ?? $payment->payment_method,
-                        'paid_at' => $localStatus === 'paid' ? ($paymentData['paid_at'] ?? $payment->paid_at ?? now()) : $payment->paid_at,
+                        'payment_method' => $paymentData['payment_method'] ?? $gatewayData['payment_method'] ?? $payment->payment_method,
+                        'paid_at' => $localStatus === 'paid'
+                            ? ($paymentData['paid_at'] ?? $gatewayData['paid_at'] ?? $payment->paid_at ?? now())
+                            : $payment->paid_at,
                     ]);
 
                     if ($localStatus === 'paid' && $payment->user) {
@@ -270,7 +288,18 @@ class SubscriptionController extends Controller
                     }
 
                     $payment->refresh();
+                } else {
+                    \Log::warning('Payment success sync could not resolve gateway status', [
+                        'external_id' => $externalId,
+                        'gateway_data_keys' => array_keys($gatewayData),
+                        'payment_data_keys' => array_keys($paymentData),
+                    ]);
                 }
+            } else {
+                \Log::warning('Payment success sync gateway lookup failed', [
+                    'external_id' => $externalId,
+                    'gateway_result' => $gateway,
+                ]);
             }
         } catch (\Throwable $e) {
             \Log::warning('Payment success sync failed', [
