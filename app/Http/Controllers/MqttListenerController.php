@@ -67,6 +67,52 @@ class MqttListenerController extends Controller
         return response()->json($this->resolveStatus($request->user()->id));
     }
 
+    public function saveConfig(Request $request): JsonResponse
+    {
+        if ($denied = $this->denyIfNoAdvancedAnalytics($request)) {
+            return $denied;
+        }
+
+        $userId = (int) $request->user()->id;
+        $existingMetadata = $this->readListenerMetadata($userId, true);
+        $validated = $request->validate([
+            'username' => ['required', 'string', 'max:255'],
+            'device_id' => ['required', 'string', 'max:255'],
+            'password' => ['nullable', 'string', 'max:255'],
+        ]);
+
+        $mqttUsername = trim((string) $validated['username']);
+        $deviceId = trim((string) $validated['device_id']);
+        $mqttPassword = isset($validated['password']) ? trim((string) $validated['password']) : '';
+
+        if ($mqttPassword === '') {
+            $mqttPassword = (string) ($existingMetadata['mqtt_password'] ?? '');
+        }
+
+        if ($mqttPassword === '') {
+            return response()->json([
+                'ok' => false,
+                'action' => 'save-config',
+                'message' => 'MQTT password is required at least once before configuration can be saved.',
+                'service' => $this->resolveStatus($userId),
+            ], 422);
+        }
+
+        $this->writeListenerMetadata($userId, [
+            'mqtt_username' => $mqttUsername,
+            'mqtt_password' => Crypt::encryptString($mqttPassword),
+            'device_id' => $deviceId,
+            'log_path' => storage_path("logs/mqtt-subscriber-user-{$userId}.log"),
+        ]);
+
+        return response()->json([
+            'ok' => true,
+            'action' => 'save-config',
+            'message' => 'Listener configuration saved.',
+            'service' => $this->resolveStatus($userId),
+        ]);
+    }
+
     public function start(Request $request): JsonResponse
     {
         if ($denied = $this->denyIfNoAdvancedAnalytics($request)) {

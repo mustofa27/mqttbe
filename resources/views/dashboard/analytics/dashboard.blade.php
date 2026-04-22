@@ -34,6 +34,7 @@
             </div>
         </div>
         <div class="listener-actions">
+            <button id="listenerSaveConfigBtn" class="btn-save-listener-config" type="button" onclick="saveListenerConfig()">Save Config</button>
             <button id="listenerStartBtn" class="btn-start-listener" type="button" onclick="startListenerService()">Start Listener</button>
             <button id="listenerStopBtn" class="btn-stop-listener" type="button" onclick="stopListenerService()">Stop Listener</button>
             <button id="listenerRestartBtn" class="btn-restart-listener" type="button" onclick="restartListenerService()">Restart</button>
@@ -260,6 +261,7 @@
         }
 
         .btn-start-listener,
+        .btn-save-listener-config,
         .btn-stop-listener,
         .btn-restart-listener,
         .btn-refresh-listener {
@@ -269,6 +271,11 @@
             cursor: pointer;
             background: #fff;
             font-weight: 600;
+        }
+
+        .btn-save-listener-config {
+            border-color: #198754;
+            color: #198754;
         }
 
         .btn-start-listener {
@@ -401,6 +408,7 @@
         let charts = {};
         const projectDataUrlTemplate = "{{ route('analytics.project-data', ['project' => '__PROJECT__']) }}";
         const listenerStatusUrl = "{{ route('mqtt-listener.status') }}";
+        const listenerConfigUrl = "{{ route('mqtt-listener.config') }}";
         const listenerStartUrl = "{{ route('mqtt-listener.start') }}";
         const listenerStopUrl = "{{ route('mqtt-listener.stop') }}";
         const listenerRestartUrl = "{{ route('mqtt-listener.restart') }}";
@@ -639,6 +647,30 @@
             });
         }
 
+        function saveListenerConfig() {
+            const saveBtn = document.getElementById('listenerSaveConfigBtn');
+            const usernameInput = document.getElementById('listenerUsername');
+            const passwordInput = document.getElementById('listenerPassword');
+            const deviceIdInput = document.getElementById('listenerDeviceId');
+            if (!saveBtn) {
+                return;
+            }
+
+            if (!usernameInput.value.trim() || !deviceIdInput.value.trim()) {
+                document.getElementById('listenerRawStatus').textContent = 'Username and device ID are required.';
+                return;
+            }
+
+            saveBtn.disabled = true;
+            saveBtn.textContent = 'Saving...';
+
+            runListenerAction(listenerConfigUrl, 'Save Config', saveBtn, {
+                username: usernameInput.value.trim(),
+                password: passwordInput.value,
+                device_id: deviceIdInput.value.trim()
+            });
+        }
+
         function stopListenerService() {
             const stopBtn = document.getElementById('listenerStopBtn');
             if (!stopBtn) {
@@ -689,6 +721,9 @@
                     throw new Error(data.message || 'Failed to update listener service');
                 }
                 updateListenerStatusUI(data.service);
+                if (data.message) {
+                    document.getElementById('listenerRawStatus').textContent = data.message;
+                }
                 const passwordInput = document.getElementById('listenerPassword');
                 const toggleButton = document.getElementById('toggleListenerPassword');
                 if (passwordInput && payload) {
@@ -699,6 +734,8 @@
                     toggleButton.setAttribute('aria-label', 'Show password');
                     toggleButton.title = 'Show password';
                 }
+                actionButton.disabled = false;
+                actionButton.textContent = defaultLabel;
             })
             .catch(err => {
                 document.getElementById('listenerRawStatus').textContent = err.message;

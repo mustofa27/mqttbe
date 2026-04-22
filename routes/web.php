@@ -100,6 +100,7 @@ Route::middleware('auth')->group(function () {
 
     // MQTT listener controls (advanced analytics users only; verified in controller)
     Route::get('/mqtt-listener/status', [MqttListenerController::class, 'status'])->name('mqtt-listener.status');
+    Route::post('/mqtt-listener/config', [MqttListenerController::class, 'saveConfig'])->name('mqtt-listener.config');
     Route::post('/mqtt-listener/start', [MqttListenerController::class, 'start'])->name('mqtt-listener.start');
     Route::post('/mqtt-listener/stop', [MqttListenerController::class, 'stop'])->name('mqtt-listener.stop');
     Route::post('/mqtt-listener/restart', [MqttListenerController::class, 'restart'])->name('mqtt-listener.restart');
