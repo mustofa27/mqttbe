@@ -337,7 +337,8 @@ class MqttListenerController extends Controller
             try {
                 $decoded['mqtt_password'] = Crypt::decryptString((string) $decoded['mqtt_password']);
             } catch (\Throwable) {
-                $decoded['mqtt_password'] = null;
+                // Backward compatibility: older metadata may contain plaintext password.
+                $decoded['mqtt_password'] = (string) $decoded['mqtt_password'];
             }
         }
 
