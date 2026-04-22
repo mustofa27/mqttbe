@@ -201,7 +201,7 @@
 
         const url = new URL(dataUrl, window.location.origin);
         if (deviceSelect && deviceSelect.value) {
-            url.searchParams.set('device_id', deviceSelect.value);
+            url.searchParams.set('device_code', deviceSelect.value);
         }
 
         try {

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\AdvanceDashboardWidget;
+use App\Models\Device;
 use App\Models\Message;
 use App\Models\Project;
 use App\Models\Topic;
@@ -31,15 +32,18 @@ class AdvanceDashboardController extends Controller
             ->orderBy('id')
             ->get();
 
-        // Attach distinct device IDs that have sent messages on each widget's topic.
+        // Attach distinct device codes that have sent messages on each widget's topic.
         $widgets->each(function (AdvanceDashboardWidget $widget) {
-            $widget->setAttribute('available_devices', Message::where('project_id', (int) $widget->project_id)
+            $devicePks = Message::where('project_id', (int) $widget->project_id)
                 ->where('topic_id', (int) $widget->topic_id)
                 ->distinct()
-                ->orderBy('device_id')
                 ->pluck('device_id')
                 ->filter()
-                ->values()
+                ->all();
+
+            $widget->setAttribute('available_devices', Device::whereIn('id', $devicePks)
+                ->orderBy('device_id')
+                ->pluck('device_id')
                 ->all());
         });
 
@@ -141,13 +145,22 @@ class AdvanceDashboardController extends Controller
             return response()->json(['message' => 'Unauthorized widget access.'], 403);
         }
 
-        $deviceId = $request->query('device_id');
+        $deviceCode = $request->query('device_code');
 
         $messagesQuery = Message::where('project_id', (int) $widget->project_id)
             ->where('topic_id', (int) $widget->topic_id);
 
-        if ($deviceId !== null && $deviceId !== '') {
-            $messagesQuery->where('device_id', (string) $deviceId);
+        if ($deviceCode !== null && $deviceCode !== '') {
+            $devicePk = Device::where('project_id', (int) $widget->project_id)
+                ->where('device_id', (string) $deviceCode)
+                ->value('id');
+
+            if ($devicePk !== null) {
+                $messagesQuery->where('device_id', (int) $devicePk);
+            } else {
+                // No matching device — return empty
+                return response()->json(['empty' => true, 'message' => 'No messages found for this device.']);
+            }
         }
 
         $messages = $messagesQuery->orderBy('created_at')
