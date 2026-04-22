@@ -22,7 +22,10 @@
             <p class="listener-subtitle">Enter MQTT username, password, and device ID, then start and monitor live process state.</p>
             <div class="listener-input-grid">
                 <input id="listenerUsername" type="text" class="listener-input" placeholder="MQTT Username">
-                <input id="listenerPassword" type="password" class="listener-input" placeholder="MQTT Password">
+                <div class="listener-password-wrap">
+                    <input id="listenerPassword" type="password" class="listener-input listener-password-input" placeholder="MQTT Password">
+                    <button id="toggleListenerPassword" type="button" class="listener-password-toggle" aria-label="Show password" onclick="toggleListenerPasswordVisibility()">&#128065;</button>
+                </div>
                 <input id="listenerDeviceId" type="text" class="listener-input" placeholder="Device ID">
             </div>
             <div class="listener-status-row">
@@ -176,11 +179,38 @@
             margin-bottom: 0.75rem;
         }
 
+        .listener-password-wrap {
+            position: relative;
+        }
+
         .listener-input {
             padding: 0.6rem 0.7rem;
             border: 1px solid #d1d5db;
             border-radius: 6px;
             font-size: 0.9rem;
+        }
+
+        .listener-password-input {
+            width: 100%;
+            padding-right: 2.4rem;
+        }
+
+        .listener-password-toggle {
+            position: absolute;
+            right: 0.45rem;
+            top: 50%;
+            transform: translateY(-50%);
+            border: 0;
+            background: transparent;
+            color: #6c757d;
+            cursor: pointer;
+            font-size: 1rem;
+            line-height: 1;
+            padding: 0.2rem;
+        }
+
+        .listener-password-toggle:hover {
+            color: #0d6efd;
         }
 
         .listener-subtitle {
@@ -571,6 +601,20 @@
             });
         }
 
+        function toggleListenerPasswordVisibility() {
+            const passwordInput = document.getElementById('listenerPassword');
+            const toggleButton = document.getElementById('toggleListenerPassword');
+
+            if (!passwordInput || !toggleButton) {
+                return;
+            }
+
+            const showing = passwordInput.type === 'text';
+            passwordInput.type = showing ? 'password' : 'text';
+            toggleButton.setAttribute('aria-label', showing ? 'Show password' : 'Hide password');
+            toggleButton.title = showing ? 'Show password' : 'Hide password';
+        }
+
         function startListenerService() {
             const startBtn = document.getElementById('listenerStartBtn');
             const usernameInput = document.getElementById('listenerUsername');
@@ -646,8 +690,14 @@
                 }
                 updateListenerStatusUI(data.service);
                 const passwordInput = document.getElementById('listenerPassword');
+                const toggleButton = document.getElementById('toggleListenerPassword');
                 if (passwordInput && payload) {
                     passwordInput.value = '';
+                    passwordInput.type = 'password';
+                }
+                if (toggleButton && payload) {
+                    toggleButton.setAttribute('aria-label', 'Show password');
+                    toggleButton.title = 'Show password';
                 }
             })
             .catch(err => {
