@@ -19,7 +19,6 @@ class MqttSubscribeCommand extends Command
     {
         $host = config('mqtt.host');
         $port = (int) config('mqtt.port');
-        $clientPrefix = config('mqtt.client_id_prefix', 'dashboard-subscriber');
         $userId = $this->option('user_id');
         $mqttUsername = $this->option('username');
         $mqttPassword = $this->option('password');
@@ -40,8 +39,7 @@ class MqttSubscribeCommand extends Command
             $this->warn('No active projects found for current listener scope.');
             return self::FAILURE;
         }
-        $clientId = $clientPrefix . '-' . ($userId ?: 'all') . '-' . uniqid();
-        $mqtt = new MqttClient($host, $port, $clientId);
+        $mqtt = new MqttClient($host, $port, $deviceIdOption);
         $settings = (new ConnectionSettings())
             ->setUsername((string) $mqttUsername)
             ->setPassword((string) $mqttPassword)
