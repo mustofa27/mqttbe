@@ -53,7 +53,10 @@ class TopicController extends Controller
 
         Topic::create($validated + ['template' => $template, 'enabled' => true]);
 
-        return redirect()->route('topics.index')->with('success', 'Topic created successfully!');
+        return redirect()->route('topics.index')->with(
+            'success',
+            'Topic created successfully! Please restart listener for parent project "' . $project->name . '" to apply topic subscription changes.'
+        );
     }
 
     public function show(Topic $topic)
