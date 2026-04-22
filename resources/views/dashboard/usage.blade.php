@@ -1,11 +1,3 @@
-    <!-- Message History Navigation -->
-        @if(auth()->user()->hasActiveSubscription() && auth()->user()->hasFeature('advanced_analytics_enabled'))
-        <div style="margin-top: 2rem; text-align: right;">
-            <a href="{{ route('messages.history') }}" class="btn btn-primary" style="padding: 0.75rem 1.5rem; font-size: 1rem;">
-                📨 View Message History
-            </a>
-        </div>
-    @endif
 @extends('layouts.app')
 
 @section('title', 'Usage Dashboard')
