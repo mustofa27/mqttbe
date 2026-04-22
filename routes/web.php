@@ -144,7 +144,6 @@ Route::middleware('auth')->group(function () {
     // Message History (only for users with advanced analytics access)
     Route::middleware(['auth'])->group(function () {
         Route::get('/messages/history', [App\Http\Controllers\MessageHistoryController::class, 'index'])
-            ->name('messages.history')
-            ->middleware('can:access-advanced-analytics');
+            ->name('messages.history');
     });
 });
