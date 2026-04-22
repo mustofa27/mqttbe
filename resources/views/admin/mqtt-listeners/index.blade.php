@@ -8,7 +8,7 @@
             <p style="color: #9ca3af; font-size: 0.9rem;">Admin visibility into per-user listener processes and limits</p>
         </div>
         <div style="display: flex; gap: 0.75rem; align-items: center;">
-            <input id="filterUserId" type="number" min="1" placeholder="Filter user ID" style="padding: 0.65rem 0.8rem; border: 1px solid #d1d5db; border-radius: 8px; width: 140px;">
+            <input id="filterUserName" type="text" placeholder="Filter by user name…" style="padding: 0.65rem 0.8rem; border: 1px solid #d1d5db; border-radius: 8px; width: 200px;">
             <button id="applyFilterBtn" type="button" style="padding: 0.65rem 1rem; border: 0; border-radius: 8px; color: white; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); font-weight: 600; cursor: pointer;">Apply</button>
             <button id="refreshBtn" type="button" style="padding: 0.65rem 1rem; border: 0; border-radius: 8px; color: white; background: linear-gradient(135deg, #10b981 0%, #059669 100%); font-weight: 600; cursor: pointer;">Refresh</button>
         </div>
@@ -67,7 +67,8 @@
     const statRunning = document.getElementById('statRunning');
     const statLimited = document.getElementById('statLimited');
     const lastUpdated = document.getElementById('lastUpdated');
-    const filterInput = document.getElementById('filterUserId');
+    const filterInput = document.getElementById('filterUserName');
+    let allRows = [];
     const applyFilterBtn = document.getElementById('applyFilterBtn');
     const refreshBtn = document.getElementById('refreshBtn');
 
@@ -174,12 +175,22 @@
         tbody.innerHTML = htmlParts.join('');
     }
 
+    function applyFilter() {
+        const query = filterInput.value.trim().toLowerCase();
+        const filtered = query
+            ? allRows.filter(r => {
+                const name = (r.user?.name || '').toLowerCase();
+                const email = (r.user?.email || '').toLowerCase();
+                return name.includes(query) || email.includes(query);
+            })
+            : allRows;
+        updateStats(filtered);
+        renderRows(filtered);
+    }
+
     function loadData() {
         const params = new URLSearchParams();
         params.set('json', '1');
-        if (filterInput.value) {
-            params.set('user_id', filterInput.value);
-        }
 
         refreshBtn.disabled = true;
         refreshBtn.textContent = 'Refreshing...';
@@ -195,12 +206,11 @@
                 throw new Error(data.message || 'Failed to load listener overview');
             }
 
-            const rows = Array.isArray(data.data) ? data.data : [];
-            updateStats(rows);
-            renderRows(rows);
+            allRows = Array.isArray(data.data) ? data.data : [];
+            applyFilter();
         })
         .catch((error) => {
-            tbody.innerHTML = `<tr><td colspan="7" style="padding: 1.25rem; text-align: center; color: #991b1b;">${escapeHtml(error.message)}</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="8" style="padding: 1.25rem; text-align: center; color: #991b1b;">${escapeHtml(error.message)}</td></tr>`;
         })
         .finally(() => {
             refreshBtn.disabled = false;
@@ -208,14 +218,15 @@
         });
     }
 
-    applyFilterBtn.addEventListener('click', loadData);
-    refreshBtn.addEventListener('click', loadData);
+    applyFilterBtn.addEventListener('click', applyFilter);
+    filterInput.addEventListener('input', applyFilter);
     filterInput.addEventListener('keydown', (event) => {
         if (event.key === 'Enter') {
             event.preventDefault();
-            loadData();
+            applyFilter();
         }
     });
+    refreshBtn.addEventListener('click', loadData);
 
     loadData();
     setInterval(loadData, 15000);

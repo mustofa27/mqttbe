@@ -21,13 +21,9 @@ class MqttListenerController extends Controller
             return response()->view('admin.mqtt-listeners.index');
         }
 
-        $requestedUserId = $request->query('user_id');
+        $requestedUserId = null;
 
         $usersQuery = User::query()->select(['id', 'name', 'email', 'subscription_tier', 'subscription_active']);
-
-        if ($requestedUserId !== null && $requestedUserId !== '') {
-            $usersQuery->where('id', (int) $requestedUserId);
-        }
 
         $users = $usersQuery->orderBy('id')->get();
 
@@ -73,9 +69,6 @@ class MqttListenerController extends Controller
         return response()->json([
             'ok' => true,
             'total' => $data->count(),
-            'filters' => [
-                'user_id' => $requestedUserId !== null && $requestedUserId !== '' ? (int) $requestedUserId : null,
-            ],
             'data' => $data,
         ]);
     }
