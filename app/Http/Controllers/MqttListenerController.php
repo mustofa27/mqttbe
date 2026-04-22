@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Device;
+use App\Models\Project;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -74,34 +76,21 @@ class MqttListenerController extends Controller
         }
 
         $userId = (int) $request->user()->id;
-        $existingMetadata = $this->readListenerMetadata($userId, true);
-        $validated = $request->validate([
-            'username' => ['required', 'string', 'max:255'],
-            'device_id' => ['required', 'string', 'max:255'],
-            'password' => ['nullable', 'string', 'max:255'],
-        ]);
-
-        $mqttUsername = trim((string) $validated['username']);
-        $deviceId = trim((string) $validated['device_id']);
-        $mqttPassword = isset($validated['password']) ? trim((string) $validated['password']) : '';
-
-        if ($mqttPassword === '') {
-            $mqttPassword = (string) ($existingMetadata['mqtt_password'] ?? '');
-        }
-
-        if ($mqttPassword === '') {
+        $credentials = $this->resolveListenerCredentialsFromProject($request);
+        if (!$credentials['ok']) {
             return response()->json([
                 'ok' => false,
                 'action' => 'save-config',
-                'message' => 'MQTT password is required at least once before configuration can be saved.',
+                'message' => $credentials['message'],
                 'service' => $this->resolveStatus($userId),
             ], 422);
         }
 
         $this->writeListenerMetadata($userId, [
-            'mqtt_username' => $mqttUsername,
-            'mqtt_password' => Crypt::encryptString($mqttPassword),
-            'device_id' => $deviceId,
+            'project_id' => $credentials['project']->id,
+            'mqtt_username' => $credentials['mqtt_username'],
+            'mqtt_password' => Crypt::encryptString($credentials['mqtt_password']),
+            'device_id' => $credentials['device_id'],
             'log_path' => storage_path("logs/mqtt-subscriber-user-{$userId}.log"),
         ]);
 
@@ -120,29 +109,20 @@ class MqttListenerController extends Controller
         }
 
         $userId = (int) $request->user()->id;
-        $existingMetadata = $this->readListenerMetadata($userId, true);
-        $validated = $request->validate([
-            'username' => ['required', 'string', 'max:255'],
-            'device_id' => ['required', 'string', 'max:255'],
-            'password' => ['nullable', 'string', 'max:255'],
-        ]);
-
-        $mqttUsername = trim($validated['username']);
-        $deviceId = trim($validated['device_id']);
-        $mqttPassword = isset($validated['password']) ? trim((string) $validated['password']) : '';
-
-        if ($mqttPassword === '') {
-            $mqttPassword = (string) ($existingMetadata['mqtt_password'] ?? '');
-        }
-
-        if ($mqttPassword === '') {
+        $credentials = $this->resolveListenerCredentialsFromProject($request);
+        if (!$credentials['ok']) {
             return response()->json([
                 'ok' => false,
                 'action' => 'start',
-                'message' => 'MQTT password is required before the listener can start.',
+                'message' => $credentials['message'],
                 'service' => $this->resolveStatus($userId),
             ], 422);
         }
+
+        $mqttUsername = $credentials['mqtt_username'];
+        $mqttPassword = $credentials['mqtt_password'];
+        $deviceId = $credentials['device_id'];
+        $projectId = $credentials['project']->id;
 
         $lockTimeout = max(1, (int) config('mqtt.listener.start_lock_seconds', 10));
         $lockHandle = $this->acquireStartLock($userId, $lockTimeout);
@@ -193,6 +173,7 @@ class MqttListenerController extends Controller
 
             if ($process->isSuccessful() && $pid > 0) {
                 $this->writeListenerMetadata($userId, [
+                    'project_id' => $projectId,
                     'pid' => $pid,
                     'started_at' => now()->toDateTimeString(),
                     'log_path' => $logPath,
@@ -276,14 +257,69 @@ class MqttListenerController extends Controller
     {
         $user = $request->user();
 
-        if (!$user || !$user->hasActiveSubscription() || !$user->hasFeature('advanced_analytics_enabled')) {
+        if (!$user || !$user->hasActiveSubscription() || !$user->hasFeature('analytics_enabled')) {
             return response()->json([
                 'ok' => false,
-                'message' => 'Advanced analytics feature is required to manage MQTT listener.',
+                'message' => 'Analytics feature is required to manage MQTT listener.',
             ], 403);
         }
 
         return null;
+    }
+
+    private function resolveListenerCredentialsFromProject(Request $request): array
+    {
+        $validated = $request->validate([
+            'project_id' => ['required', 'integer'],
+        ]);
+
+        $user = $request->user();
+        $project = Project::where('id', (int) $validated['project_id'])
+            ->where('user_id', (int) $user->id)
+            ->where('active', true)
+            ->first();
+
+        if (!$project) {
+            return [
+                'ok' => false,
+                'message' => 'Selected project is invalid or inactive.',
+            ];
+        }
+
+        if (empty($project->project_key) || empty($project->project_secret_plain)) {
+            return [
+                'ok' => false,
+                'message' => 'Selected project does not have valid MQTT credentials.',
+            ];
+        }
+
+        try {
+            $secret = Crypt::decryptString((string) $project->project_secret_plain);
+        } catch (\Throwable) {
+            return [
+                'ok' => false,
+                'message' => 'Unable to decrypt project secret for selected project.',
+            ];
+        }
+
+        $device = Device::updateOrCreate(
+            [
+                'project_id' => (int) $project->id,
+                'device_id' => 'system_listener',
+            ],
+            [
+                'type' => 'dashboard',
+                'active' => true,
+            ]
+        );
+
+        return [
+            'ok' => true,
+            'project' => $project,
+            'mqtt_username' => (string) $project->project_key,
+            'mqtt_password' => (string) $secret,
+            'device_id' => (string) $device->device_id,
+        ];
     }
 
     private function resolveStatus(int $userId): array

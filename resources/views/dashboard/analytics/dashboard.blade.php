@@ -18,28 +18,15 @@
 
     @if(auth()->user()->hasActiveSubscription() && auth()->user()->hasFeature('analytics_enabled'))
     <div class="listener-panel" id="listenerPanel">
-        <div class="listener-autofill-trap" aria-hidden="true">
-            <input type="text" tabindex="-1" autocomplete="username" name="decoy_username">
-            <input type="password" tabindex="-1" autocomplete="current-password" name="decoy_password">
-        </div>
         <div class="listener-info">
             <h3>MQTT Listener Service</h3>
-            <p class="listener-subtitle">Enter MQTT username, password, and device ID, then start and monitor live process state.</p>
-            <div class="listener-input-grid">
-                <input id="listenerUsername" type="text" class="listener-input" placeholder="MQTT Username" name="listener_mqtt_username" autocomplete="off" autocapitalize="none" spellcheck="false">
-                <div class="listener-password-wrap">
-                    <input id="listenerPassword" type="password" class="listener-input listener-password-input" placeholder="MQTT Password" name="listener_mqtt_password" autocomplete="new-password" autocapitalize="none" spellcheck="false">
-                    <button id="toggleListenerPassword" type="button" class="listener-password-toggle" aria-label="Show password" onclick="toggleListenerPasswordVisibility()">&#128065;</button>
-                </div>
-                <input id="listenerDeviceId" type="text" class="listener-input" placeholder="Device ID" name="listener_mqtt_device" autocomplete="off" autocapitalize="none" spellcheck="false">
-            </div>
+            <p class="listener-subtitle">Use the selected project. Listener credentials are auto-loaded from project key/secret and device <strong>system_listener</strong>.</p>
             <div class="listener-status-row">
                 <span id="listenerStateBadge" class="listener-state listener-state-unknown">UNKNOWN</span>
                 <span id="listenerRawStatus" class="listener-raw-status">Checking status...</span>
             </div>
         </div>
         <div class="listener-actions">
-            <button id="listenerSaveConfigBtn" class="btn-save-listener-config" type="button" onclick="saveListenerConfig()">Save Config</button>
             <button id="listenerStartBtn" class="btn-start-listener" type="button" onclick="startListenerService()">Start Listener</button>
             <button id="listenerStopBtn" class="btn-stop-listener" type="button" onclick="stopListenerService()">Stop Listener</button>
             <button id="listenerRestartBtn" class="btn-restart-listener" type="button" onclick="restartListenerService()">Restart</button>
@@ -200,56 +187,6 @@
             font-size: 1rem;
         }
 
-        .listener-autofill-trap {
-            position: absolute;
-            width: 0;
-            height: 0;
-            opacity: 0;
-            pointer-events: none;
-            overflow: hidden;
-        }
-
-        .listener-input-grid {
-            display: grid;
-            grid-template-columns: repeat(3, minmax(160px, 1fr));
-            gap: 0.5rem;
-            margin-bottom: 0.75rem;
-        }
-
-        .listener-password-wrap {
-            position: relative;
-        }
-
-        .listener-input {
-            padding: 0.6rem 0.7rem;
-            border: 1px solid #d1d5db;
-            border-radius: 6px;
-            font-size: 0.9rem;
-        }
-
-        .listener-password-input {
-            width: 100%;
-            padding-right: 2.4rem;
-        }
-
-        .listener-password-toggle {
-            position: absolute;
-            right: 0.45rem;
-            top: 50%;
-            transform: translateY(-50%);
-            border: 0;
-            background: transparent;
-            color: #6c757d;
-            cursor: pointer;
-            font-size: 1rem;
-            line-height: 1;
-            padding: 0.2rem;
-        }
-
-        .listener-password-toggle:hover {
-            color: #0d6efd;
-        }
-
         .listener-subtitle {
             margin: 0 0 0.5rem;
             color: #6c757d;
@@ -297,7 +234,6 @@
         }
 
         .btn-start-listener,
-        .btn-save-listener-config,
         .btn-stop-listener,
         .btn-restart-listener,
         .btn-refresh-listener {
@@ -307,11 +243,6 @@
             cursor: pointer;
             background: #fff;
             font-weight: 600;
-        }
-
-        .btn-save-listener-config {
-            border-color: #198754;
-            color: #198754;
         }
 
         .btn-start-listener {
@@ -390,10 +321,6 @@
                 flex-direction: column;
                 align-items: stretch;
             }
-
-            .listener-input-grid {
-                grid-template-columns: 1fr;
-            }
         }
 
         .chart-container {
@@ -445,11 +372,9 @@
         const projectDataUrlTemplate = "{{ route('analytics.project-data', ['project' => '__PROJECT__']) }}";
         const messageHistoryBaseUrl = "{{ route('messages.history') }}";
         const listenerStatusUrl = "{{ route('mqtt-listener.status') }}";
-        const listenerConfigUrl = "{{ route('mqtt-listener.config') }}";
         const listenerStartUrl = "{{ route('mqtt-listener.start') }}";
         const listenerStopUrl = "{{ route('mqtt-listener.stop') }}";
         const listenerRestartUrl = "{{ route('mqtt-listener.restart') }}";
-        const savedPasswordToken = '********';
 
         function updateMessageHistoryLink() {
             const projectId = document.getElementById('projectSelect')?.value;
@@ -591,28 +516,8 @@
             const startBtn = document.getElementById('listenerStartBtn');
             const stopBtn = document.getElementById('listenerStopBtn');
             const restartBtn = document.getElementById('listenerRestartBtn');
-            const usernameInput = document.getElementById('listenerUsername');
-            const passwordInput = document.getElementById('listenerPassword');
-            const deviceIdInput = document.getElementById('listenerDeviceId');
-
             if (!badge || !raw || !startBtn || !stopBtn || !restartBtn || !service) {
                 return;
-            }
-
-            if (usernameInput && service.mqtt_username) {
-                usernameInput.value = service.mqtt_username;
-            }
-
-            if (deviceIdInput && service.device_id) {
-                deviceIdInput.value = service.device_id;
-            }
-
-            if (passwordInput) {
-                if (service.has_password && passwordInput.value.trim() === '') {
-                    passwordInput.value = savedPasswordToken;
-                    passwordInput.dataset.usingSavedPassword = 'true';
-                }
-                passwordInput.placeholder = service.has_password ? 'Saved password stored' : 'MQTT Password';
             }
 
             badge.classList.remove('listener-state-running', 'listener-state-stopped', 'listener-state-unknown');
@@ -666,31 +571,15 @@
             });
         }
 
-        function toggleListenerPasswordVisibility() {
-            const passwordInput = document.getElementById('listenerPassword');
-            const toggleButton = document.getElementById('toggleListenerPassword');
-
-            if (!passwordInput || !toggleButton) {
-                return;
-            }
-
-            const showing = passwordInput.type === 'text';
-            passwordInput.type = showing ? 'password' : 'text';
-            toggleButton.setAttribute('aria-label', showing ? 'Show password' : 'Hide password');
-            toggleButton.title = showing ? 'Show password' : 'Hide password';
-        }
-
         function startListenerService() {
             const startBtn = document.getElementById('listenerStartBtn');
-            const usernameInput = document.getElementById('listenerUsername');
-            const passwordInput = document.getElementById('listenerPassword');
-            const deviceIdInput = document.getElementById('listenerDeviceId');
+            const projectId = document.getElementById('projectSelect')?.value;
             if (!startBtn) {
                 return;
             }
 
-            if (!usernameInput.value.trim() || !deviceIdInput.value.trim()) {
-                document.getElementById('listenerRawStatus').textContent = 'Username and device ID are required.';
+            if (!projectId) {
+                document.getElementById('listenerRawStatus').textContent = 'Select a project first.';
                 return;
             }
 
@@ -698,33 +587,7 @@
             startBtn.textContent = 'Starting...';
 
             runListenerAction(listenerStartUrl, 'Start Listener', startBtn, {
-                username: usernameInput.value.trim(),
-                password: resolveListenerPasswordPayload(),
-                device_id: deviceIdInput.value.trim()
-            });
-        }
-
-        function saveListenerConfig() {
-            const saveBtn = document.getElementById('listenerSaveConfigBtn');
-            const usernameInput = document.getElementById('listenerUsername');
-            const passwordInput = document.getElementById('listenerPassword');
-            const deviceIdInput = document.getElementById('listenerDeviceId');
-            if (!saveBtn) {
-                return;
-            }
-
-            if (!usernameInput.value.trim() || !deviceIdInput.value.trim()) {
-                document.getElementById('listenerRawStatus').textContent = 'Username and device ID are required.';
-                return;
-            }
-
-            saveBtn.disabled = true;
-            saveBtn.textContent = 'Saving...';
-
-            runListenerAction(listenerConfigUrl, 'Save Config', saveBtn, {
-                username: usernameInput.value.trim(),
-                password: resolveListenerPasswordPayload(),
-                device_id: deviceIdInput.value.trim()
+                project_id: projectId
             });
         }
 
@@ -741,40 +604,21 @@
 
         function restartListenerService() {
             const restartBtn = document.getElementById('listenerRestartBtn');
-            const usernameInput = document.getElementById('listenerUsername');
-            const passwordInput = document.getElementById('listenerPassword');
-            const deviceIdInput = document.getElementById('listenerDeviceId');
+            const projectId = document.getElementById('projectSelect')?.value;
             if (!restartBtn) {
                 return;
             }
 
-            if (!usernameInput.value.trim() || !deviceIdInput.value.trim()) {
-                document.getElementById('listenerRawStatus').textContent = 'Username and device ID are required.';
+            if (!projectId) {
+                document.getElementById('listenerRawStatus').textContent = 'Select a project first.';
                 return;
             }
 
             restartBtn.disabled = true;
             restartBtn.textContent = 'Restarting...';
             runListenerAction(listenerRestartUrl, 'Restart', restartBtn, {
-                username: usernameInput.value.trim(),
-                password: resolveListenerPasswordPayload(),
-                device_id: deviceIdInput.value.trim()
+                project_id: projectId
             });
-        }
-
-        function resolveListenerPasswordPayload() {
-            const passwordInput = document.getElementById('listenerPassword');
-            if (!passwordInput) {
-                return '';
-            }
-
-            const raw = passwordInput.value;
-            const usingSaved = passwordInput.dataset.usingSavedPassword === 'true';
-            if (usingSaved || raw === savedPasswordToken) {
-                return '';
-            }
-
-            return raw;
         }
 
         function runListenerAction(url, defaultLabel, actionButton, payload = null) {
@@ -796,17 +640,6 @@
                 if (data.message) {
                     document.getElementById('listenerRawStatus').textContent = data.message;
                 }
-                const passwordInput = document.getElementById('listenerPassword');
-                const toggleButton = document.getElementById('toggleListenerPassword');
-                if (passwordInput && payload) {
-                    passwordInput.value = '';
-                    passwordInput.type = 'password';
-                    passwordInput.dataset.usingSavedPassword = 'false';
-                }
-                if (toggleButton && payload) {
-                    toggleButton.setAttribute('aria-label', 'Show password');
-                    toggleButton.title = 'Show password';
-                }
                 actionButton.disabled = false;
                 actionButton.textContent = defaultLabel;
             })
@@ -822,27 +655,6 @@
             initializeDatepickers();
             loadProjectAnalytics();
             loadListenerStatus();
-
-            const passwordInput = document.getElementById('listenerPassword');
-            if (passwordInput) {
-                passwordInput.addEventListener('focus', () => {
-                    if (passwordInput.dataset.usingSavedPassword === 'true') {
-                        passwordInput.value = '';
-                    }
-                });
-
-                passwordInput.addEventListener('input', () => {
-                    if (passwordInput.value !== savedPasswordToken) {
-                        passwordInput.dataset.usingSavedPassword = 'false';
-                    }
-                });
-
-                passwordInput.addEventListener('blur', () => {
-                    if (passwordInput.value.trim() === '') {
-                        passwordInput.dataset.usingSavedPassword = 'true';
-                    }
-                });
-            }
 
             // Auto-refresh every 30 seconds
             setInterval(loadProjectAnalytics, 30000);

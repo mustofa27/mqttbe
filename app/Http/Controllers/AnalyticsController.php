@@ -40,9 +40,30 @@ class AnalyticsController extends Controller
         $this->ensureAdvancedAnalyticsAccess($request);
 
         $user = auth()->user();
+        $this->ensureSystemListenerDevices($user);
         $projects = $user->projects;
 
         return view('dashboard.analytics.dashboard', compact('projects'));
+    }
+
+    private function ensureSystemListenerDevices($user): void
+    {
+        if (!$user || !$user->hasActiveSubscription() || !$user->hasFeature('analytics_enabled')) {
+            return;
+        }
+
+        foreach ($user->projects()->where('active', true)->get() as $project) {
+            Device::updateOrCreate(
+                [
+                    'project_id' => (int) $project->id,
+                    'device_id' => 'system_listener',
+                ],
+                [
+                    'type' => 'dashboard',
+                    'active' => true,
+                ]
+            );
+        }
     }
 
     /**
