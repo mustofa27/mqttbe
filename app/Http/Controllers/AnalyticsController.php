@@ -40,8 +40,12 @@ class AnalyticsController extends Controller
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
-        $from = $request->query('from') ? Carbon::parse($request->query('from')) : Carbon::now()->subDays(30);
-        $to = $request->query('to') ? Carbon::parse($request->query('to')) : Carbon::now();
+        $from = $request->query('from')
+            ? Carbon::parse($request->query('from'))->startOfDay()
+            : Carbon::now()->subDays(30)->startOfDay();
+        $to = $request->query('to')
+            ? Carbon::parse($request->query('to'))->endOfDay()
+            : Carbon::now()->endOfDay();
 
         return response()->json([
             'volume_chart' => $this->getVolumeChartData($project, $from, $to),
@@ -227,8 +231,13 @@ class AnalyticsController extends Controller
 
         while ($current <= $to) {
             $weekEnd = $current->copy()->endOfWeek();
+
+            // Respect the requested window within each week segment.
+            $segmentStart = $current->copy()->max($from);
+            $segmentEnd = $weekEnd->copy()->min($to);
+
             $count = Message::where('project_id', $project->id)
-                ->whereBetween('created_at', [$current, $weekEnd])
+                ->whereBetween('created_at', [$segmentStart, $segmentEnd])
                 ->count();
 
             $weeks[$current->format('Y-W')] = $count;
@@ -325,8 +334,12 @@ class AnalyticsController extends Controller
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
-        $from = $request->query('from') ? Carbon::parse($request->query('from')) : Carbon::now()->subDays(7);
-        $to = $request->query('to') ? Carbon::parse($request->query('to')) : Carbon::now();
+        $from = $request->query('from')
+            ? Carbon::parse($request->query('from'))->startOfDay()
+            : Carbon::now()->subDays(7)->startOfDay();
+        $to = $request->query('to')
+            ? Carbon::parse($request->query('to'))->endOfDay()
+            : Carbon::now()->endOfDay();
 
         return response()->json([
             'device_id' => $device->device_id,
