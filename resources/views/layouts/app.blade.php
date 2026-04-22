@@ -547,11 +547,13 @@
                         📈 Usage
                     </a>
                 </li>
-                <li>
-                    <a href="{{ route('analytics.dashboard') }}" class="@if(Route::currentRouteName() === 'analytics.dashboard') active @endif">
-                        📊 Advanced Analytics
-                    </a>
-                </li>
+                @if(auth()->user()->hasActiveSubscription() && auth()->user()->hasFeature('advanced_analytics_enabled'))
+                    <li>
+                        <a href="{{ route('analytics.dashboard') }}" class="@if(Route::currentRouteName() === 'analytics.dashboard') active @endif">
+                            📊 Advanced Analytics
+                        </a>
+                    </li>
+                @endif
                 @if(auth()->user()->hasActiveSubscription() && auth()->user()->hasFeature('advanced_analytics_enabled'))
                     <li>
                         <a href="{{ route('messages.history') }}" class="@if(Route::currentRouteName() === 'messages.history') active @endif">
