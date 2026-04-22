@@ -1,5 +1,5 @@
     <!-- Message History Navigation -->
-    @if(auth()->user()->can('access-advanced-analytics'))
+        @if(auth()->user()->hasActiveSubscription() && auth()->user()->hasFeature('advanced_analytics_enabled'))
         <div style="margin-top: 2rem; text-align: right;">
             <a href="{{ route('messages.history') }}" class="btn btn-primary" style="padding: 0.75rem 1.5rem; font-size: 1rem;">
                 📨 View Message History
@@ -220,12 +220,14 @@
                     @if($limits['rate_limit_per_hour'] === -1) Unlimited @else {{ number_format($limits['rate_limit_per_hour']) }} msg @endif
                 </span>
             </div>
-            <div class="limit-item">
-                <span class="limit-label">Data Retention:</span>
-                <span class="limit-value">
-                    @if($limits['data_retention_days'] === -1) Unlimited @else {{ $limits['data_retention_days'] }} days @endif
-                </span>
-            </div>
+            @if($limits['data_retention_days'] !== 0)
+                <div class="limit-item">
+                    <span class="limit-label">Data Retention:</span>
+                    <span class="limit-value">
+                        @if($limits['data_retention_days'] === -1) Unlimited @else {{ $limits['data_retention_days'] }} days @endif
+                    </span>
+                </div>
+            @endif
             <div class="limit-item">
                 <span class="limit-label">Analytics:</span>
                 <span class="limit-value">

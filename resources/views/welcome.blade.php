@@ -608,7 +608,9 @@
                                 <li>{{ $plan->max_devices_per_project == -1 ? 'Unlimited devices' : $plan->max_devices_per_project . ' Devices per project' }}</li>
                                 <li>{{ $plan->max_topics_per_project == -1 ? 'Unlimited topics' : $plan->max_topics_per_project . ' Topics per project' }}</li>
                                 <li>{{ $plan->rate_limit_per_hour == -1 ? 'Unlimited rate limit' : number_format($plan->rate_limit_per_hour) . ' msg/hour' }}</li>
-                                <li>{{ $plan->data_retention_days == -1 ? 'Unlimited retention' : $plan->data_retention_days . ' days retention' }}</li>
+                                @if ($plan->data_retention_days != 0)
+                                    <li>{{ $plan->data_retention_days == -1 ? 'Unlimited retention' : $plan->data_retention_days . ' days retention' }}</li>
+                                @endif
                                 @if ($plan->analytics_enabled)
                                     <li>Analytics dashboard</li>
                                 @endif
