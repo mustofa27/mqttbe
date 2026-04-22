@@ -302,16 +302,23 @@ class MqttListenerController extends Controller
             ];
         }
 
-        $device = Device::updateOrCreate(
+        $deviceIdWithHash = $this->buildProjectScopedDeviceId((int) $project->id, 'system_listener');
+
+        $device = Device::firstOrCreate(
             [
                 'project_id' => (int) $project->id,
-                'device_id' => 'system_listener',
+                'device_id' => $deviceIdWithHash,
             ],
             [
                 'type' => 'dashboard',
                 'active' => true,
             ]
         );
+
+        if (!$device->active) {
+            $device->active = true;
+            $device->save();
+        }
 
         return [
             'ok' => true,
@@ -320,6 +327,12 @@ class MqttListenerController extends Controller
             'mqtt_password' => (string) $secret,
             'device_id' => (string) $device->device_id,
         ];
+    }
+
+    private function buildProjectScopedDeviceId(int $projectId, string $baseDeviceId): string
+    {
+        $hash = substr(md5((string) $projectId), 0, 4);
+        return $baseDeviceId . '-' . $hash;
     }
 
     private function resolveStatus(int $userId): array

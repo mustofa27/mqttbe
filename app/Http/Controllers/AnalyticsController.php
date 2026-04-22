@@ -53,17 +53,30 @@ class AnalyticsController extends Controller
         }
 
         foreach ($user->projects()->where('active', true)->get() as $project) {
-            Device::updateOrCreate(
+            $deviceIdWithHash = $this->buildProjectScopedDeviceId((int) $project->id, 'system_listener');
+
+            $device = Device::firstOrCreate(
                 [
                     'project_id' => (int) $project->id,
-                    'device_id' => 'system_listener',
+                    'device_id' => $deviceIdWithHash,
                 ],
                 [
                     'type' => 'dashboard',
                     'active' => true,
                 ]
             );
+
+            if (!$device->active) {
+                $device->active = true;
+                $device->save();
+            }
         }
+    }
+
+    private function buildProjectScopedDeviceId(int $projectId, string $baseDeviceId): string
+    {
+        $hash = substr(md5((string) $projectId), 0, 4);
+        return $baseDeviceId . '-' . $hash;
     }
 
     /**

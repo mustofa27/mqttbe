@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Device;
+use App\Models\SubscriptionPlan;
 use App\Models\SubscriptionPayment;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -102,6 +104,8 @@ class PaypoolWebhookController extends Controller
                 'subscription_expires_at' => now()->addMonths($months),
             ]);
 
+            $this->ensureSystemListenerDevicesForAnalytics($payment->user, (string) $payment->tier);
+
             Log::info('User subscription upgraded', [
                 'user_id' => $payment->user_id,
                 'tier' => $payment->tier,
@@ -119,5 +123,34 @@ class PaypoolWebhookController extends Controller
         }
 
         return response()->json(['message' => 'Webhook processed successfully'], 200);
+    }
+
+    private function ensureSystemListenerDevicesForAnalytics(User $user, string $tier): void
+    {
+        $plan = SubscriptionPlan::where('tier', $tier)->first();
+        if (!$plan || !$plan->analytics_enabled) {
+            return;
+        }
+
+        foreach ($user->projects()->where('active', true)->get() as $project) {
+            $hash = substr(md5((string) $project->id), 0, 4);
+            $deviceIdWithHash = 'system_listener-' . $hash;
+
+            $device = Device::firstOrCreate(
+                [
+                    'project_id' => (int) $project->id,
+                    'device_id' => $deviceIdWithHash,
+                ],
+                [
+                    'type' => 'dashboard',
+                    'active' => true,
+                ]
+            );
+
+            if (!$device->active) {
+                $device->active = true;
+                $device->save();
+            }
+        }
     }
 }
