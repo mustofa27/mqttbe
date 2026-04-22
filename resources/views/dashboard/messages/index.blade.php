@@ -133,6 +133,20 @@
         margin-top: 1.5rem;
     }
 
+    .pagination-wrap svg {
+        width: 0.9rem;
+        height: 0.9rem;
+    }
+
+    .pagination-wrap nav > div > div > span,
+    .pagination-wrap nav > div > div > a,
+    .pagination-wrap nav > div > span,
+    .pagination-wrap nav > div > a {
+        padding: 0.4rem 0.6rem;
+        font-size: 0.85rem;
+        line-height: 1.1;
+    }
+
     @media (max-width: 768px) {
         .message-history-container {
             padding: 1rem;
