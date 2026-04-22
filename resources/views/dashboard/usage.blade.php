@@ -244,7 +244,7 @@
             <div style="margin-top: 1.5rem; padding: 1rem; background: #f0f4ff; border-radius: 8px; border-left: 4px solid #4f46e5;">
                 <p style="margin: 0; color: #2d2f33;">
                     <strong>Upgrade for more features</strong><br>
-                    Get access to advanced analytics, webhooks, and higher rate limits.
+                    Get access to Advance Dashboard, webhooks, and higher rate limits.
                     <a href="{{ route('subscription.upgrade') }}" style="color: #4f46e5; text-decoration: none; font-weight: 600;">View plans →</a>
                 </p>
             </div>

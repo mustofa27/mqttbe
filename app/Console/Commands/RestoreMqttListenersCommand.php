@@ -62,7 +62,7 @@ class RestoreMqttListenersCommand extends Command
             }
 
             if (!$user->hasActiveSubscription() || !$user->hasFeature('advanced_analytics_enabled')) {
-                $this->warn("Skipping user {$userId}: no active advanced analytics feature.");
+                $this->warn("Skipping user {$userId}: no active Advance Dashboard feature.");
                 $skipped++;
                 continue;
             }

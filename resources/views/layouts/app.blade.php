@@ -554,6 +554,13 @@
                         </a>
                     </li>
                 @endif
+                @if(auth()->user()->hasActiveSubscription() && auth()->user()->hasFeature('advanced_analytics_enabled'))
+                    <li>
+                        <a href="{{ route('advance-dashboard.index') }}" class="@if(strpos(Route::currentRouteName(), 'advance-dashboard.') === 0) active @endif">
+                            🚀 Advance Dashboard
+                        </a>
+                    </li>
+                @endif
                 <li>
                     <a href="{{ route('subscription.index') }}" class="@if(strpos(Route::currentRouteName(), 'subscription.') !== false) active @endif">
                         💳 Subscription

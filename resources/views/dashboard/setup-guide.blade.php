@@ -73,7 +73,7 @@ $client->connect('PROJECT_KEY', 'PROJECT_SECRET', true);</pre>
                 </details>
             </li>
             <li><strong>Send/Receive Data:</strong> Publish or subscribe to topics from your device.</li>
-            <li><strong>Monitor & Manage:</strong> Use Usage and Advanced Analytics to monitor activity.</li>
+            <li><strong>Monitor & Manage:</strong> Use Usage and Advance Dashboard to monitor activity.</li>
             <li><strong>Subscription & Payments:</strong> Upgrade your plan for higher limits and more features.</li>
             <li><strong>Support:</strong> Contact support for further help.</li>
         </ol>

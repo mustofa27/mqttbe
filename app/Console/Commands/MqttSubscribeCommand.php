@@ -57,7 +57,7 @@ class MqttSubscribeCommand extends Command
         foreach ($projects as $project) {
             $user = $project->user;
             if (!$user || !$user->hasActiveSubscription() || !$user->hasFeature('advanced_analytics_enabled')) {
-                $this->warn('Project owner does not have an active subscription with advanced analytics enabled.');
+                $this->warn('Project owner does not have an active subscription with Advance Dashboard enabled.');
                 continue;
             }
 

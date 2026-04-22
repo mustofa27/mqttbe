@@ -252,6 +252,9 @@
         <div class="feature-item {{ $currentLimits['analytics_enabled'] ? 'feature-enabled' : 'feature-disabled' }}">
             {{ $currentLimits['analytics_enabled'] ? '✅' : '❌' }} Analytics Dashboard
         </div>
+        <div class="feature-item {{ !empty($currentLimits['advanced_analytics_enabled']) ? 'feature-enabled' : 'feature-disabled' }}">
+            {{ !empty($currentLimits['advanced_analytics_enabled']) ? '✅' : '❌' }} Advance Dashboard
+        </div>
         <div class="feature-item {{ $currentLimits['webhooks_enabled'] ? 'feature-enabled' : 'feature-disabled' }}">
             {{ $currentLimits['webhooks_enabled'] ? '✅' : '❌' }} Webhooks
         </div>
@@ -336,6 +339,14 @@
                         @foreach($allPlans as $t => $l)
                             <td style="text-align: center; padding: 0.75rem; {{ $user->subscription_tier === $t ? 'background: #f0f0ff; font-weight: bold;' : '' }}">
                                 {{ $l['analytics_enabled'] ? '✅' : '❌' }}
+                            </td>
+                        @endforeach
+                    </tr>
+                    <tr style="border-bottom: 1px solid #f0f0f0;">
+                        <td style="padding: 0.75rem;">Advance Dashboard</td>
+                        @foreach($allPlans as $t => $l)
+                            <td style="text-align: center; padding: 0.75rem; {{ $user->subscription_tier === $t ? 'background: #f0f0ff; font-weight: bold;' : '' }}">
+                                {{ !empty($l['advanced_analytics_enabled']) ? '✅' : '❌' }}
                             </td>
                         @endforeach
                     </tr>
