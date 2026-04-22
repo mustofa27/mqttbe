@@ -62,13 +62,13 @@ class MqttSubscribeCommand extends Command
                 }
                 // Replace {project} with project key and {device id} with +
                 $topicTemplate = str_replace(['{project}', '{device_id}'], [$project->project_key, '+'], $topicModel->template);
-                $mqtt->subscribe($topicTemplate, function (string $topic, string $message, bool $retained, int $qos) use ($project, $topicModel) {
+                $mqtt->subscribe($topicTemplate, function (string $topic, string $message) use ($project, $topicModel) {
                     // Log incoming message
                     Log::info('MQTT Subscriber received message', [
                         'topic' => $topic,
                         'message' => $message,
-                        'qos' => $qos,
-                        'retained' => $retained,
+                        'qos' => 1,
+                        'retained' => true,
                         'project_id' => $project->id,
                         'topic_id' => $topicModel->id,
                     ]);
@@ -98,8 +98,8 @@ class MqttSubscribeCommand extends Command
                         'topic_id' => $topicModel->id,
                         'mqtt_topic' => $topic,
                         'payload' => (string) $message,
-                        'qos' => $qos,
-                        'retained' => $retained,
+                        'qos' => 1,
+                        'retained' => true,
                         'expires_at' => $expiresAt,
                         'created_at' => Carbon::now(),
                         'updated_at' => Carbon::now(),
