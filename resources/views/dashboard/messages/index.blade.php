@@ -28,9 +28,25 @@
                 No messages found
             @endif
         </p>
-        <div class="pagination-wrap">
-            {{ $messages->links() }}
-        </div>
+        @if($messages->hasPages())
+            <div class="pagination-wrap custom-pagination">
+                <a
+                    class="page-btn @if(!$messages->onFirstPage()) is-active @else is-disabled @endif"
+                    href="@if(!$messages->onFirstPage()) {{ $messages->previousPageUrl() }} @else # @endif"
+                    @if($messages->onFirstPage()) aria-disabled="true" tabindex="-1" @endif
+                >
+                    &larr; Prev
+                </a>
+                <span class="page-meta">Page {{ $messages->currentPage() }} of {{ $messages->lastPage() }}</span>
+                <a
+                    class="page-btn @if($messages->hasMorePages()) is-active @else is-disabled @endif"
+                    href="@if($messages->hasMorePages()) {{ $messages->nextPageUrl() }} @else # @endif"
+                    @if(!$messages->hasMorePages()) aria-disabled="true" tabindex="-1" @endif
+                >
+                    Next &rarr;
+                </a>
+            </div>
+        @endif
     </div>
 
     <div class="message-history-table-wrap">
@@ -157,18 +173,46 @@
         margin-top: 0;
     }
 
-    .pagination-wrap svg {
-        width: 0.9rem;
-        height: 0.9rem;
+    .custom-pagination {
+        display: flex;
+        align-items: center;
+        gap: 0.55rem;
     }
 
-    .pagination-wrap nav > div > div > span,
-    .pagination-wrap nav > div > div > a,
-    .pagination-wrap nav > div > span,
-    .pagination-wrap nav > div > a {
-        padding: 0.4rem 0.6rem;
-        font-size: 0.85rem;
-        line-height: 1.1;
+    .page-btn {
+        text-decoration: none;
+        border-radius: 8px;
+        border: 1px solid #d1d5db;
+        padding: 0.4rem 0.65rem;
+        font-size: 0.82rem;
+        font-weight: 700;
+        transition: all 0.15s ease;
+    }
+
+    .page-btn.is-active {
+        background: #ffffff;
+        color: #334155;
+    }
+
+    .page-btn.is-active:hover {
+        background: #eef2ff;
+        border-color: #c7d2fe;
+        color: #3730a3;
+    }
+
+    .page-btn.is-disabled {
+        background: #f8fafc;
+        color: #94a3b8;
+        border-color: #e2e8f0;
+        pointer-events: none;
+        cursor: not-allowed;
+    }
+
+    .page-meta {
+        font-size: 0.82rem;
+        color: #64748b;
+        font-weight: 700;
+        white-space: nowrap;
     }
 
     @media (max-width: 768px) {
@@ -191,6 +235,10 @@
 
         .message-history-summary {
             text-align: center;
+        }
+
+        .custom-pagination {
+            justify-content: center;
         }
 
         .message-history-table {
