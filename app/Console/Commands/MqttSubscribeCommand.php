@@ -13,7 +13,7 @@ use PhpMqtt\Client\ConnectionSettings;
 
 class MqttSubscribeCommand extends Command
 {
-    protected $signature = 'mqtt:subscribe {--user_id= : Restrict subscription to a single user ID} {--username= : MQTT username} {--password= : MQTT password} {--device_id= : MQTT device ID to subscribe for}';
+    protected $signature = 'mqtt:subscribe {--user_id= : Restrict subscription to a single user ID} {--project_id= : Restrict subscription to a single project ID} {--username= : MQTT username} {--password= : MQTT password} {--device_id= : MQTT device ID to subscribe for}';
     protected $description = 'Subscribe to MQTT topics and ingest messages into the database (subtest)';
 
     public function handle(): int
@@ -21,6 +21,7 @@ class MqttSubscribeCommand extends Command
         $host = config('mqtt.host');
         $port = (int) config('mqtt.port');
         $userId = $this->option('user_id');
+        $projectId = $this->option('project_id');
         $mqttUsername = $this->option('username');
         $mqttPassword = $this->option('password');
         $deviceIdOption = $this->option('device_id');
@@ -31,6 +32,9 @@ class MqttSubscribeCommand extends Command
         }
 
         $projectsQuery = Project::where('active', true);
+        if ($projectId !== null && $projectId !== '') {
+            $projectsQuery->where('id', (int) $projectId);
+        }
         if ($userId !== null && $userId !== '') {
             $projectsQuery->where('user_id', (int) $userId);
         }

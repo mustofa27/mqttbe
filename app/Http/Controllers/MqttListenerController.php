@@ -163,7 +163,7 @@ class MqttListenerController extends Controller
             }
 
             $logPath = storage_path("logs/mqtt-subscriber-user-{$userId}.log");
-            $command = $this->buildStartCommand($userId, $mqttUsername, $mqttPassword, $deviceId, $logPath);
+            $command = $this->buildStartCommand($userId, (int) $projectId, $mqttUsername, $mqttPassword, $deviceId, $logPath);
 
             $process = Process::fromShellCommandline($command);
             $process->setTimeout(15);
@@ -513,15 +513,16 @@ class MqttListenerController extends Controller
         }
     }
 
-    private function buildStartCommand(int $userId, string $mqttUsername, string $mqttPassword, string $deviceId, string $logPath): string
+    private function buildStartCommand(int $userId, int $projectId, string $mqttUsername, string $mqttPassword, string $deviceId, string $logPath): string
     {
         $phpBinary = $this->resolvePhpCliBinary();
 
         return sprintf(
-            'nohup %s %s mqtt:subscribe --user_id=%d --username=%s --password=%s --device_id=%s >> %s 2>&1 & echo $!',
+            'nohup %s %s mqtt:subscribe --user_id=%d --project_id=%d --username=%s --password=%s --device_id=%s >> %s 2>&1 & echo $!',
             escapeshellarg($phpBinary),
             escapeshellarg(base_path('artisan')),
             $userId,
+            $projectId,
             escapeshellarg($mqttUsername),
             escapeshellarg($mqttPassword),
             escapeshellarg($deviceId),

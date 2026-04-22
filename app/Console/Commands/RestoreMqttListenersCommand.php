@@ -65,6 +65,7 @@ class RestoreMqttListenersCommand extends Command
             }
 
             $metadata = $this->readMetadata($file);
+            $projectId = isset($metadata['project_id']) ? (int) $metadata['project_id'] : 0;
             $mqttUsername = trim((string) ($metadata['mqtt_username'] ?? ''));
             $deviceId = trim((string) ($metadata['device_id'] ?? ''));
             $mqttPassword = $this->decryptPassword($metadata['mqtt_password'] ?? null);
@@ -88,16 +89,28 @@ class RestoreMqttListenersCommand extends Command
             }
 
             $logPath = $this->logPathForUser($userId);
-            $command = sprintf(
-                'nohup %s %s mqtt:subscribe --user_id=%d --username=%s --password=%s --device_id=%s >> %s 2>&1 & echo $!',
-                escapeshellarg($phpBinary),
-                escapeshellarg(base_path('artisan')),
-                $userId,
-                escapeshellarg($mqttUsername),
-                escapeshellarg($mqttPassword),
-                escapeshellarg($deviceId),
-                escapeshellarg($logPath)
-            );
+            $command = $projectId > 0
+                ? sprintf(
+                    'nohup %s %s mqtt:subscribe --user_id=%d --project_id=%d --username=%s --password=%s --device_id=%s >> %s 2>&1 & echo $!',
+                    escapeshellarg($phpBinary),
+                    escapeshellarg(base_path('artisan')),
+                    $userId,
+                    $projectId,
+                    escapeshellarg($mqttUsername),
+                    escapeshellarg($mqttPassword),
+                    escapeshellarg($deviceId),
+                    escapeshellarg($logPath)
+                )
+                : sprintf(
+                    'nohup %s %s mqtt:subscribe --user_id=%d --username=%s --password=%s --device_id=%s >> %s 2>&1 & echo $!',
+                    escapeshellarg($phpBinary),
+                    escapeshellarg(base_path('artisan')),
+                    $userId,
+                    escapeshellarg($mqttUsername),
+                    escapeshellarg($mqttPassword),
+                    escapeshellarg($deviceId),
+                    escapeshellarg($logPath)
+                );
 
             if ($dryRun) {
                 $this->line("[dry-run] User {$userId}: {$command}");
