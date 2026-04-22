@@ -19,11 +19,13 @@ class AdvanceDashboardWidget extends Model
         'visualization_mode',
         'json_key',
         'json_key_type',
+        'size',
         'position',
     ];
 
     protected $casts = [
         'position' => 'integer',
+        'size' => 'string',
     ];
 
     public function user(): BelongsTo

@@ -105,6 +105,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/advance-dashboard/widgets', [AdvanceDashboardController::class, 'store'])->name('advance-dashboard.widgets.store');
     Route::delete('/advance-dashboard/widgets/{widget}', [AdvanceDashboardController::class, 'destroy'])->name('advance-dashboard.widgets.destroy');
     Route::get('/advance-dashboard/widgets/{widget}/data', [AdvanceDashboardController::class, 'data'])->name('advance-dashboard.widgets.data');
+    Route::patch('/advance-dashboard/widgets/reorder', [AdvanceDashboardController::class, 'reorder'])->name('advance-dashboard.widgets.reorder');
+    Route::patch('/advance-dashboard/widgets/{widget}/size', [AdvanceDashboardController::class, 'updateSize'])->name('advance-dashboard.widgets.update-size');
 
     // MQTT listener controls (advanced analytics users only; verified in controller)
     Route::get('/mqtt-listener/status', [MqttListenerController::class, 'status'])->name('mqtt-listener.status');

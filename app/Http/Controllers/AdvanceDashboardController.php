@@ -10,6 +10,7 @@ use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class AdvanceDashboardController extends Controller
 {
@@ -100,6 +101,7 @@ class AdvanceDashboardController extends Controller
             'visualization_mode' => (string) $validated['visualization_mode'],
             'json_key' => $validated['json_key'] ?? null,
             'json_key_type' => $validated['json_key_type'] ?? null,
+            'size' => 'medium',
             'position' => $maxPosition + 1,
         ]);
 
@@ -246,6 +248,56 @@ class AdvanceDashboardController extends Controller
                 'borderWidth' => 1,
             ]],
         ]);
+    }
+
+    public function reorder(Request $request): JsonResponse
+    {
+        $user = $this->requireAdvanceDashboardAccess($request);
+
+        $validated = $request->validate([
+            'widget_ids' => ['required', 'array', 'min:1'],
+            'widget_ids.*' => ['integer'],
+        ]);
+
+        $widgetIds = collect($validated['widget_ids'])
+            ->map(fn($id) => (int) $id)
+            ->values();
+
+        $ownedCount = AdvanceDashboardWidget::where('user_id', (int) $user->id)
+            ->whereIn('id', $widgetIds)
+            ->count();
+
+        if ($ownedCount !== $widgetIds->count()) {
+            return response()->json(['message' => 'Invalid widget list.'], 422);
+        }
+
+        DB::transaction(function () use ($user, $widgetIds) {
+            foreach ($widgetIds as $index => $widgetId) {
+                AdvanceDashboardWidget::where('id', $widgetId)
+                    ->where('user_id', (int) $user->id)
+                    ->update(['position' => $index + 1]);
+            }
+        });
+
+        return response()->json(['ok' => true]);
+    }
+
+    public function updateSize(Request $request, AdvanceDashboardWidget $widget): JsonResponse
+    {
+        $user = $this->requireAdvanceDashboardAccess($request);
+
+        if ((int) $widget->user_id !== (int) $user->id) {
+            return response()->json(['message' => 'Unauthorized widget access.'], 403);
+        }
+
+        $validated = $request->validate([
+            'size' => ['required', 'in:small,medium,wide'],
+        ]);
+
+        $widget->size = (string) $validated['size'];
+        $widget->save();
+
+        return response()->json(['ok' => true, 'size' => $widget->size]);
     }
 
     private function requireAdvanceDashboardAccess(Request $request)

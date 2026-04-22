@@ -66,17 +66,31 @@
 
     <div class="widgets-grid" id="widgetsGrid">
         @forelse($widgets as $widget)
-            <div class="widget-card" data-widget-id="{{ $widget->id }}" data-url="{{ route('advance-dashboard.widgets.data', $widget) }}">
+            <div
+                class="widget-card widget-size-{{ $widget->size ?? 'medium' }}"
+                data-widget-id="{{ $widget->id }}"
+                data-url="{{ route('advance-dashboard.widgets.data', $widget) }}"
+                data-size-url="{{ route('advance-dashboard.widgets.update-size', $widget) }}"
+                draggable="true"
+            >
                 <div class="widget-header">
                     <div>
-                        <h3>{{ $widget->title }}</h3>
+                        <h3><span class="drag-handle" title="Drag to reorder">⋮⋮</span> {{ $widget->title }}</h3>
                         <p>{{ $widget->project->name ?? 'Unknown Project' }} | {{ $widget->topic->code ?? 'Unknown Topic' }}</p>
                     </div>
-                    <form method="POST" action="{{ route('advance-dashboard.widgets.destroy', $widget) }}" onsubmit="return confirm('Remove this chart from Advance Dashboard?');">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="btn-remove">Remove</button>
-                    </form>
+                    <div class="widget-actions">
+                        <label class="size-label" for="widgetSize{{ $widget->id }}">Size</label>
+                        <select id="widgetSize{{ $widget->id }}" class="widget-size-select" data-widget-id="{{ $widget->id }}">
+                            <option value="small" @if(($widget->size ?? 'medium') === 'small') selected @endif>Small</option>
+                            <option value="medium" @if(($widget->size ?? 'medium') === 'medium') selected @endif>Medium</option>
+                            <option value="wide" @if(($widget->size ?? 'medium') === 'wide') selected @endif>Wide</option>
+                        </select>
+                        <form method="POST" action="{{ route('advance-dashboard.widgets.destroy', $widget) }}" onsubmit="return confirm('Remove this chart from Advance Dashboard?');">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn-remove">Remove</button>
+                        </form>
+                    </div>
                 </div>
                 <div class="widget-canvas-wrap">
                     <canvas id="widgetCanvas{{ $widget->id }}"></canvas>
@@ -108,16 +122,25 @@
     .hidden { display: none; }
     .widgets-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(430px, 1fr)); gap: 1rem; }
     .widget-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 1rem; }
+    .widget-card.dragging { opacity: 0.5; border-style: dashed; }
+    .widget-card.widget-size-small { grid-column: span 1; }
+    .widget-card.widget-size-medium { grid-column: span 1; }
+    .widget-card.widget-size-wide { grid-column: span 2; }
     .widget-header { display: flex; justify-content: space-between; gap: 1rem; align-items: flex-start; margin-bottom: 0.6rem; }
     .widget-header h3 { margin: 0 0 0.2rem; font-size: 1rem; }
     .widget-header p { margin: 0; color: #64748b; font-size: 0.85rem; }
+    .widget-actions { display: flex; align-items: center; gap: 0.45rem; }
+    .size-label { font-size: 0.78rem; color: #64748b; }
+    .widget-size-select { border: 1px solid #d1d5db; border-radius: 8px; padding: 0.28rem 0.4rem; font-size: 0.78rem; }
     .btn-remove { border: 1px solid #dc3545; color: #dc3545; background: #fff; border-radius: 8px; padding: 0.45rem 0.7rem; cursor: pointer; font-size: 0.82rem; font-weight: 700; }
+    .drag-handle { color: #94a3b8; cursor: grab; letter-spacing: -2px; margin-right: 0.4rem; }
     .widget-canvas-wrap { min-height: 290px; position: relative; }
     .widget-empty { margin-top: 0.6rem; color: #64748b; font-size: 0.85rem; }
     .empty-dashboard { background: #fff; border: 1px dashed #cbd5e1; border-radius: 12px; padding: 1.5rem; color: #64748b; }
 
     @media (max-width: 900px) {
         .widgets-grid { grid-template-columns: 1fr; }
+        .widget-card.widget-size-wide { grid-column: span 1; }
     }
 </style>
 
@@ -125,6 +148,8 @@
 <script>
     const projectTopics = @json($projectTopics);
     const charts = {};
+    const reorderUrl = "{{ route('advance-dashboard.widgets.reorder') }}";
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '';
 
     function setTopicOptions() {
         const projectSelect = document.getElementById('projectSelect');
@@ -205,6 +230,97 @@
         }
     }
 
+    async function persistWidgetOrder() {
+        const widgetIds = Array.from(document.querySelectorAll('.widget-card')).map((el) => Number(el.dataset.widgetId));
+        if (widgetIds.length === 0) {
+            return;
+        }
+
+        await fetch(reorderUrl, {
+            method: 'PATCH',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken,
+            },
+            body: JSON.stringify({ widget_ids: widgetIds }),
+        });
+    }
+
+    function setupDragDrop() {
+        const grid = document.getElementById('widgetsGrid');
+        if (!grid) return;
+
+        let draggingCard = null;
+
+        grid.querySelectorAll('.widget-card').forEach((card) => {
+            card.addEventListener('dragstart', () => {
+                draggingCard = card;
+                card.classList.add('dragging');
+            });
+
+            card.addEventListener('dragend', async () => {
+                card.classList.remove('dragging');
+                draggingCard = null;
+                try {
+                    await persistWidgetOrder();
+                } catch (error) {
+                    console.error('Failed to persist widget order', error);
+                }
+            });
+
+            card.addEventListener('dragover', (event) => {
+                event.preventDefault();
+                if (!draggingCard || draggingCard === card) return;
+
+                const rect = card.getBoundingClientRect();
+                const shouldInsertAfter = event.clientY > rect.top + rect.height / 2;
+
+                if (shouldInsertAfter) {
+                    card.after(draggingCard);
+                } else {
+                    card.before(draggingCard);
+                }
+            });
+        });
+    }
+
+    function setupSizeUpdates() {
+        document.querySelectorAll('.widget-size-select').forEach((select) => {
+            select.addEventListener('change', async (event) => {
+                const target = event.currentTarget;
+                const widgetId = target.dataset.widgetId;
+                const size = target.value;
+                const card = document.querySelector(`.widget-card[data-widget-id="${widgetId}"]`);
+
+                if (!card) return;
+
+                try {
+                    const res = await fetch(card.dataset.sizeUrl, {
+                        method: 'PATCH',
+                        headers: {
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': csrfToken,
+                        },
+                        body: JSON.stringify({ size }),
+                    });
+
+                    const payload = await res.json();
+                    if (!res.ok) throw new Error(payload.message || 'Failed to update size');
+
+                    card.classList.remove('widget-size-small', 'widget-size-medium', 'widget-size-wide');
+                    card.classList.add(`widget-size-${size}`);
+                } catch (error) {
+                    target.value = card.classList.contains('widget-size-wide')
+                        ? 'wide'
+                        : (card.classList.contains('widget-size-small') ? 'small' : 'medium');
+                    console.error('Failed to update widget size', error);
+                }
+            });
+        });
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
         const toggleBtn = document.getElementById('toggleAddChartBtn');
         const cancelBtn = document.getElementById('cancelAddChartBtn');
@@ -232,6 +348,8 @@
         toggleJsonFields();
 
         document.querySelectorAll('.widget-card').forEach(renderWidget);
+        setupDragDrop();
+        setupSizeUpdates();
     });
 </script>
 @endsection
