@@ -73,6 +73,18 @@ class MqttListenerController extends Controller
         $selectedProjectId = null;
         if (isset($validated['project_id']) && $validated['project_id'] !== null && $validated['project_id'] !== '') {
             $selectedProjectId = (int) $validated['project_id'];
+
+            $hasProjectAccess = Project::where('id', $selectedProjectId)
+                ->where('user_id', (int) $request->user()->id)
+                ->where('active', true)
+                ->exists();
+
+            if (!$hasProjectAccess) {
+                return response()->json([
+                    'ok' => false,
+                    'message' => 'Selected project is invalid or inactive.',
+                ], 422);
+            }
         }
 
         return response()->json($this->resolveStatus($request->user()->id, $selectedProjectId));
@@ -100,14 +112,14 @@ class MqttListenerController extends Controller
             'mqtt_username' => $credentials['mqtt_username'],
             'mqtt_password' => Crypt::encryptString($credentials['mqtt_password']),
             'device_id' => $credentials['device_id'],
-            'log_path' => storage_path("logs/mqtt-subscriber-user-{$userId}.log"),
-        ]);
+            'log_path' => $this->logPathForProject($userId, (int) $credentials['project']->id),
+        ], (int) $credentials['project']->id);
 
         return response()->json([
             'ok' => true,
             'action' => 'save-config',
             'message' => 'Listener configuration saved.',
-            'service' => $this->resolveStatus($userId),
+            'service' => $this->resolveStatus($userId, (int) $credentials['project']->id),
         ]);
     }
 
@@ -134,25 +146,25 @@ class MqttListenerController extends Controller
         $projectId = $credentials['project']->id;
 
         $lockTimeout = max(1, (int) config('mqtt.listener.start_lock_seconds', 10));
-        $lockHandle = $this->acquireStartLock($userId, $lockTimeout);
+        $lockHandle = $this->acquireStartLock($userId, (int) $projectId, $lockTimeout);
 
         if ($lockHandle === false) {
             return response()->json([
                 'ok' => false,
                 'action' => 'start',
-                'message' => 'Another start request is currently in progress. Please retry in a moment.',
-                'service' => $this->resolveStatus($userId),
+                'message' => 'Another start request is currently in progress for this project. Please retry in a moment.',
+                'service' => $this->resolveStatus($userId, (int) $projectId),
             ], 429);
         }
 
         try {
-            $currentStatus = $this->resolveStatus($userId);
+            $currentStatus = $this->resolveStatus($userId, (int) $projectId);
 
             if ($currentStatus['running']) {
                 return response()->json([
                     'ok' => true,
                     'action' => 'start',
-                    'message' => 'Listener is already running for this user.',
+                    'message' => 'Listener is already running for this project.',
                     'service' => $currentStatus,
                 ]);
             }
@@ -165,13 +177,13 @@ class MqttListenerController extends Controller
                     'ok' => false,
                     'action' => 'start',
                     'message' => 'Process limit reached for this user.',
-                    'service' => $this->resolveStatus($userId),
+                    'service' => $this->resolveStatus($userId, (int) $projectId),
                     'limit' => $maxPerUser,
                     'running_count' => $runningCount,
                 ], 429);
             }
 
-            $logPath = storage_path("logs/mqtt-subscriber-user-{$userId}.log");
+            $logPath = $this->logPathForProject($userId, (int) $projectId);
             $command = $this->buildStartCommand($userId, (int) $projectId, $mqttUsername, $mqttPassword, $deviceId, $logPath);
 
             $process = Process::fromShellCommandline($command);
@@ -189,10 +201,10 @@ class MqttListenerController extends Controller
                     'mqtt_username' => $mqttUsername,
                     'mqtt_password' => Crypt::encryptString($mqttPassword),
                     'device_id' => $deviceId,
-                ]);
+                ], (int) $projectId);
             }
 
-            $status = $this->resolveStatus($userId);
+            $status = $this->resolveStatus($userId, (int) $projectId);
 
             return response()->json([
                 'ok' => $process->isSuccessful() && $pid > 0,
@@ -211,32 +223,52 @@ class MqttListenerController extends Controller
             return $denied;
         }
 
+        $validated = $request->validate([
+            'project_id' => ['required', 'integer'],
+        ]);
+
         $userId = (int) $request->user()->id;
-        $meta = $this->readListenerMetadata($userId);
+        $projectId = (int) $validated['project_id'];
+
+        $hasProjectAccess = Project::where('id', $projectId)
+            ->where('user_id', $userId)
+            ->where('active', true)
+            ->exists();
+
+        if (!$hasProjectAccess) {
+            return response()->json([
+                'ok' => false,
+                'action' => 'stop',
+                'message' => 'Selected project is invalid or inactive.',
+                'service' => $this->resolveStatus($userId, $projectId),
+            ], 422);
+        }
+
+        $meta = $this->readListenerMetadata($userId, $projectId);
         $pid = isset($meta['pid']) ? (int) $meta['pid'] : 0;
 
         if ($pid <= 0 || !$this->isProcessRunning($pid)) {
-            $this->deletePidMetadata($userId);
+            $this->deletePidMetadata($userId, $projectId);
 
             return response()->json([
                 'ok' => true,
                 'action' => 'stop',
-                'message' => 'No running listener found for this user.',
-                'service' => $this->resolveStatus($userId),
+                'message' => 'No running listener found for this project.',
+                'service' => $this->resolveStatus($userId, $projectId),
             ]);
         }
 
         $stopped = $this->stopProcess($pid);
 
         if ($stopped) {
-            $this->deletePidMetadata($userId);
+            $this->deletePidMetadata($userId, $projectId);
         }
 
         return response()->json([
             'ok' => $stopped,
             'action' => 'stop',
             'message' => $stopped ? 'Listener stopped.' : 'Failed to stop listener process.',
-            'service' => $this->resolveStatus($userId),
+            'service' => $this->resolveStatus($userId, $projectId),
         ], $stopped ? 200 : 500);
     }
 
@@ -246,13 +278,19 @@ class MqttListenerController extends Controller
             return $denied;
         }
 
+        $validated = $request->validate([
+            'project_id' => ['required', 'integer'],
+        ]);
+
         $userId = (int) $request->user()->id;
-        $meta = $this->readListenerMetadata($userId);
+        $projectId = (int) $validated['project_id'];
+
+        $meta = $this->readListenerMetadata($userId, $projectId);
         $pid = isset($meta['pid']) ? (int) $meta['pid'] : 0;
 
         if ($pid > 0 && $this->isProcessRunning($pid)) {
             $this->stopProcess($pid);
-            $this->deletePidMetadata($userId);
+            $this->deletePidMetadata($userId, $projectId);
         }
 
         $startResponse = $this->start($request);
@@ -346,61 +384,70 @@ class MqttListenerController extends Controller
 
     private function resolveStatus(int $userId, ?int $selectedProjectId = null): array
     {
-        $meta = $this->readListenerMetadata($userId, true);
-        $metaProjectId = isset($meta['project_id']) ? (int) $meta['project_id'] : null;
-        $pid = isset($meta['pid']) ? (int) $meta['pid'] : 0;
-        $running = $pid > 0 && $this->isProcessRunning($pid);
+        if ($selectedProjectId !== null && $selectedProjectId > 0) {
+            $meta = $this->readListenerMetadata($userId, $selectedProjectId, true);
+            $pid = isset($meta['pid']) ? (int) $meta['pid'] : 0;
+            $running = $pid > 0 && $this->isProcessRunning($pid);
 
-        if (!$running && $pid > 0) {
-            $this->writeListenerMetadata($userId, array_merge($meta, [
-                'pid' => 0,
-                'started_at' => null,
-            ]));
-            $meta = $this->readListenerMetadata($userId, true);
-            $metaProjectId = isset($meta['project_id']) ? (int) $meta['project_id'] : null;
-            $pid = 0;
+            if (!$running && $pid > 0) {
+                $this->writeListenerMetadata($userId, array_merge($meta, [
+                    'pid' => 0,
+                    'started_at' => null,
+                ]), $selectedProjectId);
+                $meta = $this->readListenerMetadata($userId, $selectedProjectId, true);
+                $pid = 0;
+            }
+
+            return [
+                'program' => 'mqtt:subscribe --user_id=' . $userId . ' --project_id=' . $selectedProjectId,
+                'user_id' => $userId,
+                'project_id' => $selectedProjectId,
+                'selected_project_id' => $selectedProjectId,
+                'pid' => $pid,
+                'running' => $running,
+                'running_actual' => $running,
+                'state' => $running ? 'RUNNING' : 'STOPPED',
+                'raw' => $running ? ('PID ' . $pid . ' active') : 'No active process',
+                'started_at' => $meta['started_at'] ?? null,
+                'log_path' => $meta['log_path'] ?? $this->logPathForProject($userId, $selectedProjectId),
+                'mqtt_username' => $meta['mqtt_username'] ?? null,
+                'device_id' => $meta['device_id'] ?? null,
+                'has_password' => !empty($meta['mqtt_password']),
+            ];
         }
 
-        $isSelectedProject = $selectedProjectId === null || $selectedProjectId <= 0 || $metaProjectId === null
-            ? true
-            : $metaProjectId === $selectedProjectId;
-
-        $selectedProjectRunning = $running && $isSelectedProject;
-
-        $rawStatus = $selectedProjectRunning
-            ? ('PID ' . $pid . ' active')
-            : 'No active process';
-
-        if ($running && !$selectedProjectRunning && $selectedProjectId !== null && $selectedProjectId > 0) {
-            $rawStatus = 'Listener active for project #' . $metaProjectId . '. Switch project or restart listener for current selection.';
-        }
+        $runningCount = $this->countRunningProcessesForUser($userId);
 
         return [
-            'program' => 'mqtt:subscribe --user_id=' . $userId . ($metaProjectId ? ' --project_id=' . $metaProjectId : ''),
+            'program' => 'mqtt:subscribe --user_id=' . $userId,
             'user_id' => $userId,
-            'project_id' => $metaProjectId,
-            'selected_project_id' => $selectedProjectId,
-            'pid' => $pid,
-            'running' => $selectedProjectRunning,
-            'running_actual' => $running,
-            'state' => $selectedProjectRunning ? 'RUNNING' : 'STOPPED',
-            'raw' => $rawStatus,
-            'started_at' => $meta['started_at'] ?? null,
-            'log_path' => $meta['log_path'] ?? storage_path("logs/mqtt-subscriber-user-{$userId}.log"),
-            'mqtt_username' => $meta['mqtt_username'] ?? null,
-            'device_id' => $meta['device_id'] ?? null,
-            'has_password' => !empty($meta['mqtt_password']),
+            'project_id' => null,
+            'selected_project_id' => null,
+            'pid' => 0,
+            'running' => $runningCount > 0,
+            'running_actual' => $runningCount > 0,
+            'state' => $runningCount > 0 ? 'RUNNING' : 'STOPPED',
+            'raw' => $runningCount > 0 ? ($runningCount . ' active listener(s)') : 'No active process',
+            'started_at' => null,
+            'log_path' => null,
+            'mqtt_username' => null,
+            'device_id' => null,
+            'has_password' => false,
         ];
     }
 
-    private function pidMetadataPath(int $userId): string
+    private function pidMetadataPath(int $userId, ?int $projectId = null): string
     {
+        if ($projectId !== null && $projectId > 0) {
+            return storage_path("app/mqtt-listener/user-{$userId}-project-{$projectId}.json");
+        }
+
         return storage_path("app/mqtt-listener/user-{$userId}.json");
     }
 
-    private function readListenerMetadata(int $userId, bool $decryptSecrets = false): array
+    private function readListenerMetadata(int $userId, ?int $projectId = null, bool $decryptSecrets = false): array
     {
-        $path = $this->pidMetadataPath($userId);
+        $path = $this->pidMetadataPath($userId, $projectId);
         if (!File::exists($path)) {
             return [];
         }
@@ -422,17 +469,18 @@ class MqttListenerController extends Controller
         return $decoded;
     }
 
-    private function writeListenerMetadata(int $userId, array $metadata): void
+    private function writeListenerMetadata(int $userId, array $metadata, ?int $projectId = null): void
     {
-        $path = $this->pidMetadataPath($userId);
+        $resolvedProjectId = $projectId ?? (isset($metadata['project_id']) ? (int) $metadata['project_id'] : null);
+        $path = $this->pidMetadataPath($userId, $resolvedProjectId);
         File::ensureDirectoryExists(dirname($path));
-        $current = $this->readListenerMetadata($userId);
+        $current = $this->readListenerMetadata($userId, $resolvedProjectId);
         File::put($path, json_encode(array_merge($current, $metadata), JSON_PRETTY_PRINT));
     }
 
-    private function deletePidMetadata(int $userId): void
+    private function deletePidMetadata(int $userId, ?int $projectId = null): void
     {
-        $path = $this->pidMetadataPath($userId);
+        $path = $this->pidMetadataPath($userId, $projectId);
         if (File::exists($path)) {
             File::delete($path);
         }
@@ -473,14 +521,32 @@ class MqttListenerController extends Controller
 
     private function countRunningProcessesForUser(int $userId): int
     {
-        // This architecture allows only one listener per user metadata file.
-        // Trust PID metadata first to avoid false positives from shell pattern matching.
-        $status = $this->resolveStatus($userId);
-        if ($status['running']) {
-            return 1;
+        $metadataFiles = $this->metadataPathsForUser($userId);
+        $count = 0;
+
+        foreach ($metadataFiles as $path) {
+            $projectId = $this->projectIdFromMetadataPath($path);
+            $meta = $this->readListenerMetadata($userId, $projectId);
+            $pid = isset($meta['pid']) ? (int) $meta['pid'] : 0;
+
+            if ($pid > 0 && $this->isProcessRunning($pid)) {
+                $count++;
+                continue;
+            }
+
+            if ($pid > 0) {
+                $this->writeListenerMetadata($userId, array_merge($meta, [
+                    'pid' => 0,
+                    'started_at' => null,
+                ]), $projectId);
+            }
         }
 
-        // Fallback scan: check process table for user-scoped listener command.
+        if ($count > 0) {
+            return $count;
+        }
+
+        // Fallback scan: check process table for user-scoped listener commands.
         $process = Process::fromShellCommandline('ps -eo pid=,args=');
         $process->setTimeout(5);
         $process->run();
@@ -505,14 +571,14 @@ class MqttListenerController extends Controller
         return $count;
     }
 
-    private function startLockPath(int $userId): string
+    private function startLockPath(int $userId, int $projectId): string
     {
-        return storage_path("app/mqtt-listener/locks/user-{$userId}.lock");
+        return storage_path("app/mqtt-listener/locks/user-{$userId}-project-{$projectId}.lock");
     }
 
-    private function acquireStartLock(int $userId, int $timeoutSeconds)
+    private function acquireStartLock(int $userId, int $projectId, int $timeoutSeconds)
     {
-        $path = $this->startLockPath($userId);
+        $path = $this->startLockPath($userId, $projectId);
         File::ensureDirectoryExists(dirname($path));
 
         $handle = fopen($path, 'c+');
@@ -531,6 +597,32 @@ class MqttListenerController extends Controller
 
         fclose($handle);
         return false;
+    }
+
+    private function metadataPathsForUser(int $userId): array
+    {
+        $paths = glob(storage_path("app/mqtt-listener/user-{$userId}-project-*.json")) ?: [];
+        $legacyPath = $this->pidMetadataPath($userId, null);
+
+        if (File::exists($legacyPath)) {
+            $paths[] = $legacyPath;
+        }
+
+        return array_values(array_unique($paths));
+    }
+
+    private function projectIdFromMetadataPath(string $path): ?int
+    {
+        if (preg_match('/user-\d+-project-(\d+)\.json$/', $path, $matches) === 1) {
+            return (int) $matches[1];
+        }
+
+        return null;
+    }
+
+    private function logPathForProject(int $userId, int $projectId): string
+    {
+        return storage_path("logs/mqtt-subscriber-user-{$userId}-project-{$projectId}.log");
     }
 
     private function releaseStartLock($handle): void

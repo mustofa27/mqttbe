@@ -600,13 +600,21 @@
 
         function stopListenerService() {
             const stopBtn = document.getElementById('listenerStopBtn');
+            const projectId = document.getElementById('projectSelect')?.value;
             if (!stopBtn) {
+                return;
+            }
+
+            if (!projectId) {
+                document.getElementById('listenerRawStatus').textContent = 'Select a project first.';
                 return;
             }
 
             stopBtn.disabled = true;
             stopBtn.textContent = 'Stopping...';
-            runListenerAction(listenerStopUrl, 'Stop Listener', stopBtn);
+            runListenerAction(listenerStopUrl, 'Stop Listener', stopBtn, {
+                project_id: projectId
+            });
         }
 
         function restartListenerService() {

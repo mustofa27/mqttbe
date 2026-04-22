@@ -29,8 +29,9 @@ class RestoreMqttListenersCommand extends Command
 
         $files = glob($metadataDir . '/user-*.json') ?: [];
         if ($targetUserId !== null && $targetUserId !== '') {
-            $files = array_filter($files, function (string $path) use ($targetUserId) {
-                return str_contains($path, 'user-' . (int) $targetUserId . '.json');
+            $target = (int) $targetUserId;
+            $files = array_filter($files, function (string $path) use ($target) {
+                return preg_match('/user-' . preg_quote((string) $target, '/') . '(?:-project-\d+)?\.json$/', $path) === 1;
             });
         }
 
@@ -44,7 +45,9 @@ class RestoreMqttListenersCommand extends Command
         $failed = 0;
 
         foreach ($files as $file) {
-            $userId = $this->extractUserIdFromPath($file);
+            $scope = $this->extractScopeFromPath($file);
+            $userId = $scope['user_id'] ?? null;
+            $pathProjectId = $scope['project_id'] ?? null;
             if ($userId === null) {
                 $this->warn("Skipping unrecognized metadata file: {$file}");
                 $skipped++;
@@ -65,7 +68,7 @@ class RestoreMqttListenersCommand extends Command
             }
 
             $metadata = $this->readMetadata($file);
-            $projectId = isset($metadata['project_id']) ? (int) $metadata['project_id'] : 0;
+            $projectId = isset($metadata['project_id']) ? (int) $metadata['project_id'] : (int) ($pathProjectId ?? 0);
             $mqttUsername = trim((string) ($metadata['mqtt_username'] ?? ''));
             $deviceId = trim((string) ($metadata['device_id'] ?? ''));
             $mqttPassword = $this->decryptPassword($metadata['mqtt_password'] ?? null);
@@ -76,19 +79,20 @@ class RestoreMqttListenersCommand extends Command
                 continue;
             }
 
-            $runningPid = $this->findRunningPidForUser($userId);
+            $runningPid = $this->findRunningPidForScope($userId, $projectId > 0 ? $projectId : null);
             if ($runningPid > 0) {
-                $this->line("User {$userId}: already running (PID {$runningPid}), skipping.");
-                $this->writeMetadata($userId, [
+                $label = $projectId > 0 ? "User {$userId} project {$projectId}" : "User {$userId}";
+                $this->line("{$label}: already running (PID {$runningPid}), skipping.");
+                $this->writeMetadata($file, [
                     'pid' => $runningPid,
                     'started_at' => now()->toDateTimeString(),
-                    'log_path' => $this->logPathForUser($userId),
+                    'log_path' => $this->logPathForScope($userId, $projectId > 0 ? $projectId : null),
                 ]);
                 $skipped++;
                 continue;
             }
 
-            $logPath = $this->logPathForUser($userId);
+            $logPath = $this->logPathForScope($userId, $projectId > 0 ? $projectId : null);
             $command = $projectId > 0
                 ? sprintf(
                     'nohup %s %s mqtt:subscribe --user_id=%d --project_id=%d --username=%s --password=%s --device_id=%s >> %s 2>&1 & echo $!',
@@ -124,16 +128,18 @@ class RestoreMqttListenersCommand extends Command
 
             $pid = (int) trim($process->getOutput());
             if ($process->isSuccessful() && $pid > 0) {
-                $this->writeMetadata($userId, [
+                $this->writeMetadata($file, [
                     'pid' => $pid,
                     'started_at' => now()->toDateTimeString(),
                     'log_path' => $logPath,
                 ]);
-                $this->info("User {$userId}: restored listener (PID {$pid}).");
+                $label = $projectId > 0 ? "User {$userId} project {$projectId}" : "User {$userId}";
+                $this->info("{$label}: restored listener (PID {$pid}).");
                 $restored++;
             } else {
                 $message = trim($process->getErrorOutput() ?: $process->getOutput());
-                $this->error("User {$userId}: failed to restore listener. {$message}");
+                $label = $projectId > 0 ? "User {$userId} project {$projectId}" : "User {$userId}";
+                $this->error("{$label}: failed to restore listener. {$message}");
                 $failed++;
             }
         }
@@ -144,18 +150,26 @@ class RestoreMqttListenersCommand extends Command
         return $failed > 0 ? self::FAILURE : self::SUCCESS;
     }
 
-    private function extractUserIdFromPath(string $path): ?int
+    private function extractScopeFromPath(string $path): array
     {
-        if (preg_match('/user-(\d+)\.json$/', $path, $matches) !== 1) {
-            return null;
+        if (preg_match('/user-(\d+)(?:-project-(\d+))?\.json$/', $path, $matches) !== 1) {
+            return [
+                'user_id' => null,
+                'project_id' => null,
+            ];
         }
 
-        return (int) $matches[1];
+        return [
+            'user_id' => (int) $matches[1],
+            'project_id' => isset($matches[2]) ? (int) $matches[2] : null,
+        ];
     }
 
-    private function findRunningPidForUser(int $userId): int
+    private function findRunningPidForScope(int $userId, ?int $projectId): int
     {
-        $command = 'pgrep -f "artisan mqtt:subscribe --user_id=' . $userId . '" | head -n 1';
+        $command = $projectId !== null
+            ? 'pgrep -f "artisan mqtt:subscribe --user_id=' . $userId . ' --project_id=' . $projectId . '" | head -n 1'
+            : 'pgrep -f "artisan mqtt:subscribe --user_id=' . $userId . '" | head -n 1';
         $process = Process::fromShellCommandline($command);
         $process->setTimeout(5);
         $process->run();
@@ -167,17 +181,20 @@ class RestoreMqttListenersCommand extends Command
         return (int) trim($process->getOutput());
     }
 
-    private function writeMetadata(int $userId, array $metadata): void
+    private function writeMetadata(string $path, array $metadata): void
     {
-        $path = storage_path("app/mqtt-listener/user-{$userId}.json");
         File::ensureDirectoryExists(dirname($path));
         $current = File::exists($path) ? $this->readMetadata($path) : [];
 
         File::put($path, json_encode(array_merge($current, $metadata), JSON_PRETTY_PRINT));
     }
 
-    private function logPathForUser(int $userId): string
+    private function logPathForScope(int $userId, ?int $projectId): string
     {
+        if ($projectId !== null && $projectId > 0) {
+            return storage_path("logs/mqtt-subscriber-user-{$userId}-project-{$projectId}.log");
+        }
+
         return storage_path("logs/mqtt-subscriber-user-{$userId}.log");
     }
 
