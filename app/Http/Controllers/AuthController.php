@@ -16,7 +16,7 @@ class AuthController extends Controller
     public function showLogin()
     {
         if (Auth::check()) {
-            return redirect()->route('dashboard');
+            return redirect()->route('usage.dashboard');
         }
         return view('auth.login');
     }
@@ -33,7 +33,7 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
-            return redirect()->route('dashboard')->with('success', 'Welcome back!');
+            return redirect()->route('usage.dashboard')->with('success', 'Welcome back!');
         }
 
         return back()
@@ -49,7 +49,7 @@ class AuthController extends Controller
     public function showRegister()
     {
         if (Auth::check()) {
-            return redirect()->route('dashboard');
+            return redirect()->route('usage.dashboard');
         }
         return view('auth.register');
     }
@@ -74,7 +74,7 @@ class AuthController extends Controller
         Auth::login($user);
         $request->session()->regenerate();
 
-        return redirect()->route('dashboard')->with('success', 'Account created successfully!');
+        return redirect()->route('usage.dashboard')->with('success', 'Account created successfully!');
     }
 
     /**
