@@ -544,7 +544,7 @@
                 </li>
                 <li>
                     <a href="{{ route('usage.dashboard') }}" class="@if(Route::currentRouteName() === 'usage.dashboard' || Route::currentRouteName() === 'dashboard') active @endif">
-                        📈 Usage
+                        🏠 Home
                     </a>
                 </li>
                 @if(auth()->user()->hasActiveSubscription() && auth()->user()->hasFeature('analytics_enabled'))
@@ -557,7 +557,7 @@
                 @if(auth()->user()->hasActiveSubscription() && auth()->user()->hasFeature('advanced_analytics_enabled'))
                     <li>
                         <a href="{{ route('advance-dashboard.index') }}" class="@if(strpos(Route::currentRouteName(), 'advance-dashboard.') === 0) active @endif">
-                            🚀 Advance Dashboard
+                            🚀 Advanced Dashboard
                         </a>
                     </li>
                 @endif

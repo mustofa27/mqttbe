@@ -3,10 +3,7 @@
 @section('title', 'Dashboard')
 
 @section('content')
-<div style="margin-bottom: 2rem;">
-    <h1 style="margin-bottom: 0.5rem;">Welcome, {{ Auth::user()->name }}! 👋</h1>
-    <p style="color: #666;">Here's your MQTT management overview</p>
-</div>
+
 
 <div class="dashboard-grid">
     <div class="stat-card">
@@ -19,12 +16,7 @@
     </div>
 </div>
 
-<div class="card" style="text-align: center; padding: 3rem;">
-    <h2>Welcome to ICMQTT</h2>
-    <p style="margin: 1rem 0; color: #666;">
-        Manage your MQTT projects, devices, and topics from a single dashboard.
-    </p>
-</div>
+
 
 <div style="margin-top: 2rem; background: white; padding: 2rem; border-radius: 8px; border-left: 4px solid #007bff;">
     <h2 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 1rem;">IoT Project Setup Guide</h2>

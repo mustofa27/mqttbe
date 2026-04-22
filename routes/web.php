@@ -47,7 +47,7 @@ Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->n
 
 // Protected routes (require authentication)
 Route::middleware('auth')->group(function () {
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+   //Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/profile', [DashboardController::class, 'profile'])->name('profile');
     Route::put('/profile', [DashboardController::class, 'updateProfile'])->name('updateProfile');
         // Regenerate project secret
@@ -100,7 +100,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/analytics/project/{project}/data', [AnalyticsController::class, 'projectData'])->name('analytics.project-data');
     Route::get('/analytics/project/{project}/device/{device}/data', [AnalyticsController::class, 'deviceAnalytics'])->name('analytics.device-data');
 
-    // Advance Dashboard routes
+    // Advanced Dashboard routes
     Route::get('/advance-dashboard', [AdvanceDashboardController::class, 'index'])->name('advance-dashboard.index');
     Route::post('/advance-dashboard/widgets', [AdvanceDashboardController::class, 'store'])->name('advance-dashboard.widgets.store');
     Route::delete('/advance-dashboard/widgets/{widget}', [AdvanceDashboardController::class, 'destroy'])->name('advance-dashboard.widgets.destroy');

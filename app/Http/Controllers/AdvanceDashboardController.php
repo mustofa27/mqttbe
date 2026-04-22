@@ -337,7 +337,7 @@ class AdvanceDashboardController extends Controller
         $user = $request->user();
 
         if (!$user || !$user->hasActiveSubscription() || !$user->hasFeature('advanced_analytics_enabled')) {
-            abort(403, 'Advance Dashboard access is required.');
+            abort(403, 'Advanced Dashboard access is required.');
         }
 
         return $user;

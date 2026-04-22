@@ -4,8 +4,10 @@
 
 @section('content')
 <div class="container">
-    <h1 class="page-title">Usage Dashboard</h1>
-    <p class="page-subtitle">Monitor your message usage and API activity</p>
+    <div style="margin-bottom: 2rem;">
+        <h1 style="margin-bottom: 0.5rem;">Welcome, {{ Auth::user()->name }}! 👋</h1>
+        <p style="color: #666;">Here's your MQTT management overview</p>
+    </div>
 
     <div id="setupGuideCard" class="setup-guide-card">
         <div class="setup-guide-header">
@@ -183,7 +185,12 @@
             </div>
         </div>
     </div>
-
+    <div class="card" style="text-align: center; padding: 3rem;">
+        <h2>Welcome to ICMQTT</h2>
+        <p style="margin: 1rem 0; color: #666;">
+            Manage your MQTT projects, devices, and topics from a single dashboard.
+        </p>
+    </div>
     <!-- Plan Limits Reference -->
     <div class="card" style="margin-top: 2rem;">
         <h2>Plan Features & Limits</h2>
@@ -227,6 +234,12 @@
                 </span>
             </div>
             <div class="limit-item">
+                <span class="limit-label">Advanced Dashboard:</span>
+                <span class="limit-value">
+                    @if($limits['advanced_analytics_enabled']) ✓ Enabled @else ✗ Disabled @endif
+                </span>
+            </div>
+            <div class="limit-item">
                 <span class="limit-label">API Access:</span>
                 <span class="limit-value">
                     @if($limits['api_access']) ✓ Enabled @else ✗ Disabled @endif
@@ -244,7 +257,7 @@
             <div style="margin-top: 1.5rem; padding: 1rem; background: #f0f4ff; border-radius: 8px; border-left: 4px solid #4f46e5;">
                 <p style="margin: 0; color: #2d2f33;">
                     <strong>Upgrade for more features</strong><br>
-                    Get access to Advance Dashboard, webhooks, and higher rate limits.
+                    Get access to Advanced Dashboard, webhooks, and higher rate limits.
                     <a href="{{ route('subscription.upgrade') }}" style="color: #4f46e5; text-decoration: none; font-weight: 600;">View plans →</a>
                 </p>
             </div>

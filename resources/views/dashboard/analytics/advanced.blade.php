@@ -4,19 +4,19 @@
 <div class="analytics-container">
     <div class="page-header">
         <div>
-            <h1>📊 Advance Dashboard & Reports</h1>
+            <h1>📊 Advanced Dashboard & Reports</h1>
             <p class="subtitle">Real-time insights with advanced filtering and export capabilities</p>
         </div>
         <div class="header-actions">
-            <button class="btn btn-primary" onclick="toggleFilterPanel()">🔍 Advance Dashboard Filters</button>
+            <button class="btn btn-primary" onclick="toggleFilterPanel()">🔍 Advanced Dashboard Filters</button>
             <button class="btn btn-secondary" onclick="exportData()">📥 Export Data</button>
         </div>
     </div>
 
-    <!-- Advance Dashboard Filter Panel -->
+    <!-- Advanced Dashboard Filter Panel -->
     <div id="filterPanel" class="filter-panel" style="display: none;">
         <div class="filter-header">
-            <h3>Advance Dashboard Filters</h3>
+            <h3>Advanced Dashboard Filters</h3>
             <button onclick="toggleFilterPanel()" class="btn-close">&times;</button>
         </div>
         <div class="filter-grid">

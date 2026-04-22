@@ -1,12 +1,12 @@
 @extends('layouts.app')
 
-@section('title', 'Advance Dashboard')
+@section('title', 'Advanced Dashboard')
 
 @section('content')
 <div class="advance-dashboard-container">
     <div class="advance-dashboard-header">
         <div>
-            <h1>Advance Dashboard</h1>
+            <h1>Advanced Dashboard</h1>
             <p>Build your own charts per topic. Add or remove widgets anytime.</p>
         </div>
         <button type="button" class="btn-add" id="toggleAddChartBtn">+ Add Chart</button>
@@ -90,7 +90,7 @@
                             <option value="medium" @if(($widget->size ?? 'medium') === 'medium') selected @endif>Medium</option>
                             <option value="wide" @if(($widget->size ?? 'medium') === 'wide') selected @endif>Wide</option>
                         </select>
-                        <form method="POST" action="{{ route('advance-dashboard.widgets.destroy', $widget) }}" onsubmit="return confirm('Remove this chart from Advance Dashboard?');">
+                        <form method="POST" action="{{ route('advance-dashboard.widgets.destroy', $widget) }}" onsubmit="return confirm('Remove this chart from Advanced Dashboard?');">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="btn-remove">Remove</button>
@@ -104,7 +104,7 @@
             </div>
         @empty
             <div class="empty-dashboard">
-                No charts yet. Click <strong>+ Add Chart</strong> to start building your Advance Dashboard.
+                No charts yet. Click <strong>+ Add Chart</strong> to start building your Advanced Dashboard.
             </div>
         @endforelse
     </div>

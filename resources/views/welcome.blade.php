@@ -615,7 +615,7 @@
                                     <li>Analytics dashboard</li>
                                 @endif
                                 @if ($plan->advanced_analytics_enabled)
-                                    <li>Advance Dashboard</li>
+                                    <li>Advanced Dashboard</li>
                                 @endif
                                 @if ($plan->webhooks_enabled)
                                     <li>Webhooks integration</li>
