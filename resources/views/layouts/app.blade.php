@@ -548,11 +548,6 @@
                     </a>
                 </li>
                 <li>
-                    <a href="{{ route('setup.guide') }}" class="@if(Route::currentRouteName() === 'setup.guide') active @endif">
-                        🧭 Setup Guide
-                    </a>
-                </li>
-                <li>
                     <a href="{{ route('analytics.dashboard') }}" class="@if(Route::currentRouteName() === 'analytics.dashboard') active @endif">
                         📊 Advanced Analytics
                     </a>
