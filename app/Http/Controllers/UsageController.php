@@ -8,6 +8,8 @@ use App\Models\UsageLog;
 use App\Services\UsageTrackingService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Redis;
+use Carbon\Carbon;
 
 class UsageController extends Controller
 {
@@ -25,7 +27,10 @@ class UsageController extends Controller
 
         $projects = Project::where('user_id', $user->id)->get();
         
-        $currentHourUsage = $this->usageService->getTotalHourlyUsage($user->id);
+        // Get current hour usage from Redis (using ACL controller pattern: mqtt:rate:user:{user_id}:{YmdH})
+        $now = Carbon::now();
+        $redisKey = 'mqtt:rate:user:' . $user->id . ':' . $now->format('YmdH');
+        $currentHourUsage = (int) Redis::get($redisKey) ?? 0;
         
         $usageData = [];
         foreach ($projects as $project) {

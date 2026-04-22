@@ -7,6 +7,7 @@ use App\Models\Project;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Redis;
 use PhpMqtt\Client\MqttClient;
 use PhpMqtt\Client\ConnectionSettings;
 
@@ -104,6 +105,12 @@ class MqttSubscribeCommand extends Command
                         'created_at' => Carbon::now(),
                         'updated_at' => Carbon::now(),
                     ]);
+                    
+                    // Record hourly usage to Redis (per-minute granularity)
+                    $redisKey = 'mqtt:hourly:project:' . $project->id . ':' . Carbon::now()->format('YmdHi');
+                    Redis::incr($redisKey);
+                    // Set expiry to 48 hours from now to keep 2 days of history
+                    Redis::expire($redisKey, 172800);
                 }, 1);
                 $this->info("Subscribed to {$topicTemplate}");
             }
