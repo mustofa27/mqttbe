@@ -18,6 +18,7 @@ class PaypoolWebhookController extends Controller
         $event = $request->input('event')
             ?? $request->input('event_type')
             ?? $request->input('type');
+        $event = is_string($event) ? strtolower(trim($event)) : null;
 
         $paymentData = $request->input('payment');
         if (!is_array($paymentData)) {
@@ -35,21 +36,30 @@ class PaypoolWebhookController extends Controller
             'transaction_status',
         ];
 
-        if ($event && !in_array($event, $supportedEvents, true)) {
-            Log::info('Webhook event ignored', ['event' => $event]);
-            return response()->json(['message' => 'Event not handled'], 200);
-        }
-
         $externalId = $paymentData['external_id']
+            ?? $paymentData['externalId']
             ?? $paymentData['order_id']
+            ?? $paymentData['reference_id']
+            ?? $paymentData['reference']
             ?? $request->input('external_id')
+            ?? $request->input('externalId')
             ?? $request->input('order_id');
 
         $status = $paymentData['status']
             ?? $paymentData['payment_status']
             ?? $paymentData['transaction_status']
+            ?? $paymentData['state']
             ?? $request->input('status')
-            ?? $request->input('transaction_status');
+            ?? $request->input('transaction_status')
+            ?? $request->input('payment_status');
+
+        if ($event && !in_array($event, $supportedEvents, true)) {
+            Log::info('Webhook event not in known list; attempting best-effort processing', [
+                'event' => $event,
+                'external_id' => $externalId,
+                'status' => $status,
+            ]);
+        }
 
         if (!$status && in_array($event, ['manual_paid', 'payment.paid', 'payment.settled'], true)) {
             $status = 'paid';

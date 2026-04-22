@@ -25,7 +25,7 @@ class PaypoolService
         // Only allow documented fields
         $allowed = [
             'external_id', 'amount', 'currency', 'customer_name', 'customer_email', 'customer_phone',
-            'description', 'metadata', 'success_redirect_url', 'failure_redirect_url'
+            'description', 'metadata', 'success_redirect_url', 'failure_redirect_url', 'webhook_url'
         ];
         $payload = array_intersect_key($data, array_flip($allowed));
         try {
@@ -102,9 +102,14 @@ class PaypoolService
             ])->get($this->apiUrl . '/api/v1/payments/' . $externalId);
 
             if ($response->successful()) {
+                $json = $response->json();
+                $data = is_array($json['data'] ?? null)
+                    ? $json['data']
+                    : (is_array($json) ? $json : []);
+
                 return [
                     'success' => true,
-                    'data' => $response->json('data'),
+                    'data' => $data,
                 ];
             }
 

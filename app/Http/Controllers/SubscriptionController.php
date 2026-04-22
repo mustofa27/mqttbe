@@ -152,6 +152,7 @@ class SubscriptionController extends Controller
             ],
             'success_redirect_url' => route('subscription.payment.success', ['external_id' => $externalId]),
             'failure_redirect_url' => route('subscription.payment.failed', ['external_id' => $externalId]),
+            'webhook_url' => config('paypool.webhook_url'),
         ]);
 
         $url = $result['data']['invoice_url'] ?? $result['data']['payment_url'] ?? null;
