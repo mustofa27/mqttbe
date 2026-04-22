@@ -15,6 +15,24 @@
     <h1 class="page-title">Usage Dashboard</h1>
     <p class="page-subtitle">Monitor your message usage and API activity</p>
 
+    <div id="setupGuideCard" class="setup-guide-card">
+        <div class="setup-guide-header">
+            <h2>Getting Started</h2>
+            <button type="button" id="dismissSetupGuide" class="setup-guide-dismiss" aria-label="Dismiss setup guide">x</button>
+        </div>
+        <p class="setup-guide-text">Complete this quick setup so your devices can publish and your dashboard can display live usage.</p>
+        <div class="setup-guide-steps">
+            <span>1. Create a project</span>
+            <span>2. Register a device</span>
+            <span>3. Configure topic templates</span>
+            <span>4. Test publish from device</span>
+        </div>
+        <div class="setup-guide-actions">
+            <a href="{{ route('projects.create') }}" class="btn-small">Create Project</a>
+            <a href="{{ route('setup.guide') }}" class="btn-small setup-guide-secondary">View Full Guide</a>
+        </div>
+    </div>
+
     <div class="dashboard-grid">
         <!-- Current Hour Usage Card -->
         <div class="stat-card">
@@ -219,6 +237,72 @@
         margin-bottom: 2rem;
     }
 
+    .setup-guide-card {
+        background: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
+        border: 1px solid #dbeafe;
+        border-left: 4px solid #2563eb;
+        border-radius: 12px;
+        padding: 1.25rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .setup-guide-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+    }
+
+    .setup-guide-header h2 {
+        margin: 0;
+        font-size: 1.1rem;
+        color: #1e3a8a;
+    }
+
+    .setup-guide-dismiss {
+        border: none;
+        background: transparent;
+        color: #64748b;
+        font-size: 1rem;
+        cursor: pointer;
+        padding: 0.25rem 0.5rem;
+    }
+
+    .setup-guide-text {
+        margin: 0 0 0.75rem;
+        color: #334155;
+    }
+
+    .setup-guide-steps {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-bottom: 0.9rem;
+    }
+
+    .setup-guide-steps span {
+        background: #ffffff;
+        border: 1px solid #cbd5e1;
+        border-radius: 999px;
+        padding: 0.3rem 0.7rem;
+        font-size: 0.85rem;
+        color: #334155;
+    }
+
+    .setup-guide-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.6rem;
+    }
+
+    .setup-guide-secondary {
+        background: #0f172a;
+    }
+
+    .setup-guide-secondary:hover {
+        background: #020617;
+    }
+
     .dashboard-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -385,6 +469,10 @@
             font-size: 1.5rem;
         }
 
+        .setup-guide-actions {
+            flex-direction: column;
+        }
+
         .dashboard-grid {
             grid-template-columns: 1fr;
         }
@@ -402,4 +490,25 @@
         }
     }
 </style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const card = document.getElementById('setupGuideCard');
+        const dismissBtn = document.getElementById('dismissSetupGuide');
+        const storageKey = 'usageSetupGuideDismissed';
+
+        if (!card || !dismissBtn) {
+            return;
+        }
+
+        if (localStorage.getItem(storageKey) === '1') {
+            card.style.display = 'none';
+        }
+
+        dismissBtn.addEventListener('click', function () {
+            localStorage.setItem(storageKey, '1');
+            card.style.display = 'none';
+        });
+    });
+</script>
 @endsection

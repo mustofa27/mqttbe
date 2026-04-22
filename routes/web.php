@@ -68,6 +68,7 @@ Route::middleware('auth')->group(function () {
     // Usage and Analytics routes
     Route::get('/usage', [UsageController::class, 'dashboard'])->name('usage.dashboard');
     Route::get('/usage/project/{project}', [UsageController::class, 'projectUsage'])->name('usage.project');
+    Route::view('/setup-guide', 'dashboard.setup-guide')->name('setup.guide');
 
     // API Key management routes
     Route::get('/api-keys', [ApiKeyController::class, 'index'])->name('api-keys.index');
