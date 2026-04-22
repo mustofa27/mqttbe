@@ -11,6 +11,11 @@ class MessageHistoryController extends Controller
     public function index(Request $request)
     {
         $user = Auth::user();
+
+        if (!$user || !$user->hasActiveSubscription() || !$user->hasFeature('advanced_analytics_enabled')) {
+            abort(403, 'Advanced analytics access is required.');
+        }
+
         $projects = $user->projects;
 
         // Only show messages for projects the user owns

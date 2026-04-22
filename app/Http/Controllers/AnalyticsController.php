@@ -21,10 +21,24 @@ class AnalyticsController extends Controller
     }
 
     /**
+     * Enforce advanced analytics access based on active subscription + feature access.
+     */
+    private function ensureAdvancedAnalyticsAccess(Request $request): void
+    {
+        $user = $request->user();
+
+        if (!$user || !$user->hasActiveSubscription() || !$user->hasFeature('advanced_analytics_enabled')) {
+            abort(403, 'Advanced analytics access is required.');
+        }
+    }
+
+    /**
      * Show main analytics dashboard
      */
     public function dashboard(Request $request)
     {
+        $this->ensureAdvancedAnalyticsAccess($request);
+
         $user = auth()->user();
         $projects = $user->projects;
 
@@ -36,6 +50,8 @@ class AnalyticsController extends Controller
      */
     public function projectData(Request $request, Project $project)
     {
+        $this->ensureAdvancedAnalyticsAccess($request);
+
         if ($project->user_id !== auth()->id()) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
@@ -330,6 +346,8 @@ class AnalyticsController extends Controller
      */
     public function deviceAnalytics(Request $request, Project $project, Device $device)
     {
+        $this->ensureAdvancedAnalyticsAccess($request);
+
         if ($project->user_id !== auth()->id() || $device->project_id !== $project->id) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
