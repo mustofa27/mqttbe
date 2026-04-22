@@ -176,7 +176,7 @@ class MqttListenerController extends Controller
         }
 
         $userId = (int) $request->user()->id;
-        $meta = $this->readPidMetadata($userId);
+        $meta = $this->readListenerMetadata($userId);
         $pid = isset($meta['pid']) ? (int) $meta['pid'] : 0;
 
         if ($pid <= 0 || !$this->isProcessRunning($pid)) {
@@ -211,7 +211,7 @@ class MqttListenerController extends Controller
         }
 
         $userId = (int) $request->user()->id;
-        $meta = $this->readPidMetadata($userId);
+        $meta = $this->readListenerMetadata($userId);
         $pid = isset($meta['pid']) ? (int) $meta['pid'] : 0;
 
         if ($pid > 0 && $this->isProcessRunning($pid)) {
@@ -349,17 +349,36 @@ class MqttListenerController extends Controller
 
     private function countRunningProcessesForUser(int $userId): int
     {
-        $command = 'pgrep -f "artisan mqtt:subscribe --user_id=' . $userId . '" | wc -l';
-        $process = Process::fromShellCommandline($command);
+        // This architecture allows only one listener per user metadata file.
+        // Trust PID metadata first to avoid false positives from shell pattern matching.
+        $status = $this->resolveStatus($userId);
+        if ($status['running']) {
+            return 1;
+        }
+
+        // Fallback scan: check process table for user-scoped listener command.
+        $process = Process::fromShellCommandline('ps -eo pid=,args=');
         $process->setTimeout(5);
         $process->run();
 
         if (!$process->isSuccessful()) {
-            $status = $this->resolveStatus($userId);
-            return $status['running'] ? 1 : 0;
+            return 0;
         }
 
-        return max(0, (int) trim($process->getOutput()));
+        $lines = preg_split('/\r?\n/', trim((string) $process->getOutput())) ?: [];
+        $count = 0;
+
+        foreach ($lines as $line) {
+            if ($line === '') {
+                continue;
+            }
+
+            if (preg_match('/\sartisan\s+mqtt:subscribe\b.*--user_id=' . preg_quote((string) $userId, '/') . '(\s|$)/', $line) === 1) {
+                $count++;
+            }
+        }
+
+        return $count;
     }
 
     private function startLockPath(int $userId): string
