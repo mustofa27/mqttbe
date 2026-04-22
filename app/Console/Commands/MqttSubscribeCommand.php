@@ -104,7 +104,7 @@ class MqttSubscribeCommand extends Command
                         'created_at' => Carbon::now(),
                         'updated_at' => Carbon::now(),
                     ]);
-                }, 0);
+                }, 1);
                 $this->info("Subscribed to {$topicTemplate}");
             }
         }
