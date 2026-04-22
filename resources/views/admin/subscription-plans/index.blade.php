@@ -65,6 +65,9 @@
                             @if ($details['analytics_enabled'])
                                 <span style="display: inline-block; padding: 0.35rem 0.75rem; border-radius: 6px; font-size: 0.75rem; font-weight: 600; background: #dbeafe; color: #1e40af;">✓ Analytics</span>
                             @endif
+                            @if (!empty($details['advanced_analytics_enabled']))
+                                <span style="display: inline-block; padding: 0.35rem 0.75rem; border-radius: 6px; font-size: 0.75rem; font-weight: 600; background: #ede9fe; color: #5b21b6;">✓ Advance Dashboard</span>
+                            @endif
                             @if ($details['webhooks_enabled'])
                                 <span style="display: inline-block; padding: 0.35rem 0.75rem; border-radius: 6px; font-size: 0.75rem; font-weight: 600; background: #d1fae5; color: #065f46;">✓ Webhooks</span>
                             @endif

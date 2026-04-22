@@ -62,6 +62,11 @@
                     </label>
 
                     <label style="display: flex; align-items: center; padding: 1rem; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; cursor: pointer; transition: all 0.2s ease;" onmouseover="this.style.background='#f3f4f6';" onmouseout="this.style.background='#f9fafb';">
+                        <input type="checkbox" name="advanced_analytics_enabled" value="1" {{ old('advanced_analytics_enabled', $planDetails['advanced_analytics_enabled'] ?? false) ? 'checked' : '' }} style="width: 18px; height: 18px; cursor: pointer; margin-right: 0.75rem;">
+                        <span style="color: #374151; font-weight: 500;">🚀 Advance Dashboard Enabled</span>
+                    </label>
+
+                    <label style="display: flex; align-items: center; padding: 1rem; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; cursor: pointer; transition: all 0.2s ease;" onmouseover="this.style.background='#f3f4f6';" onmouseout="this.style.background='#f9fafb';">
                         <input type="checkbox" name="webhooks_enabled" value="1" {{ old('webhooks_enabled', $planDetails['webhooks_enabled']) ? 'checked' : '' }} style="width: 18px; height: 18px; cursor: pointer; margin-right: 0.75rem;">
                         <span style="color: #374151; font-weight: 500;">🪝 Webhooks Enabled</span>
                     </label>

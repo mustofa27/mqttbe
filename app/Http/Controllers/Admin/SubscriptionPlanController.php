@@ -57,10 +57,17 @@ class SubscriptionPlanController extends Controller
             'rate_limit_per_hour' => 'required|integer',
             'data_retention_days' => 'required|integer',
             'analytics_enabled' => 'boolean',
+            'advanced_analytics_enabled' => 'boolean',
             'webhooks_enabled' => 'boolean',
             'api_access' => 'boolean',
             'priority_support' => 'boolean',
         ]);
+
+        $validated['analytics_enabled'] = $request->boolean('analytics_enabled');
+        $validated['advanced_analytics_enabled'] = $request->boolean('advanced_analytics_enabled');
+        $validated['webhooks_enabled'] = $request->boolean('webhooks_enabled');
+        $validated['api_access'] = $request->boolean('api_access');
+        $validated['priority_support'] = $request->boolean('priority_support');
 
         $planModel = SubscriptionPlan::where('tier', $plan)->firstOrFail();
         $planModel->update($validated);
