@@ -20,7 +20,7 @@
             <div id="statUsers" style="font-size: 1.5rem; font-weight: 700; color: #111827; margin-top: 0.25rem;">0</div>
         </div>
         <div style="background: white; border: 1px solid #e5e7eb; border-radius: 10px; padding: 1rem 1.25rem; min-width: 180px;">
-            <div style="font-size: 0.8rem; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px;">Running</div>
+            <div style="font-size: 0.8rem; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px;">Running Projects</div>
             <div id="statRunning" style="font-size: 1.5rem; font-weight: 700; color: #065f46; margin-top: 0.25rem;">0</div>
         </div>
         <div style="background: white; border: 1px solid #e5e7eb; border-radius: 10px; padding: 1rem 1.25rem; min-width: 180px;">
@@ -31,7 +31,7 @@
 
     <div style="background: white; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); overflow: hidden; border: 1px solid #e5e7eb;">
         <div style="padding: 1rem 1.25rem; border-bottom: 1px solid #e5e7eb; background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%); display: flex; justify-content: space-between; align-items: center;">
-            <h2 style="font-size: 1rem; color: #374151;">Listener Sessions</h2>
+            <h2 style="font-size: 1rem; color: #374151;">Per-Project Listener Sessions</h2>
             <span id="lastUpdated" style="font-size: 0.8rem; color: #6b7280;">Not updated yet</span>
         </div>
 
@@ -41,16 +41,17 @@
                     <tr style="background: #f9fafb; border-bottom: 2px solid #e5e7eb;">
                         <th style="padding: 0.9rem 1rem; text-align: left; font-size: 0.8rem; color: #6b7280; text-transform: uppercase;">User</th>
                         <th style="padding: 0.9rem 1rem; text-align: left; font-size: 0.8rem; color: #6b7280; text-transform: uppercase;">Tier</th>
+                        <th style="padding: 0.9rem 1rem; text-align: left; font-size: 0.8rem; color: #6b7280; text-transform: uppercase;">Project</th>
                         <th style="padding: 0.9rem 1rem; text-align: left; font-size: 0.8rem; color: #6b7280; text-transform: uppercase;">State</th>
                         <th style="padding: 0.9rem 1rem; text-align: left; font-size: 0.8rem; color: #6b7280; text-transform: uppercase;">PID</th>
-                        <th style="padding: 0.9rem 1rem; text-align: left; font-size: 0.8rem; color: #6b7280; text-transform: uppercase;">Count / Limit</th>
+                        <th style="padding: 0.9rem 1rem; text-align: left; font-size: 0.8rem; color: #6b7280; text-transform: uppercase;">Running / Limit</th>
                         <th style="padding: 0.9rem 1rem; text-align: left; font-size: 0.8rem; color: #6b7280; text-transform: uppercase;">Started</th>
                         <th style="padding: 0.9rem 1rem; text-align: left; font-size: 0.8rem; color: #6b7280; text-transform: uppercase;">Log Path</th>
                     </tr>
                 </thead>
                 <tbody id="listenersTableBody">
                     <tr>
-                        <td colspan="7" style="padding: 1.25rem; text-align: center; color: #6b7280;">Loading listener data...</td>
+                        <td colspan="8" style="padding: 1.25rem; text-align: center; color: #6b7280;">Loading listener data...</td>
                     </tr>
                 </tbody>
             </table>
@@ -89,43 +90,88 @@
     }
 
     function updateStats(rows) {
-        const running = rows.filter(r => r.service && r.service.running).length;
-        const limited = rows.filter(r => r.limit_reached).length;
+        let runningProjects = 0;
+        let limitedUsers = 0;
+        rows.forEach(r => {
+            if (Array.isArray(r.projects)) {
+                runningProjects += r.projects.filter(p => p.running).length;
+            }
+            if (r.limit_reached) limitedUsers++;
+        });
         statUsers.textContent = rows.length;
-        statRunning.textContent = running;
-        statLimited.textContent = limited;
+        statRunning.textContent = runningProjects;
+        statLimited.textContent = limitedUsers;
         lastUpdated.textContent = 'Updated: ' + new Date().toLocaleString();
     }
 
     function renderRows(rows) {
         if (!rows.length) {
-            tbody.innerHTML = '<tr><td colspan="7" style="padding: 1.25rem; text-align: center; color: #6b7280;">No users found for this filter.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="8" style="padding: 1.25rem; text-align: center; color: #6b7280;">No users found for this filter.</td></tr>';
             return;
         }
 
-        tbody.innerHTML = rows.map((entry) => {
-            const user = entry.user || {};
-            const service = entry.service || {};
-            const tier = user.subscription_tier ? user.subscription_tier : 'unknown';
-            const started = service.started_at ? service.started_at : '-';
-            const pid = service.pid ? service.pid : '-';
-            const countLimit = `${entry.running_count ?? 0} / ${entry.limit ?? 0}`;
+        const htmlParts = [];
 
-            return `
-                <tr style="border-bottom:1px solid #e5e7eb;">
-                    <td style="padding:0.9rem 1rem;">
+        rows.forEach((entry) => {
+            const user = entry.user || {};
+            const tier = user.subscription_tier || 'unknown';
+            const limit = entry.limit === -1 ? '∞' : (entry.limit ?? 0);
+            const countLimit = `${entry.running_count ?? 0} / ${limit}`;
+            const projects = Array.isArray(entry.projects) ? entry.projects : [];
+            const rowSpan = projects.length || 1;
+
+            if (projects.length === 0) {
+                htmlParts.push(`
+                    <tr style="border-bottom:1px solid #e5e7eb;">
+                        <td style="padding:0.9rem 1rem; vertical-align:top;">
+                            <div style="font-weight:600;color:#1f2937;">${escapeHtml(user.name || '-')}</div>
+                            <div style="font-size:0.8rem;color:#6b7280;">#${escapeHtml(user.id || '-')} · ${escapeHtml(user.email || '-')}</div>
+                        </td>
+                        <td style="padding:0.9rem 1rem; color:#374151; text-transform:capitalize; vertical-align:top;">${escapeHtml(tier)}</td>
+                        <td style="padding:0.9rem 1rem; color:#6b7280; font-style:italic;" colspan="4">No active projects</td>
+                        <td style="padding:0.9rem 1rem; color:#374151; vertical-align:top;">${escapeHtml(countLimit)}${entry.limit_reached ? ' <span style="color:#991b1b;font-weight:700;">(limit)</span>' : ''}</td>
+                        <td style="padding:0.9rem 1rem; color:#6b7280; font-size:0.8rem;">-</td>
+                    </tr>
+                `);
+                return;
+            }
+
+            projects.forEach((proj, idx) => {
+                const isFirst = idx === 0;
+                const rowStyle = `border-bottom:1px solid ${isFirst ? '#c7d2fe' : '#e5e7eb'};${isFirst ? 'background:#f8f9ff;' : ''}`;
+
+                const userCell = isFirst ? `
+                    <td rowspan="${rowSpan}" style="padding:0.9rem 1rem; vertical-align:top; border-right:2px solid #e0e7ff;">
                         <div style="font-weight:600;color:#1f2937;">${escapeHtml(user.name || '-')}</div>
                         <div style="font-size:0.8rem;color:#6b7280;">#${escapeHtml(user.id || '-')} · ${escapeHtml(user.email || '-')}</div>
                     </td>
-                    <td style="padding:0.9rem 1rem; color:#374151; text-transform:capitalize;">${escapeHtml(tier)}</td>
-                    <td style="padding:0.9rem 1rem;">${formatStateBadge(service.state)}</td>
-                    <td style="padding:0.9rem 1rem; color:#374151;">${escapeHtml(pid)}</td>
-                    <td style="padding:0.9rem 1rem; color:#374151;">${escapeHtml(countLimit)}${entry.limit_reached ? ' <span style="color:#991b1b;font-weight:700;">(limit)</span>' : ''}</td>
-                    <td style="padding:0.9rem 1rem; color:#6b7280; font-size:0.85rem;">${escapeHtml(started)}</td>
-                    <td style="padding:0.9rem 1rem; color:#6b7280; font-size:0.8rem;">${escapeHtml(service.log_path || '-')}</td>
-                </tr>
-            `;
-        }).join('');
+                    <td rowspan="${rowSpan}" style="padding:0.9rem 1rem; color:#374151; text-transform:capitalize; vertical-align:top; border-right:1px solid #e5e7eb;">${escapeHtml(tier)}</td>
+                ` : '';
+
+                const countLimitCell = isFirst ? `
+                    <td rowspan="${rowSpan}" style="padding:0.9rem 1rem; color:#374151; vertical-align:top; border-left:1px solid #e5e7eb;">
+                        ${escapeHtml(countLimit)}${entry.limit_reached ? ' <span style="color:#991b1b;font-weight:700;">(limit)</span>' : ''}
+                    </td>
+                ` : '';
+
+                htmlParts.push(`
+                    <tr style="${rowStyle}">
+                        ${userCell}
+                        <td style="padding:0.9rem 1rem;">
+                            <div style="font-weight:600;color:#1e40af;">${escapeHtml(proj.project_name || '-')}</div>
+                            <div style="font-size:0.75rem;color:#9ca3af;">ID: ${escapeHtml(proj.project_id)}</div>
+                        </td>
+                        <td style="padding:0.9rem 1rem;">${formatStateBadge(proj.state)}</td>
+                        <td style="padding:0.9rem 1rem; color:#374151;">${escapeHtml(proj.pid > 0 ? proj.pid : '-')}</td>
+                        ${countLimitCell}
+                        <td style="padding:0.9rem 1rem; color:#6b7280; font-size:0.85rem;">${escapeHtml(proj.started_at || '-')}</td>
+                        <td style="padding:0.9rem 1rem; color:#6b7280; font-size:0.8rem;">${escapeHtml(proj.log_path || '-')}</td>
+                    </tr>
+                `);
+            });
+        });
+
+        tbody.innerHTML = htmlParts.join('');
     }
 
     function loadData() {

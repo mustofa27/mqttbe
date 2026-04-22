@@ -33,8 +33,27 @@ class MqttListenerController extends Controller
 
         $data = $users->map(function (User $user) {
             $maxPerUser = $this->resolveListenerLimitForUser($user);
-            $service = $this->resolveStatus((int) $user->id);
             $runningCount = $this->countRunningProcessesForUser((int) $user->id);
+
+            $projects = Project::where('user_id', (int) $user->id)
+                ->where('active', true)
+                ->orderBy('id')
+                ->get(['id', 'name']);
+
+            $projectStatuses = $projects->map(function (Project $project) use ($user) {
+                $status = $this->resolveStatus((int) $user->id, (int) $project->id);
+
+                return [
+                    'project_id'   => $project->id,
+                    'project_name' => $project->name,
+                    'pid'          => $status['pid'],
+                    'running'      => $status['running'],
+                    'state'        => $status['state'],
+                    'raw'          => $status['raw'],
+                    'started_at'   => $status['started_at'],
+                    'log_path'     => $status['log_path'],
+                ];
+            })->values()->all();
 
             return [
                 'user' => [
@@ -44,10 +63,10 @@ class MqttListenerController extends Controller
                     'subscription_tier' => $user->subscription_tier,
                     'subscription_active' => (bool) $user->subscription_active,
                 ],
-                'service' => $service,
                 'running_count' => $runningCount,
                 'limit' => $maxPerUser === PHP_INT_MAX ? -1 : $maxPerUser,
                 'limit_reached' => $maxPerUser === PHP_INT_MAX ? false : $runningCount >= $maxPerUser,
+                'projects' => $projectStatuses,
             ];
         })->values();
 
