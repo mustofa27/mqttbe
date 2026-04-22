@@ -15,6 +15,30 @@
         </div>
     </div>
 
+    @if(auth()->user()->hasActiveSubscription() && auth()->user()->hasFeature('advanced_analytics_enabled'))
+    <div class="listener-panel" id="listenerPanel">
+        <div class="listener-info">
+            <h3>MQTT Listener Service</h3>
+            <p class="listener-subtitle">Enter MQTT username, password, and device ID, then start and monitor live process state.</p>
+            <div class="listener-input-grid">
+                <input id="listenerUsername" type="text" class="listener-input" placeholder="MQTT Username">
+                <input id="listenerPassword" type="password" class="listener-input" placeholder="MQTT Password">
+                <input id="listenerDeviceId" type="text" class="listener-input" placeholder="Device ID">
+            </div>
+            <div class="listener-status-row">
+                <span id="listenerStateBadge" class="listener-state listener-state-unknown">UNKNOWN</span>
+                <span id="listenerRawStatus" class="listener-raw-status">Checking status...</span>
+            </div>
+        </div>
+        <div class="listener-actions">
+            <button id="listenerStartBtn" class="btn-start-listener" type="button" onclick="startListenerService()">Start Listener</button>
+            <button id="listenerStopBtn" class="btn-stop-listener" type="button" onclick="stopListenerService()">Stop Listener</button>
+            <button id="listenerRestartBtn" class="btn-restart-listener" type="button" onclick="restartListenerService()">Restart</button>
+            <button class="btn-refresh-listener" type="button" onclick="loadListenerStatus()">Refresh</button>
+        </div>
+    </div>
+    @endif
+
     <!-- Summary Cards -->
     <div class="summary-cards" id="summaryCards">
         <div class="card loading">
@@ -128,6 +152,110 @@
             margin-bottom: 2rem;
         }
 
+        .listener-panel {
+            margin-bottom: 1.5rem;
+            padding: 1rem 1.25rem;
+            background: #ffffff;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .listener-info h3 {
+            margin: 0 0 0.25rem;
+            font-size: 1rem;
+        }
+
+        .listener-input-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(160px, 1fr));
+            gap: 0.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .listener-input {
+            padding: 0.6rem 0.7rem;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+
+        .listener-subtitle {
+            margin: 0 0 0.5rem;
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+
+        .listener-status-row {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .listener-state {
+            display: inline-block;
+            padding: 0.2rem 0.5rem;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .listener-state-running {
+            background: #d1e7dd;
+            color: #0f5132;
+        }
+
+        .listener-state-stopped {
+            background: #f8d7da;
+            color: #842029;
+        }
+
+        .listener-state-unknown {
+            background: #fff3cd;
+            color: #664d03;
+        }
+
+        .listener-raw-status {
+            color: #6c757d;
+            font-size: 0.85rem;
+            word-break: break-all;
+        }
+
+        .listener-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-start-listener,
+        .btn-stop-listener,
+        .btn-restart-listener,
+        .btn-refresh-listener {
+            border: 1px solid #ced4da;
+            border-radius: 6px;
+            padding: 0.55rem 0.85rem;
+            cursor: pointer;
+            background: #fff;
+            font-weight: 600;
+        }
+
+        .btn-start-listener {
+            border-color: #0d6efd;
+            color: #0d6efd;
+        }
+
+        .btn-stop-listener {
+            border-color: #dc3545;
+            color: #dc3545;
+        }
+
+        .btn-restart-listener {
+            border-color: #fd7e14;
+            color: #fd7e14;
+        }
+
         .card {
             background: white;
             border: 1px solid #e9ecef;
@@ -184,6 +312,15 @@
             .charts-grid {
                 grid-template-columns: 1fr;
             }
+
+            .listener-panel {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .listener-input-grid {
+                grid-template-columns: 1fr;
+            }
         }
 
         .chart-container {
@@ -233,6 +370,10 @@
     <script>
         let charts = {};
         const projectDataUrlTemplate = "{{ route('analytics.project-data', ['project' => '__PROJECT__']) }}";
+        const listenerStatusUrl = "{{ route('mqtt-listener.status') }}";
+        const listenerStartUrl = "{{ route('mqtt-listener.start') }}";
+        const listenerStopUrl = "{{ route('mqtt-listener.stop') }}";
+        const listenerRestartUrl = "{{ route('mqtt-listener.restart') }}";
 
         function initializeDatepickers() {
             const today = new Date();
@@ -353,13 +494,178 @@
             `).join('');
         }
 
+        function updateListenerStatusUI(service) {
+            const badge = document.getElementById('listenerStateBadge');
+            const raw = document.getElementById('listenerRawStatus');
+            const startBtn = document.getElementById('listenerStartBtn');
+            const stopBtn = document.getElementById('listenerStopBtn');
+            const restartBtn = document.getElementById('listenerRestartBtn');
+            const usernameInput = document.getElementById('listenerUsername');
+            const passwordInput = document.getElementById('listenerPassword');
+            const deviceIdInput = document.getElementById('listenerDeviceId');
+
+            if (!badge || !raw || !startBtn || !stopBtn || !restartBtn || !service) {
+                return;
+            }
+
+            if (usernameInput && service.mqtt_username) {
+                usernameInput.value = service.mqtt_username;
+            }
+
+            if (deviceIdInput && service.device_id) {
+                deviceIdInput.value = service.device_id;
+            }
+
+            if (passwordInput) {
+                passwordInput.placeholder = service.has_password ? 'Saved password stored' : 'MQTT Password';
+            }
+
+            badge.classList.remove('listener-state-running', 'listener-state-stopped', 'listener-state-unknown');
+
+            if (service.running) {
+                badge.textContent = 'RUNNING';
+                badge.classList.add('listener-state-running');
+                startBtn.disabled = true;
+                stopBtn.disabled = false;
+                restartBtn.disabled = false;
+                startBtn.textContent = 'Running';
+            } else if (service.state === 'STOPPED' || service.state === 'FATAL' || service.state === 'EXITED') {
+                badge.textContent = service.state;
+                badge.classList.add('listener-state-stopped');
+                startBtn.disabled = false;
+                stopBtn.disabled = true;
+                restartBtn.disabled = false;
+                startBtn.textContent = 'Start Listener';
+            } else {
+                badge.textContent = service.state || 'UNKNOWN';
+                badge.classList.add('listener-state-unknown');
+                startBtn.disabled = false;
+                stopBtn.disabled = false;
+                restartBtn.disabled = false;
+                startBtn.textContent = 'Start Listener';
+            }
+
+            raw.textContent = service.raw || 'No status output';
+        }
+
+        function loadListenerStatus() {
+            const badge = document.getElementById('listenerStateBadge');
+            if (!badge) {
+                return;
+            }
+
+            fetch(listenerStatusUrl, {
+                headers: {
+                    'Accept': 'application/json'
+                }
+            })
+            .then(res => res.json().then(data => ({ ok: res.ok, data })))
+            .then(({ ok, data }) => {
+                if (!ok) {
+                    throw new Error(data.message || 'Failed to load listener status');
+                }
+                updateListenerStatusUI(data);
+            })
+            .catch(err => {
+                document.getElementById('listenerRawStatus').textContent = err.message;
+            });
+        }
+
+        function startListenerService() {
+            const startBtn = document.getElementById('listenerStartBtn');
+            const usernameInput = document.getElementById('listenerUsername');
+            const passwordInput = document.getElementById('listenerPassword');
+            const deviceIdInput = document.getElementById('listenerDeviceId');
+            if (!startBtn) {
+                return;
+            }
+
+            if (!usernameInput.value.trim() || !deviceIdInput.value.trim()) {
+                document.getElementById('listenerRawStatus').textContent = 'Username and device ID are required.';
+                return;
+            }
+
+            startBtn.disabled = true;
+            startBtn.textContent = 'Starting...';
+
+            runListenerAction(listenerStartUrl, 'Start Listener', startBtn, {
+                username: usernameInput.value.trim(),
+                password: passwordInput.value,
+                device_id: deviceIdInput.value.trim()
+            });
+        }
+
+        function stopListenerService() {
+            const stopBtn = document.getElementById('listenerStopBtn');
+            if (!stopBtn) {
+                return;
+            }
+
+            stopBtn.disabled = true;
+            stopBtn.textContent = 'Stopping...';
+            runListenerAction(listenerStopUrl, 'Stop Listener', stopBtn);
+        }
+
+        function restartListenerService() {
+            const restartBtn = document.getElementById('listenerRestartBtn');
+            const usernameInput = document.getElementById('listenerUsername');
+            const passwordInput = document.getElementById('listenerPassword');
+            const deviceIdInput = document.getElementById('listenerDeviceId');
+            if (!restartBtn) {
+                return;
+            }
+
+            if (!usernameInput.value.trim() || !deviceIdInput.value.trim()) {
+                document.getElementById('listenerRawStatus').textContent = 'Username and device ID are required.';
+                return;
+            }
+
+            restartBtn.disabled = true;
+            restartBtn.textContent = 'Restarting...';
+            runListenerAction(listenerRestartUrl, 'Restart', restartBtn, {
+                username: usernameInput.value.trim(),
+                password: passwordInput.value,
+                device_id: deviceIdInput.value.trim()
+            });
+        }
+
+        function runListenerAction(url, defaultLabel, actionButton, payload = null) {
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
+                },
+                body: payload ? JSON.stringify(payload) : null
+            })
+            .then(res => res.json().then(data => ({ ok: res.ok, data })))
+            .then(({ ok, data }) => {
+                if (!ok) {
+                    throw new Error(data.message || 'Failed to update listener service');
+                }
+                updateListenerStatusUI(data.service);
+                const passwordInput = document.getElementById('listenerPassword');
+                if (passwordInput && payload) {
+                    passwordInput.value = '';
+                }
+            })
+            .catch(err => {
+                document.getElementById('listenerRawStatus').textContent = err.message;
+                actionButton.disabled = false;
+                actionButton.textContent = defaultLabel;
+            });
+        }
+
         // Initialize on page load
         document.addEventListener('DOMContentLoaded', () => {
             initializeDatepickers();
             loadProjectAnalytics();
+            loadListenerStatus();
 
             // Auto-refresh every 30 seconds
             setInterval(loadProjectAnalytics, 30000);
+            setInterval(loadListenerStatus, 10000);
         });
     </script>
 </div>

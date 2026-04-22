@@ -15,6 +15,7 @@ use App\Http\Controllers\WebhookController;
 use App\Http\Controllers\AlertController;
 use App\Http\Controllers\AnalyticsController;
 use App\Http\Controllers\ExportController;
+use App\Http\Controllers\MqttListenerController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\SubscriptionPlanController;
 
@@ -97,6 +98,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/analytics/project/{project}/data', [AnalyticsController::class, 'projectData'])->name('analytics.project-data');
     Route::get('/analytics/project/{project}/device/{device}/data', [AnalyticsController::class, 'deviceAnalytics'])->name('analytics.device-data');
 
+    // MQTT listener controls (advanced analytics users only; verified in controller)
+    Route::get('/mqtt-listener/status', [MqttListenerController::class, 'status'])->name('mqtt-listener.status');
+    Route::post('/mqtt-listener/start', [MqttListenerController::class, 'start'])->name('mqtt-listener.start');
+    Route::post('/mqtt-listener/stop', [MqttListenerController::class, 'stop'])->name('mqtt-listener.stop');
+    Route::post('/mqtt-listener/restart', [MqttListenerController::class, 'restart'])->name('mqtt-listener.restart');
+
     // Export routes
     Route::prefix('export')->name('export.')->group(function () {
         Route::get('/project/{project}/messages', [ExportController::class, 'messagesCSV'])->name('messages');
@@ -121,6 +128,9 @@ Route::middleware('auth')->group(function () {
         // User management
         Route::resource('users', UserController::class);
         Route::patch('/users/{user}/toggle-admin', [UserController::class, 'toggleAdmin'])->name('users.toggle-admin');
+
+        // MQTT listener monitoring (admin)
+        Route::get('/mqtt-listeners', [MqttListenerController::class, 'adminOverview'])->name('mqtt-listeners.index');
 
         // Subscription plan management
         Route::resource('subscription-plans', SubscriptionPlanController::class, [

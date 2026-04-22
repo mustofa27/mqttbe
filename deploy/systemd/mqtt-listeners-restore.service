@@ -1,0 +1,16 @@
+[Unit]
+Description=Restore per-user MQTT listeners after boot
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=www-data
+Group=www-data
+WorkingDirectory=/var/www/html/mqttbe
+ExecStart=/usr/bin/php /var/www/html/mqttbe/artisan mqtt:listeners:restore
+StandardOutput=append:/var/www/html/mqttbe/storage/logs/mqtt-listeners-restore.log
+StandardError=append:/var/www/html/mqttbe/storage/logs/mqtt-listeners-restore.log
+
+[Install]
+WantedBy=multi-user.target

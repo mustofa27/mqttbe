@@ -629,6 +629,11 @@
                                 📊 Plan Stats
                             </a>
                         </li>
+                        <li>
+                            <a href="{{ route('admin.mqtt-listeners.index') }}" class="@if(strpos(Route::currentRouteName(), 'admin.mqtt-listeners') !== false) active @endif">
+                                🛰️ MQTT Monitor
+                            </a>
+                        </li>
                     @endif
                 @endauth
             </ul>

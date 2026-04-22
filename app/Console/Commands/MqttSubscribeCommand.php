@@ -1,40 +1,50 @@
 <?php
 namespace App\Console\Commands;
 
+use App\Models\Device;
+use App\Models\Message;
 use App\Models\Project;
-use App\Services\MqttMessageIngestService;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Crypt;
-use PhpMqtt\Client\MqttClient;
 use Illuminate\Support\Facades\Log;
+use PhpMqtt\Client\MqttClient;
 use PhpMqtt\Client\ConnectionSettings;
 
 class MqttSubscribeCommand extends Command
 {
-    protected $signature = 'mqtt:subscribe';
+    protected $signature = 'mqtt:subscribe {--user_id= : Restrict subscription to a single user ID} {--username= : MQTT username} {--password= : MQTT password} {--device_id= : MQTT device ID to subscribe for}';
     protected $description = 'Subscribe to MQTT topics and ingest messages into the database (subtest)';
 
     public function handle(): int
     {
         $host = config('mqtt.host');
         $port = (int) config('mqtt.port');
-        $systemUsername = config('mqtt.username');
-        $systemPassword = config('mqtt.password');
         $clientPrefix = config('mqtt.client_id_prefix', 'dashboard-subscriber');
+        $userId = $this->option('user_id');
+        $mqttUsername = $this->option('username');
+        $mqttPassword = $this->option('password');
+        $deviceIdOption = $this->option('device_id');
 
-        $projects = Project::where('active', true)
-            ->get();
-
-        if ($projects->isEmpty()) {
-            $this->warn("No active projects found.");
+        if ($mqttUsername === null || $mqttUsername === '' || $mqttPassword === null || $mqttPassword === '' || $deviceIdOption === null || $deviceIdOption === '') {
+            $this->error('The --username, --password, and --device_id options are required.');
             return self::FAILURE;
         }
-        $clientId = $clientPrefix . '-' . uniqid();
+
+        $projectsQuery = Project::where('active', true);
+        if ($userId !== null && $userId !== '') {
+            $projectsQuery->where('user_id', (int) $userId);
+        }
+        $projects = $projectsQuery->get();
+
+        if ($projects->isEmpty()) {
+            $this->warn('No active projects found for current listener scope.');
+            return self::FAILURE;
+        }
+        $clientId = $clientPrefix . '-' . ($userId ?: 'all') . '-' . uniqid();
         $mqtt = new MqttClient($host, $port, $clientId);
         $settings = (new ConnectionSettings())
-            ->setUsername($systemUsername)
-            ->setPassword($systemPassword)
+            ->setUsername((string) $mqttUsername)
+            ->setPassword((string) $mqttPassword)
             ->setKeepAliveInterval(60)
             ->setUseTls(true);
 
@@ -45,6 +55,7 @@ class MqttSubscribeCommand extends Command
             $user = $project->user;
             if (!$user || !$user->hasActiveSubscription() || !$user->hasFeature('advanced_analytics_enabled')) {
                 $this->warn('Project owner does not have an active subscription with advanced analytics enabled.');
+                continue;
             }
 
             foreach ($project->topics as $topicModel) {
@@ -55,7 +66,7 @@ class MqttSubscribeCommand extends Command
                 $topicTemplate = str_replace(['{project}', '{device_id}'], [$project->project_key, '+'], $topicModel->template);
                 $mqtt->subscribe($topicTemplate, function (string $topic, string $message, bool $retained, int $qos) use ($project, $topicModel) {
                     // Log incoming message
-                    $this->info('MQTT Subscriber received message', [
+                    Log::info('MQTT Subscriber received message', [
                         'topic' => $topic,
                         'message' => $message,
                         'qos' => $qos,
@@ -68,10 +79,16 @@ class MqttSubscribeCommand extends Command
                         return;
                     }
                     $deviceId = $parts[1];
-                    $device = Device::where('project_id', $project->id)
-                        ->where('device_id', $deviceId)
-                        ->where('active', true)
-                        ->firstOrFail();
+                    $device = Device::firstOrCreate(
+                        [
+                            'project_id' => $project->id,
+                            'device_id' => $deviceId,
+                        ],
+                        [
+                            'type' => 'sensor',
+                            'active' => true,
+                        ]
+                    );
                     // Message creation moved here
                     // Calculate expires_at based on user's subscription retention days
                     $limits = $project->user ? $project->user->getSubscriptionLimits() : [];
