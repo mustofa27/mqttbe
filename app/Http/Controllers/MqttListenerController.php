@@ -419,9 +419,11 @@ class MqttListenerController extends Controller
 
     private function buildStartCommand(int $userId, string $mqttUsername, string $mqttPassword, string $deviceId, string $logPath): string
     {
+        $phpBinary = $this->resolvePhpCliBinary();
+
         return sprintf(
             'nohup %s %s mqtt:subscribe --user_id=%d --username=%s --password=%s --device_id=%s >> %s 2>&1 & echo $!',
-            escapeshellarg(PHP_BINARY),
+            escapeshellarg($phpBinary),
             escapeshellarg(base_path('artisan')),
             $userId,
             escapeshellarg($mqttUsername),
@@ -429,5 +431,29 @@ class MqttListenerController extends Controller
             escapeshellarg($deviceId),
             escapeshellarg($logPath)
         );
+    }
+
+    private function resolvePhpCliBinary(): string
+    {
+        $binary = PHP_BINARY;
+        $baseName = strtolower(basename($binary));
+
+        // Web requests can run under php-fpm; use CLI PHP for artisan commands.
+        if (str_contains($baseName, 'php-fpm')) {
+            $finder = Process::fromShellCommandline('command -v php');
+            $finder->setTimeout(3);
+            $finder->run();
+
+            if ($finder->isSuccessful()) {
+                $resolved = trim((string) $finder->getOutput());
+                if ($resolved !== '') {
+                    return $resolved;
+                }
+            }
+
+            return 'php';
+        }
+
+        return $binary;
     }
 }

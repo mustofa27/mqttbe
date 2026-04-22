@@ -16,6 +16,8 @@ class RestoreMqttListenersCommand extends Command
 
     public function handle(): int
     {
+        $phpBinary = $this->resolvePhpCliBinary();
+
         $targetUserId = $this->option('user_id');
         $dryRun = (bool) $this->option('dry-run');
 
@@ -88,7 +90,7 @@ class RestoreMqttListenersCommand extends Command
             $logPath = $this->logPathForUser($userId);
             $command = sprintf(
                 'nohup %s %s mqtt:subscribe --user_id=%d --username=%s --password=%s --device_id=%s >> %s 2>&1 & echo $!',
-                escapeshellarg(PHP_BINARY),
+                escapeshellarg($phpBinary),
                 escapeshellarg(base_path('artisan')),
                 $userId,
                 escapeshellarg($mqttUsername),
@@ -183,5 +185,28 @@ class RestoreMqttListenersCommand extends Command
         } catch (\Throwable) {
             return '';
         }
+    }
+
+    private function resolvePhpCliBinary(): string
+    {
+        $binary = PHP_BINARY;
+        $baseName = strtolower(basename($binary));
+
+        if (str_contains($baseName, 'php-fpm')) {
+            $finder = Process::fromShellCommandline('command -v php');
+            $finder->setTimeout(3);
+            $finder->run();
+
+            if ($finder->isSuccessful()) {
+                $resolved = trim((string) $finder->getOutput());
+                if ($resolved !== '') {
+                    return $resolved;
+                }
+            }
+
+            return 'php';
+        }
+
+        return $binary;
     }
 }
