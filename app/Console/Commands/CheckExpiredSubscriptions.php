@@ -2,8 +2,10 @@
 
 namespace App\Console\Commands;
 
+use App\Mail\SubscriptionExpiringSoon;
 use App\Models\User;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Mail;
 
 class CheckExpiredSubscriptions extends Command
 {
@@ -15,7 +17,7 @@ class CheckExpiredSubscriptions extends Command
     /**
      * The console command description.
      */
-    protected $description = 'Check for expired subscriptions and downgrade users to free tier';
+    protected $description = 'Check for expiring and expired subscriptions, send reminders, and downgrade expired users';
 
     /**
      * Execute the console command.
@@ -23,6 +25,8 @@ class CheckExpiredSubscriptions extends Command
     public function handle()
     {
         $this->info('Checking for expired subscriptions...');
+
+        $this->sendExpiringSoonReminders();
 
         $expiredUsers = User::where('subscription_active', true)
             ->whereNotNull('subscription_expires_at')
@@ -55,5 +59,22 @@ class CheckExpiredSubscriptions extends Command
 
         $this->info("Successfully downgraded {$count} user(s) to free tier.");
         return 0;
+    }
+
+    private function sendExpiringSoonReminders(): void
+    {
+        $targetDate = now()->addDays(6)->toDateString();
+
+        $usersExpiringSoon = User::where('subscription_active', true)
+            ->whereNotNull('subscription_expires_at')
+            ->whereDate('subscription_expires_at', $targetDate)
+            ->whereNotIn('subscription_tier', ['free'])
+            ->get();
+
+        foreach ($usersExpiringSoon as $user) {
+            Mail::to($user->email)->queue(new SubscriptionExpiringSoon($user, 6));
+
+            $this->line("Reminder queued for user #{$user->id} ({$user->email}) expiring in 6 days");
+        }
     }
 }
