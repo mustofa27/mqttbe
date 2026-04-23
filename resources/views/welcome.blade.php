@@ -476,7 +476,7 @@
                         <a href="{{ route('legal.policies') }}">Syarat & Kebijakan</a>
                         <a href="{{ route('contact.show') }}">Contact</a>
                         @auth
-                            <a href="{{ url('/dashboard') }}">Dashboard</a>
+                            <a href="{{ route('usage.dashboard') }}">Dashboard</a>
                             <form method="POST" action="{{ route('logout') }}" style="display: inline;">
                                 @csrf
                                 <button type="submit">Logout</button>
