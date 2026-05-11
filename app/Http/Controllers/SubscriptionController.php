@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\SubscriptionPlan;
 use App\Models\Topic;
 use App\Models\SubscriptionPayment;
+use App\Services\SubscriptionBillingService;
 use App\Services\PaypoolService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
 
 class SubscriptionController extends Controller
 {
@@ -107,24 +109,94 @@ class SubscriptionController extends Controller
     public function processUpgrade(Request $request, PaypoolService $paypool)
     {
         $validated = $request->validate([
-            'tier' => 'required|in:starter,professional,enterprise',
+            'tier' => 'nullable|in:starter,professional,enterprise',
             'months' => 'nullable|integer|min:1|max:36',
+            'addon_codes' => 'nullable|array|min:1',
+            'addon_codes.*' => 'string|exists:subscription_addons,code',
         ]);
 
         $user = auth()->user();
-        $tier = $validated['tier'];
+        $tier = $validated['tier'] ?? null;
+        $addonCodes = $validated['addon_codes'] ?? [];
+
+        if (!$tier && empty($addonCodes)) {
+            return back()->withErrors([
+                'upgrade' => 'Please select a plan or at least one add-on.',
+            ]);
+        }
+
         $months = isset($validated['months']) ? (int)$validated['months'] : 1;
-        $plan = SubscriptionPlan::where('tier', $tier)->firstOrFail();
-        $amount = (int) $plan->price * $months;
+
+        $lineItems = [];
+        $amount = 0;
+
+        if ($tier) {
+            $plan = SubscriptionPlan::where('tier', $tier)->firstOrFail();
+            $planAmount = (int) $plan->price * $months;
+            $amount += $planAmount;
+
+            $lineItems[] = [
+                'type' => 'base',
+                'description' => 'ICMQTT ' . ucfirst($tier) . ' subscription (' . $months . ' month' . ($months > 1 ? 's' : '') . ')',
+                'amount' => $planAmount,
+                'currency' => 'IDR',
+                'period_start' => now()->toDateTimeString(),
+                'period_end' => now()->copy()->addMonths($months)->toDateTimeString(),
+            ];
+        }
+
+        $addonItems = [];
+        if (!empty($addonCodes)) {
+            $requestedAddonCounts = array_count_values($addonCodes);
+            $addons = DB::table('subscription_addons')
+                ->whereIn('code', array_keys($requestedAddonCounts))
+                ->where('active', true)
+                ->get()
+                ->keyBy('code');
+
+            foreach ($requestedAddonCounts as $code => $quantity) {
+                $addon = $addons->get($code);
+                if (!$addon) {
+                    continue;
+                }
+
+                $multiplier = $addon->is_recurring ? $months : 1;
+                $addonAmount = (int) $addon->price * $quantity * $multiplier;
+                $amount += $addonAmount;
+
+                $addonItems[] = [
+                    'code' => (string) $addon->code,
+                    'quantity' => (int) $quantity,
+                    'is_recurring' => (bool) $addon->is_recurring,
+                ];
+
+                $lineItems[] = [
+                    'type' => 'addon',
+                    'description' => (string) $addon->name . ' x' . $quantity,
+                    'amount' => $addonAmount,
+                    'currency' => 'IDR',
+                    'period_start' => now()->toDateTimeString(),
+                    'period_end' => $addon->is_recurring ? now()->copy()->addMonths($months)->toDateTimeString() : null,
+                ];
+            }
+        }
+
+        if ($amount <= 0) {
+            return back()->withErrors([
+                'upgrade' => 'Unable to calculate payment amount for selected plan/add-ons.',
+            ]);
+        }
 
         // Generate unique external ID with random string
-        $externalId = 'SUB-' . $user->id . '-' . strtoupper($tier) . '-' . time() . '-' . Str::random(6);
+        $referenceTier = strtoupper($tier ?? $user->subscription_tier ?? 'ADDON');
+        $externalId = 'SUB-' . $user->id . '-' . $referenceTier . '-' . time() . '-' . Str::random(6);
 
         // Create payment record
         $payment = SubscriptionPayment::create([
             'user_id' => $user->id,
             'external_id' => $externalId,
-            'tier' => $tier,
+            'tier' => $tier ?? ($user->subscription_tier ?? 'free'),
+            'addon_code' => count($addonItems) === 1 ? $addonItems[0]['code'] : null,
             'amount' => $amount,
             'currency' => 'IDR',
             'status' => 'pending',
@@ -133,6 +205,9 @@ class SubscriptionController extends Controller
                 'user_email' => $user->email,
                 'tier' => $tier,
                 'months' => $months,
+                'is_base_plan' => (bool) $tier,
+                'addon_items' => $addonItems,
+                'line_items' => $lineItems,
             ],
         ]);
 
@@ -143,12 +218,16 @@ class SubscriptionController extends Controller
             'currency' => 'IDR',
             'customer_name' => $user->name,
             'customer_email' => $user->email,
-            'description' => 'ICMQTT ' . ucfirst($tier) . ' Subscription (' . $months . ' month' . ($months > 1 ? 's' : '') . ')',
+            'description' => $tier
+                ? 'ICMQTT ' . ucfirst($tier) . ' Subscription (' . $months . ' month' . ($months > 1 ? 's' : '') . ')'
+                : 'ICMQTT Add-on purchase (' . $months . ' month' . ($months > 1 ? 's' : '') . ')',
             'metadata' => [
                 'user_id' => $user->id,
                 'tier' => $tier,
                 'months' => $months,
                 'payment_id' => $payment->id,
+                'is_base_plan' => (bool) $tier,
+                'addon_items' => $addonItems,
             ],
             'success_redirect_url' => route('subscription.payment.success', ['external_id' => $externalId]),
             'failure_redirect_url' => route('subscription.payment.failed', ['external_id' => $externalId]),
@@ -192,6 +271,15 @@ class SubscriptionController extends Controller
             'subscription_expires_at' => null,
         ]);
 
+        DB::table('user_addons')
+            ->where('user_id', $user->id)
+            ->where('active', true)
+            ->update([
+                'active' => false,
+                'expires_at' => now(),
+                'updated_at' => now(),
+            ]);
+
         return redirect()
             ->route('subscription.index')
             ->with('success', 'Subscription cancelled. You are now on the free plan.');
@@ -200,7 +288,7 @@ class SubscriptionController extends Controller
     /**
      * Payment success callback
      */
-    public function paymentSuccess(Request $request)
+    public function paymentSuccess(Request $request, SubscriptionBillingService $billingService)
     {
         $externalId = $request->query('external_id') ?? $request->query('order_id');
 
@@ -275,16 +363,7 @@ class SubscriptionController extends Controller
                     ]);
 
                     if ($localStatus === 'paid' && $payment->user) {
-                        $months = 1;
-                        if (isset($payment->metadata['months']) && is_numeric($payment->metadata['months'])) {
-                            $months = max(1, (int) $payment->metadata['months']);
-                        }
-
-                        $payment->user->update([
-                            'subscription_tier' => $payment->tier,
-                            'subscription_active' => true,
-                            'subscription_expires_at' => now()->addMonths($months),
-                        ]);
+                        $billingService->applySuccessfulPayment($payment);
                     }
 
                     $payment->refresh();

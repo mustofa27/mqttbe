@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\SubscriptionPayment;
+use App\Services\SubscriptionBillingService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -11,7 +12,7 @@ class PaypoolWebhookController extends Controller
     /**
      * Handle Paypool webhook
      */
-    public function handle(Request $request)
+    public function handle(Request $request, SubscriptionBillingService $billingService)
     {
         Log::info('Paypool webhook received', $request->all());
 
@@ -100,21 +101,13 @@ class PaypoolWebhookController extends Controller
 
         // If payment is successful, upgrade user subscription
         if ($localStatus === 'paid' && $payment->user) {
-            $months = 1;
-            if (isset($payment->metadata['months']) && is_numeric($payment->metadata['months'])) {
-                $months = (int) $payment->metadata['months'];
-                if ($months < 1) $months = 1;
-            }
-            $payment->user->update([
-                'subscription_tier' => $payment->tier,
-                'subscription_active' => true,
-                'subscription_expires_at' => now()->addMonths($months),
-            ]);
+            $billingService->applySuccessfulPayment($payment);
 
             Log::info('User subscription upgraded', [
                 'user_id' => $payment->user_id,
                 'tier' => $payment->tier,
-                'months' => $months,
+                'months' => $payment->metadata['months'] ?? 1,
+                'addon_items' => $payment->metadata['addon_items'] ?? [],
             ]);
         }
 
