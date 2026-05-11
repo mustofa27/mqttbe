@@ -17,8 +17,9 @@ class ValidateApiKey
         }
 
         $token = substr($authHeader, 7);
+        $hashedToken = hash('sha256', $token);
 
-        $apiKey = \App\Models\ApiKey::where('key', $token)
+        $apiKey = \App\Models\ApiKey::where('key', $hashedToken)
             ->where('is_active', true)
             ->first();
 

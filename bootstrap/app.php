@@ -15,6 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'validate.api.key' => \App\Http\Middleware\ValidateApiKey::class,
             'enforce.plan.limits' => \App\Http\Middleware\EnforcePlanLimits::class,
+            'check.subscription.limit' => \App\Http\Middleware\CheckSubscriptionLimit::class,
             'admin' => \App\Http\Middleware\IsAdmin::class,
         ]);
     })

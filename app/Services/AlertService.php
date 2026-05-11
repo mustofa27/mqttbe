@@ -63,7 +63,11 @@ class AlertService
     private function checkRateLimitWarning(Project $project, Alert $alert): bool
     {
         $currentUsage = $this->usageService->getCurrentHourUsage($project->id);
-        $limit = $project->user->getCurrentSubscriptionPlan()->rate_limit_per_hour;
+        $limit = $project->user->getSubscriptionLimits()['rate_limit_per_hour'] ?? 0;
+
+        if ($limit <= 0) {
+            return false;
+        }
 
         $percentageUsed = ($currentUsage / $limit) * 100;
 
@@ -90,7 +94,12 @@ class AlertService
     private function checkQuotaWarning(Project $project, Alert $alert): bool
     {
         $dailyUsage = $this->usageService->getTodayUsage($project->id);
-        $monthlyLimit = $project->user->getCurrentSubscriptionPlan()->data_retention_days * 1000; // Simplified
+        $planLimits = $project->user->getSubscriptionLimits();
+        $monthlyLimit = ($planLimits['data_retention_days'] ?? 0) * 1000; // Simplified
+
+        if ($monthlyLimit <= 0) {
+            return false;
+        }
 
         $percentageUsed = ($dailyUsage / $monthlyLimit) * 100;
 
@@ -109,11 +118,15 @@ class AlertService
     private function checkSubscriptionExpiring(Project $project, Alert $alert): bool
     {
         $user = $project->user;
-        if (!$user->subscription_ends_at) {
+        if (!$user->subscription_expires_at) {
             return false;
         }
 
-        $daysRemaining = $user->subscription_ends_at->diffInDays(now());
+        $daysRemaining = now()->diffInDays($user->subscription_expires_at, false);
+
+        if ($daysRemaining < 0) {
+            return false;
+        }
 
         return $daysRemaining <= ($alert->threshold ?? 7);
     }
@@ -145,19 +158,31 @@ class AlertService
         switch ($alert->type) {
             case 'rate_limit_warning':
                 $usage = $this->usageService->getCurrentHourUsage($project->id);
-                $limit = $project->user->getCurrentSubscriptionPlan()->rate_limit_per_hour;
+                $limit = $project->user->getSubscriptionLimits()['rate_limit_per_hour'] ?? 0;
+
+                if ($limit <= 0) {
+                    return "Unable to determine your plan's hourly message limit.";
+                }
+
                 $percentage = round(($usage / $limit) * 100, 1);
                 return "Your project '{$project->name}' is at {$percentage}% of its hourly message limit ({$usage}/{$limit} messages).";
 
             case 'rate_limit_exceeded':
-                $limit = $project->user->getCurrentSubscriptionPlan()->rate_limit_per_hour;
+                $limit = $project->user->getSubscriptionLimits()['rate_limit_per_hour'] ?? 0;
                 return "Your project '{$project->name}' has exceeded its hourly message limit of {$limit} messages.";
 
             case 'quota_warning':
                 return "Your project '{$project->name}' is approaching its data storage quota.";
 
             case 'subscription_expiring':
-                $daysRemaining = $project->user->subscription_ends_at?->diffInDays(now()) ?? 0;
+                $daysRemaining = $project->user->subscription_expires_at
+                    ? now()->diffInDays($project->user->subscription_expires_at, false)
+                    : 0;
+
+                if ($daysRemaining < 0) {
+                    $daysRemaining = 0;
+                }
+
                 return "Your subscription expires in {$daysRemaining} days.";
 
             default:

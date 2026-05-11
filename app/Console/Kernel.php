@@ -14,7 +14,7 @@ class Kernel extends ConsoleKernel
 
     protected function schedule(\Illuminate\Console\Scheduling\Schedule $schedule): void
     {
-        //
+        $schedule->command('subscriptions:check-expired')->daily();
     }
 
     protected function commands(): void

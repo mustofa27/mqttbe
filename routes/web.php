@@ -72,19 +72,23 @@ Route::middleware('auth')->group(function () {
     Route::view('/setup-guide', 'dashboard.setup-guide')->name('setup.guide');
 
     // API Key management routes
-    Route::get('/api-keys', [ApiKeyController::class, 'index'])->name('api-keys.index');
-    Route::post('/api-keys', [ApiKeyController::class, 'store'])->name('api-keys.store');
-    Route::get('/api-keys/{apiKey}', [ApiKeyController::class, 'show'])->name('api-keys.show');
-    Route::delete('/api-keys/{apiKey}', [ApiKeyController::class, 'destroy'])->name('api-keys.destroy');
-    Route::patch('/api-keys/{apiKey}/deactivate', [ApiKeyController::class, 'deactivate'])->name('api-keys.deactivate');
-    Route::patch('/api-keys/{apiKey}/activate', [ApiKeyController::class, 'activate'])->name('api-keys.activate');
+    Route::middleware('check.subscription.limit:api')->group(function () {
+        Route::get('/api-keys', [ApiKeyController::class, 'index'])->name('api-keys.index');
+        Route::post('/api-keys', [ApiKeyController::class, 'store'])->name('api-keys.store');
+        Route::get('/api-keys/{apiKey}', [ApiKeyController::class, 'show'])->name('api-keys.show');
+        Route::delete('/api-keys/{apiKey}', [ApiKeyController::class, 'destroy'])->name('api-keys.destroy');
+        Route::patch('/api-keys/{apiKey}/deactivate', [ApiKeyController::class, 'deactivate'])->name('api-keys.deactivate');
+        Route::patch('/api-keys/{apiKey}/activate', [ApiKeyController::class, 'activate'])->name('api-keys.activate');
+    });
 
     // Webhooks routes
-    Route::get('/webhooks', [WebhookController::class, 'index'])->name('webhooks.index');
-    Route::post('/webhooks', [WebhookController::class, 'store'])->name('webhooks.store');
-    Route::post('/webhooks/{webhook}/test', [WebhookController::class, 'test'])->name('webhooks.test');
-    Route::patch('/webhooks/{webhook}/toggle', [WebhookController::class, 'toggle'])->name('webhooks.toggle');
-    Route::delete('/webhooks/{webhook}', [WebhookController::class, 'destroy'])->name('webhooks.destroy');
+    Route::middleware('check.subscription.limit:webhooks')->group(function () {
+        Route::get('/webhooks', [WebhookController::class, 'index'])->name('webhooks.index');
+        Route::post('/webhooks', [WebhookController::class, 'store'])->name('webhooks.store');
+        Route::post('/webhooks/{webhook}/test', [WebhookController::class, 'test'])->name('webhooks.test');
+        Route::patch('/webhooks/{webhook}/toggle', [WebhookController::class, 'toggle'])->name('webhooks.toggle');
+        Route::delete('/webhooks/{webhook}', [WebhookController::class, 'destroy'])->name('webhooks.destroy');
+    });
 
     // Alerts routes
     Route::get('/alerts', [AlertController::class, 'index'])->name('alerts.index');
