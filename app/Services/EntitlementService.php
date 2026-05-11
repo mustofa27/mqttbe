@@ -1,0 +1,144 @@
+<?php
+
+namespace App\Services;
+
+use App\Models\AdvanceDashboardWidget;
+use App\Models\ApiKey;
+use App\Models\SubscriptionPlan;
+use App\Models\User;
+use App\Models\Webhook;
+use Illuminate\Support\Facades\DB;
+
+class EntitlementService
+{
+    /**
+     * Resolve effective limits from base plan plus active add-ons.
+     */
+    public function getEffectiveLimits(User $user): array
+    {
+        $plan = SubscriptionPlan::getLimits($user->subscription_tier ?? 'free');
+        if (!$plan) {
+            return [];
+        }
+
+        $limits = $plan->toArray();
+
+        $addons = DB::table('user_addons as ua')
+            ->join('subscription_addons as sa', 'sa.code', '=', 'ua.addon_code')
+            ->where('ua.user_id', $user->id)
+            ->where('ua.active', true)
+            ->where('sa.active', true)
+            ->where(function ($query) {
+                $query->whereNull('ua.starts_at')->orWhere('ua.starts_at', '<=', now());
+            })
+            ->where(function ($query) {
+                $query->whereNull('ua.expires_at')->orWhere('ua.expires_at', '>=', now());
+            })
+            ->select('sa.code', 'sa.unit_type', 'sa.included_units', 'ua.quantity')
+            ->get();
+
+        foreach ($addons as $addon) {
+            $units = (int) $addon->included_units * max((int) $addon->quantity, 1);
+            $this->applyAddon($limits, (string) $addon->unit_type, (string) $addon->code, $units);
+        }
+
+        return $limits;
+    }
+
+    /**
+     * Check if user has access to a feature under effective limits.
+     */
+    public function hasFeature(User $user, string $feature): bool
+    {
+        if (!$user->hasActiveSubscription()) {
+            return false;
+        }
+
+        $limits = $this->getEffectiveLimits($user);
+        return (bool) ($limits[$feature] ?? false);
+    }
+
+    /**
+     * Check whether user has reached a hard cap for a specific metric.
+     */
+    public function isHardBlocked(User $user, string $metric): bool
+    {
+        if (!$user->hasActiveSubscription()) {
+            return true;
+        }
+
+        $limits = $this->getEffectiveLimits($user);
+
+        return match ($metric) {
+            'projects' => $this->isCountBlocked((int) ($limits['max_projects'] ?? 0), $user->projects()->count()),
+            'api_keys' => $this->isCountBlocked((int) ($limits['max_api_keys'] ?? 0), ApiKey::where('user_id', $user->id)->where('is_active', true)->count()),
+            'webhooks' => $this->isCountBlocked(
+                (int) ($limits['max_webhooks_per_project'] ?? 0),
+                Webhook::whereHas('project', fn ($q) => $q->where('user_id', $user->id))->where('active', true)->count()
+            ),
+            'advance_dashboard_widgets' => $this->isCountBlocked(
+                (int) ($limits['max_advance_dashboard_widgets'] ?? 0),
+                AdvanceDashboardWidget::where('user_id', $user->id)->count()
+            ),
+            default => false,
+        };
+    }
+
+    private function applyAddon(array &$limits, string $unitType, string $code, int $units): void
+    {
+        if ($units <= 0) {
+            return;
+        }
+
+        $normalized = strtolower($unitType . ' ' . $code);
+
+        if (str_contains($normalized, 'webhook')) {
+            $limits['webhooks_enabled'] = true;
+            $this->addLimit($limits, 'max_webhooks_per_project', $units);
+        }
+
+        if (str_contains($normalized, 'api key')) {
+            $limits['api_access'] = true;
+            $this->addLimit($limits, 'max_api_keys', $units);
+        }
+
+        if (str_contains($normalized, 'api_rpm') || str_contains($normalized, 'rpm')) {
+            $limits['api_access'] = true;
+            $this->addLimit($limits, 'api_rpm', $units);
+        }
+
+        if (str_contains($normalized, 'dashboard') || str_contains($normalized, 'widget')) {
+            $limits['advanced_analytics_enabled'] = true;
+            $this->addLimit($limits, 'max_advance_dashboard_widgets', $units);
+        }
+
+        if (str_contains($normalized, 'retention')) {
+            $this->addLimit($limits, 'data_retention_days', $units);
+        }
+
+        if (str_contains($normalized, 'message')) {
+            $this->addLimit($limits, 'max_monthly_messages', $units);
+        }
+    }
+
+    private function addLimit(array &$limits, string $key, int $delta): void
+    {
+        $current = (int) ($limits[$key] ?? 0);
+
+        // -1 means unlimited cap and should not be modified.
+        if ($current === -1) {
+            return;
+        }
+
+        $limits[$key] = $current + $delta;
+    }
+
+    private function isCountBlocked(int $limit, int $currentCount): bool
+    {
+        if ($limit === -1) {
+            return false;
+        }
+
+        return $currentCount >= $limit;
+    }
+}

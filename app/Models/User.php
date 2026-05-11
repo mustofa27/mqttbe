@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Services\EntitlementService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -74,8 +75,7 @@ class User extends Authenticatable
      */
     public function getSubscriptionLimits(): array
     {
-        $plan = SubscriptionPlan::getLimits($this->subscription_tier ?? 'free');
-        return $plan ? $plan->toArray() : [];
+        return app(EntitlementService::class)->getEffectiveLimits($this);
     }
 
     /**
@@ -162,11 +162,6 @@ class User extends Authenticatable
      */
     public function hasFeature(string $feature): bool
     {
-        if (!$this->hasActiveSubscription()) {
-            return false;
-        }
-
-        $limits = $this->getSubscriptionLimits();
-        return $limits[$feature] ?? false;
+        return app(EntitlementService::class)->hasFeature($this, $feature);
     }
 }

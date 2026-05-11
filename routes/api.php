@@ -40,7 +40,7 @@ Route::middleware(['web', 'auth'])->prefix('v1/filter')->name('api.filter.')->gr
 });
 
 // API v1 routes (with Bearer token authentication)
-Route::prefix('v1')->middleware(['api', 'validate.api.key', 'enforce.plan.limits'])->group(function () {
+Route::prefix('v1')->middleware(['api', 'validate.api.key', 'enforce.plan.limits', 'check.subscription.limit:api'])->group(function () {
     // Projects
     Route::get('/projects', [ProjectController::class, 'index']);
     Route::post('/projects', [ProjectController::class, 'store']);
