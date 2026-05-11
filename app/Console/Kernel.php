@@ -11,6 +11,7 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\MqttSubscribeAllCommand::class,
         \App\Console\Commands\CheckExpiredSubscriptions::class,
         \App\Console\Commands\PruneExpiredMessages::class,
+        \App\Console\Commands\BackfillEntitlements::class,
     ];
 
     protected function schedule(\Illuminate\Console\Scheduling\Schedule $schedule): void

@@ -8,6 +8,7 @@ use App\Models\Topic;
 use App\Models\Device;
 use App\Services\UsageTrackingService;
 use App\Services\MqttPublishService;
+use App\Services\PlanEnforcementService;
 use App\Services\WebhookService;
 use App\Services\AlertService;
 use Illuminate\Http\Request;
@@ -18,17 +19,20 @@ class MessageController
     protected MqttPublishService $mqttService;
     protected WebhookService $webhookService;
     protected AlertService $alertService;
+    protected PlanEnforcementService $enforcementService;
 
     public function __construct(
         UsageTrackingService $usageService,
         MqttPublishService $mqttService,
         WebhookService $webhookService,
-        AlertService $alertService
+        AlertService $alertService,
+        PlanEnforcementService $enforcementService
     ) {
         $this->usageService = $usageService;
         $this->mqttService = $mqttService;
         $this->webhookService = $webhookService;
         $this->alertService = $alertService;
+        $this->enforcementService = $enforcementService;
     }
 
     public function index(Request $request)
@@ -106,21 +110,39 @@ class MessageController
         $limitStatus = $this->usageService->getLimitStatus($project->id);
 
         if ($limitStatus['hourly_exceeded']) {
-            return response()->json([
-                'error' => 'Rate limit exceeded',
-                'message' => "You have exceeded your hourly message limit of {$limitStatus['hourly_limit']}",
+            if (!$this->enforcementService->shouldBlock('hourly_message_limit', [
+                'user_id' => $user->id,
+                'project_id' => $project->id,
+                'current' => $limitStatus['current_hourly_usage'],
                 'limit' => $limitStatus['hourly_limit'],
-                'current_usage' => $limitStatus['current_hourly_usage'],
-            ], 429);
+            ])) {
+                // Continue in grace period (soft enforcement)
+            } else {
+                return response()->json([
+                    'error' => 'Rate limit exceeded',
+                    'message' => "You have exceeded your hourly message limit of {$limitStatus['hourly_limit']}",
+                    'limit' => $limitStatus['hourly_limit'],
+                    'current_usage' => $limitStatus['current_hourly_usage'],
+                ], 429);
+            }
         }
 
         if ($limitStatus['monthly_exceeded']) {
-            return response()->json([
-                'error' => 'Monthly quota exceeded',
-                'message' => "You have exceeded your monthly message quota of {$limitStatus['monthly_limit']}",
+            if (!$this->enforcementService->shouldBlock('monthly_message_limit', [
+                'user_id' => $user->id,
+                'project_id' => $project->id,
+                'current' => $limitStatus['current_monthly_usage'],
                 'limit' => $limitStatus['monthly_limit'],
-                'current_usage' => $limitStatus['current_monthly_usage'],
-            ], 429);
+            ])) {
+                // Continue in grace period (soft enforcement)
+            } else {
+                return response()->json([
+                    'error' => 'Monthly quota exceeded',
+                    'message' => "You have exceeded your monthly message quota of {$limitStatus['monthly_limit']}",
+                    'limit' => $limitStatus['monthly_limit'],
+                    'current_usage' => $limitStatus['current_monthly_usage'],
+                ], 429);
+            }
         }
 
         // Record usage

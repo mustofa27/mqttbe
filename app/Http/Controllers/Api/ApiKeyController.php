@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Models\ApiKey;
+use App\Services\PlanEnforcementService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -39,12 +40,23 @@ class ApiKeyController
         $activeKeys = ApiKey::where('user_id', $user->id)->where('is_active', true)->count();
 
         if ($maxApiKeys !== -1 && $activeKeys >= $maxApiKeys) {
-            return response()->json([
-                'error' => 'API key limit reached',
-                'message' => "Your plan allows up to {$maxApiKeys} active API keys.",
+            $shouldBlock = app(PlanEnforcementService::class)->shouldBlock('api_key_limit', [
+                'user_id' => $user->id,
+                'current' => $activeKeys,
                 'limit' => $maxApiKeys,
-                'current_count' => $activeKeys,
-            ], 403);
+                'api' => true,
+            ]);
+
+            if (!$shouldBlock) {
+                // Continue in grace period (soft enforcement)
+            } else {
+                return response()->json([
+                    'error' => 'API key limit reached',
+                    'message' => "Your plan allows up to {$maxApiKeys} active API keys.",
+                    'limit' => $maxApiKeys,
+                    'current_count' => $activeKeys,
+                ], 403);
+            }
         }
 
         $key = Str::random(32);

@@ -4,16 +4,19 @@ namespace App\Http\Controllers;
 
 use App\Models\Webhook;
 use App\Models\Project;
+use App\Services\PlanEnforcementService;
 use App\Services\WebhookService;
 use Illuminate\Http\Request;
 
 class WebhookController extends Controller
 {
     protected WebhookService $webhookService;
+    protected PlanEnforcementService $enforcementService;
 
-    public function __construct(WebhookService $webhookService)
+    public function __construct(WebhookService $webhookService, PlanEnforcementService $enforcementService)
     {
         $this->webhookService = $webhookService;
+        $this->enforcementService = $enforcementService;
     }
 
     /**
@@ -54,6 +57,16 @@ class WebhookController extends Controller
         $currentWebhooks = Webhook::where('project_id', $project->id)->count();
 
         if ($maxWebhooks !== -1 && $currentWebhooks >= $maxWebhooks) {
+            if (!$this->enforcementService->shouldBlock('webhook_project_limit', [
+                'user_id' => auth()->id(),
+                'project_id' => $project->id,
+                'current' => $currentWebhooks,
+                'limit' => $maxWebhooks,
+            ])) {
+                $webhook = Webhook::create($validated);
+                return redirect()->back()->with('success', 'Webhook created during grace period.');
+            }
+
             return redirect()->back()->with('error', "Webhook limit reached for your plan ({$maxWebhooks} per project).");
         }
 

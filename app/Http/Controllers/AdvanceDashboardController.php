@@ -7,6 +7,7 @@ use App\Models\Device;
 use App\Models\Message;
 use App\Models\Project;
 use App\Models\Topic;
+use App\Services\PlanEnforcementService;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -70,9 +71,19 @@ class AdvanceDashboardController extends Controller
         $currentWidgets = AdvanceDashboardWidget::where('user_id', (int) $user->id)->count();
 
         if ($maxWidgets !== -1 && $currentWidgets >= $maxWidgets) {
-            return back()->withErrors([
-                'limit' => "Widget limit reached for your plan ({$maxWidgets} widgets).",
-            ])->withInput();
+            $shouldBlock = app(PlanEnforcementService::class)->shouldBlock('advance_dashboard_widget_limit', [
+                'user_id' => $user->id,
+                'current' => $currentWidgets,
+                'limit' => $maxWidgets,
+            ]);
+
+            if (!$shouldBlock) {
+                // Continue in grace period (soft enforcement)
+            } else {
+                return back()->withErrors([
+                    'limit' => "Widget limit reached for your plan ({$maxWidgets} widgets).",
+                ])->withInput();
+            }
         }
 
         $validated = $request->validate([
