@@ -347,10 +347,10 @@
         <tbody>
             @foreach($activeAddons as $addon)
                 <tr style="border-bottom: 1px solid #f0f0f0;">
-                    <td style="padding: 0.75rem;">{{ $addon->name }}</td>
+                    <td style="padding: 0.75rem;">{{ $addon->addon?->name ?? $addon->addon_code }}</td>
                     <td style="padding: 0.75rem;">{{ $addon->addon_code }}</td>
                     <td style="padding: 0.75rem;">{{ $addon->quantity }}</td>
-                    <td style="padding: 0.75rem;">{{ $addon->unit_type }}</td>
+                    <td style="padding: 0.75rem;">{{ $addon->addon?->unit_type ?? '-' }}</td>
                     <td style="padding: 0.75rem;">{{ $addon->expires_at ? \Carbon\Carbon::parse($addon->expires_at)->format('d M Y') : 'No Expiry' }}</td>
                 </tr>
             @endforeach

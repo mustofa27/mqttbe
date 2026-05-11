@@ -5,7 +5,6 @@ namespace App\Console\Commands;
 use App\Mail\SubscriptionExpiringSoon;
 use App\Models\User;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 
 class CheckExpiredSubscriptions extends Command
@@ -51,13 +50,11 @@ class CheckExpiredSubscriptions extends Command
                 'subscription_expires_at' => null,
             ]);
 
-            DB::table('user_addons')
-                ->where('user_id', $user->id)
+            $user->userAddons()
                 ->where('active', true)
                 ->update([
                     'active' => false,
                     'expires_at' => now(),
-                    'updated_at' => now(),
                 ]);
 
             $this->line("User #{$user->id} ({$user->email}) downgraded from {$oldTier} to free");

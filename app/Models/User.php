@@ -62,6 +62,16 @@ class User extends Authenticatable
         return $this->hasMany(Project::class);
     }
 
+    public function userAddons(): HasMany
+    {
+        return $this->hasMany(UserAddon::class);
+    }
+
+    public function subscriptionPayments(): HasMany
+    {
+        return $this->hasMany(SubscriptionPayment::class);
+    }
+
     /**
      * Get all devices through projects.
      */

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class SubscriptionAddon extends Model
 {
@@ -22,4 +23,9 @@ class SubscriptionAddon extends Model
         'is_recurring' => 'boolean',
         'active' => 'boolean',
     ];
+
+    public function userAddons(): HasMany
+    {
+        return $this->hasMany(UserAddon::class, 'addon_code', 'code');
+    }
 }

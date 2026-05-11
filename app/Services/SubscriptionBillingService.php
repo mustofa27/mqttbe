@@ -2,9 +2,10 @@
 
 namespace App\Services;
 
+use App\Models\BillingLineItem;
 use App\Models\SubscriptionPayment;
+use App\Models\UserAddon;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\DB;
 
 class SubscriptionBillingService
 {
@@ -13,7 +14,7 @@ class SubscriptionBillingService
      */
     public function applySuccessfulPayment(SubscriptionPayment $payment): void
     {
-        DB::transaction(function () use ($payment) {
+        $payment->getConnection()->transaction(function () use ($payment) {
             $payment->refresh();
 
             $user = $payment->user;
@@ -82,43 +83,38 @@ class SubscriptionBillingService
             $startsAt = now();
             $expiresAt = $isRecurring ? now()->addMonths($months) : null;
 
-            $existing = DB::table('user_addons')
+            $existing = UserAddon::query()
                 ->where('user_id', $user->id)
                 ->where('addon_code', $code)
                 ->where('active', true)
-                ->orderByDesc('id')
+                ->latest('id')
                 ->first();
 
             if ($existing) {
-                $newQuantity = ((int) $existing->quantity) + $quantity;
+                $newQuantity = (int) $existing->quantity + $quantity;
                 $currentExpiry = $existing->expires_at ? Carbon::parse($existing->expires_at) : null;
 
                 if ($expiresAt && $currentExpiry && $currentExpiry->isFuture()) {
                     $expiresAt = $currentExpiry->copy()->addMonths($months);
                 }
 
-                DB::table('user_addons')
-                    ->where('id', $existing->id)
-                    ->update([
-                        'quantity' => $newQuantity,
-                        'starts_at' => $existing->starts_at ?? $startsAt,
-                        'expires_at' => $expiresAt,
-                        'active' => true,
-                        'updated_at' => now(),
-                    ]);
+                $existing->update([
+                    'quantity' => $newQuantity,
+                    'starts_at' => $existing->starts_at ?? $startsAt,
+                    'expires_at' => $expiresAt,
+                    'active' => true,
+                ]);
 
                 continue;
             }
 
-            DB::table('user_addons')->insert([
+            UserAddon::create([
                 'user_id' => $user->id,
                 'addon_code' => $code,
                 'quantity' => $quantity,
                 'starts_at' => $startsAt,
                 'expires_at' => $expiresAt,
                 'active' => true,
-                'created_at' => now(),
-                'updated_at' => now(),
             ]);
         }
     }
@@ -130,16 +126,14 @@ class SubscriptionBillingService
             return;
         }
 
-        DB::table('billing_line_items')
-            ->where('payment_id', $payment->id)
-            ->delete();
+        $payment->billingLineItems()->delete();
 
         foreach ($lineItems as $item) {
             if (!is_array($item)) {
                 continue;
             }
 
-            DB::table('billing_line_items')->insert([
+            BillingLineItem::create([
                 'user_id' => $payment->user_id,
                 'payment_id' => $payment->id,
                 'type' => (string) ($item['type'] ?? 'base'),
@@ -148,8 +142,6 @@ class SubscriptionBillingService
                 'currency' => (string) ($item['currency'] ?? $payment->currency ?? 'IDR'),
                 'period_start' => isset($item['period_start']) ? Carbon::parse($item['period_start']) : null,
                 'period_end' => isset($item['period_end']) ? Carbon::parse($item['period_end']) : null,
-                'created_at' => now(),
-                'updated_at' => now(),
             ]);
         }
     }

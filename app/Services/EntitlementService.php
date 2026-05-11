@@ -5,9 +5,9 @@ namespace App\Services;
 use App\Models\AdvanceDashboardWidget;
 use App\Models\ApiKey;
 use App\Models\SubscriptionPlan;
+use App\Models\UserAddon;
 use App\Models\User;
 use App\Models\Webhook;
-use Illuminate\Support\Facades\DB;
 
 class EntitlementService
 {
@@ -23,23 +23,25 @@ class EntitlementService
 
         $limits = $plan->toArray();
 
-        $addons = DB::table('user_addons as ua')
-            ->join('subscription_addons as sa', 'sa.code', '=', 'ua.addon_code')
-            ->where('ua.user_id', $user->id)
-            ->where('ua.active', true)
-            ->where('sa.active', true)
+        $addons = UserAddon::with('addon')
+            ->where('user_id', $user->id)
+            ->where('active', true)
             ->where(function ($query) {
-                $query->whereNull('ua.starts_at')->orWhere('ua.starts_at', '<=', now());
+                $query->whereNull('starts_at')->orWhere('starts_at', '<=', now());
             })
             ->where(function ($query) {
-                $query->whereNull('ua.expires_at')->orWhere('ua.expires_at', '>=', now());
+                $query->whereNull('expires_at')->orWhere('expires_at', '>=', now());
             })
-            ->select('sa.code', 'sa.unit_type', 'sa.included_units', 'ua.quantity')
+            ->whereHas('addon', fn ($query) => $query->where('active', true))
             ->get();
 
         foreach ($addons as $addon) {
-            $units = (int) $addon->included_units * max((int) $addon->quantity, 1);
-            $this->applyAddon($limits, (string) $addon->unit_type, (string) $addon->code, $units);
+            if (!$addon->addon) {
+                continue;
+            }
+
+            $units = (int) $addon->addon->included_units * max((int) $addon->quantity, 1);
+            $this->applyAddon($limits, (string) $addon->addon->unit_type, (string) $addon->addon->code, $units);
         }
 
         return $limits;

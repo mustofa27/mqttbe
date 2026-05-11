@@ -10,11 +10,11 @@ use App\Models\AdvanceDashboardWidget;
 use App\Models\Webhook;
 use App\Models\UsageLog;
 use App\Models\SubscriptionAddon;
+use App\Models\UserAddon;
 use App\Services\SubscriptionBillingService;
 use App\Services\PaypoolService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
-use Illuminate\Support\Facades\DB;
 
 class SubscriptionController extends Controller
 {
@@ -88,15 +88,14 @@ class SubscriptionController extends Controller
             'unlimited' => SubscriptionPlan::isUnlimited((int) ($currentLimits['max_monthly_messages'] ?? 0)),
         ];
 
-        $activeAddons = DB::table('user_addons as ua')
-            ->join('subscription_addons as sa', 'sa.code', '=', 'ua.addon_code')
-            ->where('ua.user_id', $user->id)
-            ->where('ua.active', true)
+        $activeAddons = UserAddon::with('addon')
+            ->where('user_id', $user->id)
+            ->where('active', true)
             ->where(function ($query) {
-                $query->whereNull('ua.expires_at')->orWhere('ua.expires_at', '>=', now());
+                $query->whereNull('expires_at')->orWhere('expires_at', '>=', now());
             })
-            ->select('ua.addon_code', 'ua.quantity', 'ua.starts_at', 'ua.expires_at', 'sa.name', 'sa.unit_type', 'sa.price')
-            ->orderBy('ua.created_at', 'desc')
+            ->whereHas('addon', fn ($query) => $query->where('active', true))
+            ->orderByDesc('created_at')
             ->get();
 
         // Get all available plans
@@ -201,7 +200,7 @@ class SubscriptionController extends Controller
         $addonItems = [];
         if (!empty($addonCodes)) {
             $requestedAddonCounts = array_count_values($addonCodes);
-            $addons = DB::table('subscription_addons')
+            $addons = SubscriptionAddon::query()
                 ->whereIn('code', array_keys($requestedAddonCounts))
                 ->where('active', true)
                 ->get()
@@ -324,13 +323,11 @@ class SubscriptionController extends Controller
             'subscription_expires_at' => null,
         ]);
 
-        DB::table('user_addons')
-            ->where('user_id', $user->id)
+        $user->userAddons()
             ->where('active', true)
             ->update([
                 'active' => false,
                 'expires_at' => now(),
-                'updated_at' => now(),
             ]);
 
         return redirect()
