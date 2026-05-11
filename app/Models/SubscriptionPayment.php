@@ -11,6 +11,7 @@ class SubscriptionPayment extends Model
         'user_id',
         'external_id',
         'tier',
+        'addon_code',
         'amount',
         'currency',
         'status',

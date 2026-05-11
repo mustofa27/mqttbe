@@ -10,11 +10,13 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\MqttSubscribeCommand::class,
         \App\Console\Commands\MqttSubscribeAllCommand::class,
         \App\Console\Commands\CheckExpiredSubscriptions::class,
+        \App\Console\Commands\PruneExpiredMessages::class,
     ];
 
     protected function schedule(\Illuminate\Console\Scheduling\Schedule $schedule): void
     {
         $schedule->command('subscriptions:check-expired')->daily();
+        $schedule->command('messages:prune-expired')->dailyAt('01:00');
     }
 
     protected function commands(): void

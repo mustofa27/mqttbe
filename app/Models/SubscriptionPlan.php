@@ -14,11 +14,16 @@ class SubscriptionPlan extends Model
         'max_devices_per_project',
         'max_topics_per_project',
         'rate_limit_per_hour',
+        'max_monthly_messages',
         'data_retention_days',
         'analytics_enabled',
         'advanced_analytics_enabled',
+        'max_advance_dashboard_widgets',
         'webhooks_enabled',
+        'max_webhooks_per_project',
         'api_access',
+        'max_api_keys',
+        'api_rpm',
         'priority_support',
     ];
 
