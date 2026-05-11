@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\AdvanceDashboardWidget;
 use App\Models\ApiKey;
+use App\Models\SubscriptionAddon;
 use App\Models\SubscriptionPlan;
 use App\Models\UserAddon;
 use App\Models\User;
@@ -41,7 +42,7 @@ class EntitlementService
             }
 
             $units = (int) $addon->addon->included_units * max((int) $addon->quantity, 1);
-            $this->applyAddon($limits, (string) $addon->addon->unit_type, (string) $addon->addon->code, $units);
+            $this->applyAddon($limits, (string) $addon->addon->unit_type, $units);
         }
 
         return $limits;
@@ -86,40 +87,40 @@ class EntitlementService
         };
     }
 
-    private function applyAddon(array &$limits, string $unitType, string $code, int $units): void
+    private function applyAddon(array &$limits, string $unitType, int $units): void
     {
         if ($units <= 0) {
             return;
         }
 
-        $normalized = strtolower($unitType . ' ' . $code);
+        switch ($unitType) {
+            case SubscriptionAddon::UNIT_TYPE_WEBHOOK:
+                $limits['webhooks_enabled'] = true;
+                $this->addLimit($limits, 'max_webhooks_per_project', $units);
+                break;
 
-        if (str_contains($normalized, 'webhook')) {
-            $limits['webhooks_enabled'] = true;
-            $this->addLimit($limits, 'max_webhooks_per_project', $units);
-        }
+            case SubscriptionAddon::UNIT_TYPE_API_KEY:
+                $limits['api_access'] = true;
+                $this->addLimit($limits, 'max_api_keys', $units);
+                break;
 
-        if (str_contains($normalized, 'api key')) {
-            $limits['api_access'] = true;
-            $this->addLimit($limits, 'max_api_keys', $units);
-        }
+            case SubscriptionAddon::UNIT_TYPE_API_RPM:
+                $limits['api_access'] = true;
+                $this->addLimit($limits, 'api_rpm', $units);
+                break;
 
-        if (str_contains($normalized, 'api_rpm') || str_contains($normalized, 'rpm')) {
-            $limits['api_access'] = true;
-            $this->addLimit($limits, 'api_rpm', $units);
-        }
+            case SubscriptionAddon::UNIT_TYPE_DASHBOARD_WIDGET:
+                $limits['advanced_analytics_enabled'] = true;
+                $this->addLimit($limits, 'max_advance_dashboard_widgets', $units);
+                break;
 
-        if (str_contains($normalized, 'dashboard') || str_contains($normalized, 'widget')) {
-            $limits['advanced_analytics_enabled'] = true;
-            $this->addLimit($limits, 'max_advance_dashboard_widgets', $units);
-        }
+            case SubscriptionAddon::UNIT_TYPE_RETENTION_DAYS:
+                $this->addLimit($limits, 'data_retention_days', $units);
+                break;
 
-        if (str_contains($normalized, 'retention')) {
-            $this->addLimit($limits, 'data_retention_days', $units);
-        }
-
-        if (str_contains($normalized, 'message')) {
-            $this->addLimit($limits, 'max_monthly_messages', $units);
+            case SubscriptionAddon::UNIT_TYPE_MONTHLY_MESSAGES:
+                $this->addLimit($limits, 'max_monthly_messages', $units);
+                break;
         }
     }
 

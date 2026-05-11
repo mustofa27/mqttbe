@@ -11,7 +11,12 @@
 
     <label>
         <span>Unit Type</span>
-        <input type="text" name="unit_type" value="{{ old('unit_type', $addon->unit_type ?? '') }}" required>
+        <select name="unit_type" required>
+            <option value="">Select add-on effect type</option>
+            @foreach($unitTypeOptions as $key => $label)
+                <option value="{{ $key }}" {{ old('unit_type', $addon->unit_type ?? '') === $key ? 'selected' : '' }}>{{ $label }}</option>
+            @endforeach
+        </select>
     </label>
 
     <label>
@@ -39,7 +44,7 @@
 <style>
 .grid-two { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
 .grid-two label { display: grid; gap: 0.35rem; }
-.grid-two input[type="text"], .grid-two input[type="number"] { border: 1px solid #cbd5e1; border-radius: 6px; padding: 0.55rem; }
+.grid-two input[type="text"], .grid-two input[type="number"], .grid-two select { border: 1px solid #cbd5e1; border-radius: 6px; padding: 0.55rem; }
 .checkbox-wrap { display: grid; gap: 0.5rem; align-content: center; }
 .checkbox-item { display: flex; align-items: center; gap: 0.5rem; }
 @media (max-width: 800px) { .grid-two { grid-template-columns: 1fr; } }

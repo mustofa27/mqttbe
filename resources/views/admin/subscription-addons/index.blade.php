@@ -31,7 +31,7 @@
                     <tr>
                         <td>{{ $addon->code }}</td>
                         <td>{{ $addon->name }}</td>
-                        <td>{{ $addon->unit_type }}</td>
+                        <td>{{ $addon->unit_type_label }}</td>
                         <td>Rp {{ number_format($addon->price, 0, ',', '.') }}</td>
                         <td>{{ $addon->included_units }}</td>
                         <td>{{ $addon->is_recurring ? 'Yes' : 'No' }}</td>

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\SubscriptionAddon;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class SubscriptionAddonController extends Controller
 {
@@ -17,7 +18,9 @@ class SubscriptionAddonController extends Controller
 
     public function create()
     {
-        return view('admin.subscription-addons.create');
+        return view('admin.subscription-addons.create', [
+            'unitTypeOptions' => SubscriptionAddon::unitTypeOptions(),
+        ]);
     }
 
     public function store(Request $request)
@@ -25,7 +28,7 @@ class SubscriptionAddonController extends Controller
         $validated = $request->validate([
             'code' => 'required|string|max:100|unique:subscription_addons,code',
             'name' => 'required|string|max:255',
-            'unit_type' => 'required|string|max:100',
+            'unit_type' => ['required', Rule::in(SubscriptionAddon::unitTypeKeys())],
             'price' => 'required|numeric|min:0',
             'included_units' => 'required|integer|min:0',
             'is_recurring' => 'nullable|boolean',
@@ -45,6 +48,7 @@ class SubscriptionAddonController extends Controller
     {
         return view('admin.subscription-addons.edit', [
             'addon' => $subscriptionAddon,
+            'unitTypeOptions' => SubscriptionAddon::unitTypeOptions(),
         ]);
     }
 
@@ -53,7 +57,7 @@ class SubscriptionAddonController extends Controller
         $validated = $request->validate([
             'code' => 'required|string|max:100|unique:subscription_addons,code,' . $subscriptionAddon->id,
             'name' => 'required|string|max:255',
-            'unit_type' => 'required|string|max:100',
+            'unit_type' => ['required', Rule::in(SubscriptionAddon::unitTypeKeys())],
             'price' => 'required|numeric|min:0',
             'included_units' => 'required|integer|min:0',
             'is_recurring' => 'nullable|boolean',
