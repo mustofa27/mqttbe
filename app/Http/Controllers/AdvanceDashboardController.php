@@ -65,6 +65,16 @@ class AdvanceDashboardController extends Controller
     {
         $user = $this->requireAdvanceDashboardAccess($request);
 
+        $limits = $user->getSubscriptionLimits();
+        $maxWidgets = (int) ($limits['max_advance_dashboard_widgets'] ?? 0);
+        $currentWidgets = AdvanceDashboardWidget::where('user_id', (int) $user->id)->count();
+
+        if ($maxWidgets !== -1 && $currentWidgets >= $maxWidgets) {
+            return back()->withErrors([
+                'limit' => "Widget limit reached for your plan ({$maxWidgets} widgets).",
+            ])->withInput();
+        }
+
         $validated = $request->validate([
             'project_id' => ['required', 'integer'],
             'topic_id' => ['required', 'integer'],

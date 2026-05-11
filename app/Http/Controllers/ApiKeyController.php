@@ -24,11 +24,20 @@ class ApiKeyController extends Controller
             'expires_at' => ['nullable', 'date', 'after:today'],
         ]);
 
+        $user = auth()->user();
+        $limits = $user->getSubscriptionLimits();
+        $maxApiKeys = (int) ($limits['max_api_keys'] ?? 0);
+        $activeKeys = ApiKey::where('user_id', $user->id)->where('is_active', true)->count();
+
+        if ($maxApiKeys !== -1 && $activeKeys >= $maxApiKeys) {
+            return redirect()->back()->with('error', "API key limit reached for your plan ({$maxApiKeys} active keys).");
+        }
+
         $key = Str::random(32);
         $secret = Str::random(64);
 
         $apiKey = ApiKey::create([
-            'user_id' => auth()->id(),
+            'user_id' => $user->id,
             'name' => $validated['name'],
             'key' => hash('sha256', $key),
             'secret' => hash('sha256', $secret),

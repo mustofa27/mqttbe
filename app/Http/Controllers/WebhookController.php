@@ -49,6 +49,14 @@ class WebhookController extends Controller
             return redirect()->back()->with('error', 'Unauthorized');
         }
 
+        $limits = $project->user->getSubscriptionLimits();
+        $maxWebhooks = (int) ($limits['max_webhooks_per_project'] ?? 0);
+        $currentWebhooks = Webhook::where('project_id', $project->id)->count();
+
+        if ($maxWebhooks !== -1 && $currentWebhooks >= $maxWebhooks) {
+            return redirect()->back()->with('error', "Webhook limit reached for your plan ({$maxWebhooks} per project).");
+        }
+
         $webhook = Webhook::create($validated);
 
         return redirect()->back()->with('success', 'Webhook created successfully');

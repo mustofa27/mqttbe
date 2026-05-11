@@ -103,10 +103,23 @@ class MessageController
             ->firstOrFail();
 
         // Check rate limit
-        if ($this->usageService->hasExceededRateLimit($project->id)) {
+        $limitStatus = $this->usageService->getLimitStatus($project->id);
+
+        if ($limitStatus['hourly_exceeded']) {
             return response()->json([
                 'error' => 'Rate limit exceeded',
-                'message' => "You have exceeded your hourly message limit of {$limits['rate_limit_per_hour']}",
+                'message' => "You have exceeded your hourly message limit of {$limitStatus['hourly_limit']}",
+                'limit' => $limitStatus['hourly_limit'],
+                'current_usage' => $limitStatus['current_hourly_usage'],
+            ], 429);
+        }
+
+        if ($limitStatus['monthly_exceeded']) {
+            return response()->json([
+                'error' => 'Monthly quota exceeded',
+                'message' => "You have exceeded your monthly message quota of {$limitStatus['monthly_limit']}",
+                'limit' => $limitStatus['monthly_limit'],
+                'current_usage' => $limitStatus['current_monthly_usage'],
             ], 429);
         }
 

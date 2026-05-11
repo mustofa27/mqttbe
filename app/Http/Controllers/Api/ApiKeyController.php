@@ -34,6 +34,19 @@ class ApiKeyController
             'expires_at' => ['nullable', 'date'],
         ]);
 
+        $limits = $user->getSubscriptionLimits();
+        $maxApiKeys = (int) ($limits['max_api_keys'] ?? 0);
+        $activeKeys = ApiKey::where('user_id', $user->id)->where('is_active', true)->count();
+
+        if ($maxApiKeys !== -1 && $activeKeys >= $maxApiKeys) {
+            return response()->json([
+                'error' => 'API key limit reached',
+                'message' => "Your plan allows up to {$maxApiKeys} active API keys.",
+                'limit' => $maxApiKeys,
+                'current_count' => $activeKeys,
+            ], 403);
+        }
+
         $key = Str::random(32);
         $secret = Str::random(64);
 

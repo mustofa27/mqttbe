@@ -73,17 +73,9 @@ class UsageTrackingService
      */
     public function hasExceededRateLimit(int $projectId): bool
     {
-        $project = Project::findOrFail($projectId);
-        $user = $project->user;
-        
-        $limits = $this->getUserLimits($user);
-        
-        if ($limits['rate_limit_per_hour'] === -1) {
-            return false; // unlimited
-        }
+        $status = $this->getLimitStatus($projectId);
 
-        $currentUsage = $this->getCurrentHourUsage($projectId);
-        return $currentUsage >= $limits['rate_limit_per_hour'];
+        return $status['hourly_exceeded'] || $status['monthly_exceeded'];
     }
 
     /**
@@ -91,8 +83,48 @@ class UsageTrackingService
      */
     public function getUserLimits(User $user): array
     {
-        $tier = $user->subscription_tier ?? 'free';
-        return \App\Models\SubscriptionPlan::getLimits($tier);
+        return $user->getSubscriptionLimits();
+    }
+
+    /**
+     * Get current month usage for a project.
+     */
+    public function getCurrentMonthUsage(int $projectId): int
+    {
+        $monthStart = Carbon::now()->startOfMonth();
+        $monthEnd = Carbon::now()->endOfMonth();
+
+        return (int) UsageLog::where('project_id', $projectId)
+            ->where('period_type', 'hour')
+            ->whereBetween('period_start', [$monthStart, $monthEnd])
+            ->sum('message_count');
+    }
+
+    /**
+     * Build detailed hourly and monthly limit status for a project.
+     */
+    public function getLimitStatus(int $projectId): array
+    {
+        $project = Project::findOrFail($projectId);
+        $limits = $this->getUserLimits($project->user);
+
+        $hourlyLimit = (int) ($limits['rate_limit_per_hour'] ?? 0);
+        $monthlyLimit = (int) ($limits['max_monthly_messages'] ?? 0);
+
+        $currentHourlyUsage = $this->getCurrentHourUsage($projectId);
+        $currentMonthlyUsage = $this->getCurrentMonthUsage($projectId);
+
+        $hourlyExceeded = $hourlyLimit !== -1 && $hourlyLimit > 0 && $currentHourlyUsage >= $hourlyLimit;
+        $monthlyExceeded = $monthlyLimit !== -1 && $monthlyLimit > 0 && $currentMonthlyUsage >= $monthlyLimit;
+
+        return [
+            'hourly_exceeded' => $hourlyExceeded,
+            'monthly_exceeded' => $monthlyExceeded,
+            'hourly_limit' => $hourlyLimit,
+            'monthly_limit' => $monthlyLimit,
+            'current_hourly_usage' => $currentHourlyUsage,
+            'current_monthly_usage' => $currentMonthlyUsage,
+        ];
     }
 
     /**
