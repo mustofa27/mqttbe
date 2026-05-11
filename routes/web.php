@@ -19,6 +19,7 @@ use App\Http\Controllers\ExportController;
 use App\Http\Controllers\MqttListenerController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\SubscriptionPlanController;
+use App\Http\Controllers\Admin\SubscriptionAddonController;
 
 // Public routes
 Route::get('/', function () {
@@ -153,6 +154,9 @@ Route::middleware('auth')->group(function () {
         ]);
         Route::patch('/subscription-plans/{plan}/reset', [SubscriptionPlanController::class, 'reset'])->name('subscription-plans.reset');
         Route::get('/subscription-plans/statistics', [SubscriptionPlanController::class, 'statistics'])->name('subscription-plans.statistics');
+
+        // Subscription add-on management
+        Route::resource('subscription-addons', SubscriptionAddonController::class)->except(['show']);
     });
     // Message History (only for users with advanced analytics access)
     Route::middleware(['auth'])->group(function () {

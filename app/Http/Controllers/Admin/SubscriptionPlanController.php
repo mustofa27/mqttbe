@@ -55,11 +55,16 @@ class SubscriptionPlanController extends Controller
             'max_devices_per_project' => 'required|integer',
             'max_topics_per_project' => 'required|integer',
             'rate_limit_per_hour' => 'required|integer',
+            'max_monthly_messages' => 'required|integer',
             'data_retention_days' => 'required|integer',
             'analytics_enabled' => 'boolean',
             'advanced_analytics_enabled' => 'boolean',
+            'max_advance_dashboard_widgets' => 'required|integer',
             'webhooks_enabled' => 'boolean',
+            'max_webhooks_per_project' => 'required|integer',
             'api_access' => 'boolean',
+            'max_api_keys' => 'required|integer',
+            'api_rpm' => 'required|integer',
             'priority_support' => 'boolean',
         ]);
 

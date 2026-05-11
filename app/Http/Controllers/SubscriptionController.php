@@ -5,6 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\SubscriptionPlan;
 use App\Models\Topic;
 use App\Models\SubscriptionPayment;
+use App\Models\ApiKey;
+use App\Models\AdvanceDashboardWidget;
+use App\Models\Webhook;
+use App\Models\UsageLog;
+use App\Models\SubscriptionAddon;
 use App\Services\SubscriptionBillingService;
 use App\Services\PaypoolService;
 use Illuminate\Http\Request;
@@ -50,6 +55,50 @@ class SubscriptionController extends Controller
             'unlimited' => SubscriptionPlan::isUnlimited($currentLimits['max_topics_per_project']),
         ];
 
+        $usage['api_keys'] = [
+            'current' => ApiKey::where('user_id', $user->id)->where('is_active', true)->count(),
+            'limit' => (int) ($currentLimits['max_api_keys'] ?? 0),
+            'unlimited' => SubscriptionPlan::isUnlimited((int) ($currentLimits['max_api_keys'] ?? 0)),
+        ];
+
+        $usage['webhooks'] = [
+            'current' => Webhook::whereHas('project', fn ($query) => $query->where('user_id', $user->id))
+                ->where('active', true)
+                ->count(),
+            'limit' => (int) ($currentLimits['max_webhooks_per_project'] ?? 0),
+            'unlimited' => SubscriptionPlan::isUnlimited((int) ($currentLimits['max_webhooks_per_project'] ?? 0)),
+        ];
+
+        $usage['widgets'] = [
+            'current' => AdvanceDashboardWidget::where('user_id', $user->id)->count(),
+            'limit' => (int) ($currentLimits['max_advance_dashboard_widgets'] ?? 0),
+            'unlimited' => SubscriptionPlan::isUnlimited((int) ($currentLimits['max_advance_dashboard_widgets'] ?? 0)),
+        ];
+
+        $monthStart = now()->startOfMonth();
+        $monthEnd = now()->endOfMonth();
+        $monthlyMessages = (int) UsageLog::where('user_id', $user->id)
+            ->where('period_type', 'hour')
+            ->whereBetween('period_start', [$monthStart, $monthEnd])
+            ->sum('message_count');
+
+        $usage['monthly_messages'] = [
+            'current' => $monthlyMessages,
+            'limit' => (int) ($currentLimits['max_monthly_messages'] ?? 0),
+            'unlimited' => SubscriptionPlan::isUnlimited((int) ($currentLimits['max_monthly_messages'] ?? 0)),
+        ];
+
+        $activeAddons = DB::table('user_addons as ua')
+            ->join('subscription_addons as sa', 'sa.code', '=', 'ua.addon_code')
+            ->where('ua.user_id', $user->id)
+            ->where('ua.active', true)
+            ->where(function ($query) {
+                $query->whereNull('ua.expires_at')->orWhere('ua.expires_at', '>=', now());
+            })
+            ->select('ua.addon_code', 'ua.quantity', 'ua.starts_at', 'ua.expires_at', 'sa.name', 'sa.unit_type', 'sa.price')
+            ->orderBy('ua.created_at', 'desc')
+            ->get();
+
         // Get all available plans
         $allPlans = [];
         foreach (SubscriptionPlan::getTiers() as $tier) {
@@ -62,7 +111,7 @@ class SubscriptionController extends Controller
             ->take(10)
             ->get();
 
-        return view('dashboard.subscription.index', compact('user', 'currentLimits', 'usage', 'allPlans', 'payments'));
+        return view('dashboard.subscription.index', compact('user', 'currentLimits', 'usage', 'allPlans', 'payments', 'activeAddons'));
     }
 
     /**
@@ -100,7 +149,11 @@ class SubscriptionController extends Controller
             }
         }
 
-        return view('dashboard.subscription.upgrade', compact('user', 'currentTier', 'plans'));
+        $addons = SubscriptionAddon::where('active', true)
+            ->orderBy('price')
+            ->get();
+
+        return view('dashboard.subscription.upgrade', compact('user', 'currentTier', 'plans', 'addons'));
     }
 
     /**

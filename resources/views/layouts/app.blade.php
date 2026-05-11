@@ -628,6 +628,11 @@
                             </a>
                         </li>
                         <li>
+                            <a href="{{ route('admin.subscription-addons.index') }}" class="@if(strpos(Route::currentRouteName(), 'admin.subscription-addons') !== false) active @endif">
+                                🧩 Add-ons
+                            </a>
+                        </li>
+                        <li>
                             <a href="{{ route('admin.mqtt-listeners.index') }}" class="@if(strpos(Route::currentRouteName(), 'admin.mqtt-listeners') !== false) active @endif">
                                 🛰️ MQTT Monitor
                             </a>

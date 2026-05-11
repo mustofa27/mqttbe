@@ -244,6 +244,42 @@
         </div>
         <div class="stat-limit">messages/hour</div>
     </div>
+
+    <div class="stat-card">
+        <div class="stat-title">Monthly Messages</div>
+        <div class="stat-value">{{ number_format($usage['monthly_messages']['current']) }}</div>
+        <div class="stat-limit">
+            @if($usage['monthly_messages']['unlimited'])
+                High Fair Use
+            @else
+                of {{ number_format($usage['monthly_messages']['limit']) }}
+            @endif
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-title">Active API Keys</div>
+        <div class="stat-value">{{ $usage['api_keys']['current'] }}</div>
+        <div class="stat-limit">
+            @if($usage['api_keys']['unlimited'])
+                High Fair Use
+            @else
+                of {{ $usage['api_keys']['limit'] }}
+            @endif
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-title">Dashboard Widgets</div>
+        <div class="stat-value">{{ $usage['widgets']['current'] }}</div>
+        <div class="stat-limit">
+            @if($usage['widgets']['unlimited'])
+                High Fair Use
+            @else
+                of {{ $usage['widgets']['limit'] }}
+            @endif
+        </div>
+    </div>
 </div>
 
 <div class="features-section">
@@ -294,6 +330,34 @@
         @endif
     </div>
 </div>
+
+@if(isset($activeAddons) && $activeAddons->count() > 0)
+<div class="features-section">
+    <h2 style="margin-bottom: 1rem;">Active Add-ons</h2>
+    <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+            <tr style="border-bottom: 2px solid #e0e0e0; text-align: left;">
+                <th style="padding: 0.75rem;">Add-on</th>
+                <th style="padding: 0.75rem;">Code</th>
+                <th style="padding: 0.75rem;">Quantity</th>
+                <th style="padding: 0.75rem;">Unit Type</th>
+                <th style="padding: 0.75rem;">Expires</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach($activeAddons as $addon)
+                <tr style="border-bottom: 1px solid #f0f0f0;">
+                    <td style="padding: 0.75rem;">{{ $addon->name }}</td>
+                    <td style="padding: 0.75rem;">{{ $addon->addon_code }}</td>
+                    <td style="padding: 0.75rem;">{{ $addon->quantity }}</td>
+                    <td style="padding: 0.75rem;">{{ $addon->unit_type }}</td>
+                    <td style="padding: 0.75rem;">{{ $addon->expires_at ? \Carbon\Carbon::parse($addon->expires_at)->format('d M Y') : 'No Expiry' }}</td>
+                </tr>
+            @endforeach
+        </tbody>
+    </table>
+</div>
+@endif
 
 <div class="features-section">
     <h2 style="margin-bottom: 1rem;">Compare Plans</h2>

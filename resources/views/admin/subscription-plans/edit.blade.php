@@ -45,6 +45,36 @@
                     </div>
 
                     <div>
+                        <label for="max_monthly_messages" style="display: block; color: #374151; font-weight: 600; margin-bottom: 0.5rem; font-size: 0.95rem;">Max Monthly Messages</label>
+                        <input type="number" id="max_monthly_messages" name="max_monthly_messages" value="{{ old('max_monthly_messages', $planDetails['max_monthly_messages'] ?? 0) }}" required style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 6px; font-size: 1rem; font-family: inherit; transition: all 0.2s ease;" onfocus="this.style.borderColor='#667eea';" onblur="this.style.borderColor='#d1d5db';">
+                        <p style="color: #9ca3af; font-size: 0.8rem; margin-top: 0.25rem;">Use -1 for unlimited</p>
+                    </div>
+
+                    <div>
+                        <label for="max_api_keys" style="display: block; color: #374151; font-weight: 600; margin-bottom: 0.5rem; font-size: 0.95rem;">Max API Keys</label>
+                        <input type="number" id="max_api_keys" name="max_api_keys" value="{{ old('max_api_keys', $planDetails['max_api_keys'] ?? 0) }}" required style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 6px; font-size: 1rem; font-family: inherit; transition: all 0.2s ease;" onfocus="this.style.borderColor='#667eea';" onblur="this.style.borderColor='#d1d5db';">
+                        <p style="color: #9ca3af; font-size: 0.8rem; margin-top: 0.25rem;">Use -1 for unlimited</p>
+                    </div>
+
+                    <div>
+                        <label for="api_rpm" style="display: block; color: #374151; font-weight: 600; margin-bottom: 0.5rem; font-size: 0.95rem;">API RPM</label>
+                        <input type="number" id="api_rpm" name="api_rpm" value="{{ old('api_rpm', $planDetails['api_rpm'] ?? 0) }}" required style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 6px; font-size: 1rem; font-family: inherit; transition: all 0.2s ease;" onfocus="this.style.borderColor='#667eea';" onblur="this.style.borderColor='#d1d5db';">
+                        <p style="color: #9ca3af; font-size: 0.8rem; margin-top: 0.25rem;">Use -1 for unlimited</p>
+                    </div>
+
+                    <div>
+                        <label for="max_webhooks_per_project" style="display: block; color: #374151; font-weight: 600; margin-bottom: 0.5rem; font-size: 0.95rem;">Max Webhooks/Project</label>
+                        <input type="number" id="max_webhooks_per_project" name="max_webhooks_per_project" value="{{ old('max_webhooks_per_project', $planDetails['max_webhooks_per_project'] ?? 0) }}" required style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 6px; font-size: 1rem; font-family: inherit; transition: all 0.2s ease;" onfocus="this.style.borderColor='#667eea';" onblur="this.style.borderColor='#d1d5db';">
+                        <p style="color: #9ca3af; font-size: 0.8rem; margin-top: 0.25rem;">Use -1 for unlimited</p>
+                    </div>
+
+                    <div>
+                        <label for="max_advance_dashboard_widgets" style="display: block; color: #374151; font-weight: 600; margin-bottom: 0.5rem; font-size: 0.95rem;">Max Advanced Widgets</label>
+                        <input type="number" id="max_advance_dashboard_widgets" name="max_advance_dashboard_widgets" value="{{ old('max_advance_dashboard_widgets', $planDetails['max_advance_dashboard_widgets'] ?? 0) }}" required style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 6px; font-size: 1rem; font-family: inherit; transition: all 0.2s ease;" onfocus="this.style.borderColor='#667eea';" onblur="this.style.borderColor='#d1d5db';">
+                        <p style="color: #9ca3af; font-size: 0.8rem; margin-top: 0.25rem;">Use -1 for unlimited</p>
+                    </div>
+
+                    <div>
                         <label for="data_retention_days" style="display: block; color: #374151; font-weight: 600; margin-bottom: 0.5rem; font-size: 0.95rem;">Data Retention (days)</label>
                         <input type="number" id="data_retention_days" name="data_retention_days" value="{{ old('data_retention_days', $planDetails['data_retention_days']) }}" required style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 6px; font-size: 1rem; font-family: inherit; transition: all 0.2s ease;" onfocus="this.style.borderColor='#667eea';" onblur="this.style.borderColor='#d1d5db';">
                         <p style="color: #9ca3af; font-size: 0.8rem; margin-top: 0.25rem;">Use -1 for unlimited</p>

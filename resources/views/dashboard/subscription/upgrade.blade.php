@@ -197,6 +197,29 @@
         cursor: pointer;
         color: #999;
     }
+
+    .addon-options {
+        margin-top: 1rem;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        padding: 0.75rem;
+        display: grid;
+        gap: 0.5rem;
+        max-height: 180px;
+        overflow-y: auto;
+        background: #fafafa;
+    }
+
+    .addon-option {
+        display: flex;
+        gap: 0.5rem;
+        align-items: start;
+        font-size: 0.9rem;
+    }
+
+    .addon-option small {
+        color: #64748b;
+    }
 </style>
 
 <div class="pricing-header">
@@ -304,6 +327,32 @@
                 <label>Total Price</label>
                 <input type="text" id="displayTotal" readonly style="background: #f8f9fa;">
             </div>
+
+            @if(isset($addons) && $addons->isNotEmpty())
+                <div class="form-group">
+                    <label>Optional Add-ons</label>
+                    <div class="addon-options">
+                        @foreach($addons as $addon)
+                            <label class="addon-option">
+                                <input type="checkbox"
+                                       name="addon_codes[]"
+                                       value="{{ $addon->code }}"
+                                       data-addon-price="{{ (float) $addon->price }}"
+                                       data-addon-recurring="{{ $addon->is_recurring ? '1' : '0' }}"
+                                       class="addon-checkbox">
+                                <span>
+                                    <strong>{{ $addon->name }}</strong>
+                                    <small>
+                                        ({{ $addon->code }}) - Rp {{ number_format($addon->price, 0, ',', '.') }}
+                                        {{ $addon->is_recurring ? '/bulan' : 'sekali bayar' }}
+                                    </small>
+                                </span>
+                            </label>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
+
             <p style="color: #666; margin: 1rem 0; font-size: 0.9rem;">
                 You will be redirected to our secure payment gateway (Paypool) to complete the payment.
             </p>
@@ -335,6 +384,30 @@
     });
 
     let currentPlanPrice = 0;
+
+    function recalculateTotal() {
+        const monthsInput = document.getElementById('months');
+        const displayTotal = document.getElementById('displayTotal');
+        let months = parseInt(monthsInput.value, 10);
+
+        if (isNaN(months) || months < 1) {
+            months = 1;
+            monthsInput.value = 1;
+        }
+
+        const baseTotal = currentPlanPrice * months;
+        let addonTotal = 0;
+
+        document.querySelectorAll('.addon-checkbox:checked').forEach((checkbox) => {
+            const price = parseFloat(checkbox.dataset.addonPrice || '0');
+            const recurring = checkbox.dataset.addonRecurring === '1';
+            addonTotal += recurring ? (price * months) : price;
+        });
+
+        const total = baseTotal + addonTotal;
+        displayTotal.value = 'Rp ' + total.toLocaleString('id-ID') + ' / ' + months + ' bulan';
+    }
+
     function openPaymentModal(tier, price) {
         const modal = document.getElementById('paymentModal');
         const modalTitle = document.getElementById('modalTitle');
@@ -350,15 +423,16 @@
         displayTier.value = tier.charAt(0).toUpperCase() + tier.slice(1);
         displayPrice.value = 'Rp ' + price.toLocaleString('id-ID') + '/bulan';
         monthsInput.value = 1;
-        displayTotal.value = 'Rp ' + price.toLocaleString('id-ID') + ' / 1 bulan';
+        document.querySelectorAll('.addon-checkbox').forEach((checkbox) => {
+            checkbox.checked = false;
+        });
 
-        monthsInput.oninput = function() {
-            let months = parseInt(monthsInput.value);
-            if (isNaN(months) || months < 1) months = 1;
-            monthsInput.value = months;
-            const total = price * months;
-            displayTotal.value = 'Rp ' + total.toLocaleString('id-ID') + ' / ' + months + ' bulan';
-        };
+        monthsInput.oninput = recalculateTotal;
+        document.querySelectorAll('.addon-checkbox').forEach((checkbox) => {
+            checkbox.onchange = recalculateTotal;
+        });
+
+        recalculateTotal();
 
         modal.classList.add('active');
     }
