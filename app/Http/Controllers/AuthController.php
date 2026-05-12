@@ -71,10 +71,12 @@ class AuthController extends Controller
             'password' => Hash::make($validated['password']),
         ]);
 
+        $user->sendEmailVerificationNotification();
+
         Auth::login($user);
         $request->session()->regenerate();
 
-        return redirect()->route('home.dashboard')->with('success', 'Account created successfully!');
+        return redirect()->route('verification.notice')->with('success', 'Account created! Please check your email to verify your address.');
     }
 
     /**

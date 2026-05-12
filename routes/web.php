@@ -46,8 +46,25 @@ Route::middleware('guest')->group(function () {
 
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->name('logout');
 
-// Protected routes (require authentication)
+// Email verification routes
 Route::middleware('auth')->group(function () {
+    Route::get('/email/verify', function () {
+        return view('auth.verify-email');
+    })->name('verification.notice');
+
+    Route::get('/email/verify/{id}/{hash}', function (\Illuminate\Foundation\Auth\EmailVerificationRequest $request) {
+        $request->fulfill();
+        return redirect()->route('home.dashboard')->with('success', 'Email verified! Welcome aboard.');
+    })->middleware('signed')->name('verification.verify');
+
+    Route::post('/email/verification-notification', function (\Illuminate\Http\Request $request) {
+        $request->user()->sendEmailVerificationNotification();
+        return back()->with('success', 'Verification link sent to your email.');
+    })->middleware('throttle:6,1')->name('verification.send');
+});
+
+// Protected routes (require authentication + email verification)
+Route::middleware(['auth', 'verified'])->group(function () {
    //Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/profile', [DashboardController::class, 'profile'])->name('profile');
     Route::put('/profile', [DashboardController::class, 'updateProfile'])->name('updateProfile');
