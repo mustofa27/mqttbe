@@ -4,12 +4,12 @@
 
 @section('content')
 <div class="addon-admin-page">
-    <div class="addon-header">
+    <div class="admin-header">
         <div>
-            <h1>Subscription Add-ons</h1>
-            <p>Manage purchasable add-on catalog items.</p>
+            <h1 class="admin-header-title">🧩 Subscription Add-ons</h1>
+            <p class="admin-header-subtitle">Manage purchasable add-on catalog items</p>
         </div>
-        <a href="{{ route('admin.subscription-addons.create') }}" class="btn-primary">Create Add-on</a>
+        <a href="{{ route('admin.subscription-addons.create') }}" class="btn-admin-action">➕ Create Add-on</a>
     </div>
 
     <div class="addon-table-wrap">

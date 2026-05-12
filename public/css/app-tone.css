@@ -1436,48 +1436,15 @@ select:focus {
 /* Subscription Add-ons Pages */
 .addon-admin-page {
     display: grid !important;
-    gap: 1rem !important;
-}
-
-.addon-header {
-    display: flex !important;
-    justify-content: space-between !important;
-    align-items: center !important;
-    gap: 1rem !important;
-}
-
-.addon-header h1 {
-    margin: 0 !important;
-}
-
-.addon-header p {
-    margin: 0.35rem 0 0 !important;
-    color: #666 !important;
-}
-
-.btn-primary {
-    background: #2563eb !important;
-    color: #fff !important;
-    text-decoration: none !important;
-    padding: 0.6rem 1rem !important;
-    border-radius: 6px !important;
-    font-weight: 600 !important;
-    cursor: pointer !important;
-    border: none !important;
-    display: inline-block !important;
-    transition: all 0.2s ease !important;
-}
-
-.btn-primary:hover {
-    transform: translateY(-2px) !important;
-    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3) !important;
+    gap: 2rem !important;
 }
 
 .addon-table-wrap {
-    background: #fff !important;
+    background: white !important;
     border: 1px solid #e5e7eb !important;
-    border-radius: 8px !important;
-    overflow-x: auto !important;
+    border-radius: 12px !important;
+    overflow: hidden !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08) !important;
 }
 
 .addon-table {
@@ -1488,20 +1455,35 @@ select:focus {
 .addon-table th,
 .addon-table td {
     text-align: left !important;
-    padding: 0.75rem !important;
-    border-bottom: 1px solid #f1f5f9 !important;
+    padding: 1.25rem 1.5rem !important;
 }
 
 .addon-table thead th {
-    background: #f8fafc !important;
+    background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%) !important;
     font-size: 0.85rem !important;
     text-transform: uppercase !important;
     letter-spacing: 0.03em !important;
-    font-weight: 600 !important;
+    font-weight: 700 !important;
+    color: #374151 !important;
+    border-bottom: 2px solid #e5e7eb !important;
+}
+
+.addon-table tbody tr {
+    border-bottom: 1px solid #e5e7eb !important;
+    transition: all 0.2s ease !important;
 }
 
 .addon-table tbody tr:hover {
-    background: #f9fafb !important;
+    background: linear-gradient(90deg, #f9fafb 0%, #f3f4f6 100%) !important;
+}
+
+.addon-table tbody tr:last-child {
+    border-bottom: none !important;
+}
+
+.addon-table tbody td {
+    color: #1f2937 !important;
+    font-size: 0.95rem !important;
 }
 
 .addon-actions {
@@ -1515,33 +1497,46 @@ select:focus {
     display: inline !important;
 }
 
+.addon-actions a,
 .addon-actions button {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0.4rem !important;
+    padding: 0.4rem 0.8rem !important;
+    border-radius: 6px !important;
+    font-size: 0.85rem !important;
+    font-weight: 600 !important;
     border: none !important;
-    background: transparent !important;
-    color: #b91c1c !important;
     cursor: pointer !important;
-    padding: 0 !important;
     text-decoration: none !important;
     transition: all 0.2s ease !important;
-}
-
-.addon-actions button:hover {
-    color: #991b1b !important;
 }
 
 .addon-actions a {
-    color: #1d4ed8 !important;
-    text-decoration: none !important;
-    transition: all 0.2s ease !important;
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
+    color: white !important;
 }
 
 .addon-actions a:hover {
-    color: #1e40af !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3) !important;
+}
+
+.addon-actions button {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+    color: white !important;
+}
+
+.addon-actions button:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3) !important;
 }
 
 .addon-empty-row {
     text-align: center !important;
-    color: #64748b !important;
+    color: #9ca3af !important;
+    padding: 3rem 1.5rem !important;
+    font-size: 0.95rem !important;
 }
 
 .addon-form-page {
