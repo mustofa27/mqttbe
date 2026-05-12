@@ -1212,6 +1212,405 @@ select:focus {
     transform: translateY(-2px) !important;
 }
 
+/* MQTT Listeners Page */
+.mqtt-header {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    margin-bottom: 1.5rem !important;
+    gap: 1rem !important;
+    flex-wrap: wrap !important;
+}
+
+.mqtt-controls {
+    display: flex !important;
+    gap: 0.75rem !important;
+    align-items: center !important;
+}
+
+.mqtt-filter-input {
+    padding: 0.65rem 0.8rem !important;
+    border: 1px solid #d1d5db !important;
+    border-radius: 8px !important;
+    width: 200px !important;
+    font-size: 0.9rem !important;
+}
+
+.mqtt-refresh-btn {
+    padding: 0.65rem 1rem !important;
+    border: 0 !important;
+    border-radius: 8px !important;
+    color: white !important;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+}
+
+.mqtt-refresh-btn:hover:not(:disabled) {
+    transform: translateY(-2px) !important;
+}
+
+.mqtt-refresh-btn:disabled {
+    opacity: 0.7 !important;
+    cursor: not-allowed !important;
+}
+
+.mqtt-stats {
+    display: flex !important;
+    gap: 1rem !important;
+    margin-bottom: 1rem !important;
+    flex-wrap: wrap !important;
+}
+
+.mqtt-stat-card {
+    background: white !important;
+    border: 1px solid #e5e7eb !important;
+    border-radius: 10px !important;
+    padding: 1rem 1.25rem !important;
+    min-width: 180px !important;
+}
+
+.mqtt-stat-label {
+    font-size: 0.8rem !important;
+    color: #6b7280 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+}
+
+.mqtt-stat-value {
+    font-size: 1.5rem !important;
+    font-weight: 700 !important;
+    color: #111827 !important;
+    margin-top: 0.25rem !important;
+}
+
+.mqtt-stat-value-green {
+    color: #065f46 !important;
+}
+
+.mqtt-stat-value-red {
+    color: #991b1b !important;
+}
+
+.mqtt-table-container {
+    background: white !important;
+    border-radius: 10px !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08) !important;
+    overflow: hidden !important;
+    border: 1px solid #e5e7eb !important;
+}
+
+.mqtt-table-header {
+    padding: 1rem 1.25rem !important;
+    border-bottom: 1px solid #e5e7eb !important;
+    background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%) !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+}
+
+.mqtt-table-header h2 {
+    font-size: 1rem !important;
+    color: #374151 !important;
+    margin: 0 !important;
+}
+
+.mqtt-table-last-updated {
+    font-size: 0.8rem !important;
+    color: #6b7280 !important;
+}
+
+.mqtt-listeners-table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    min-width: 1100px !important;
+}
+
+.mqtt-listeners-table thead {
+    background: #f9fafb !important;
+    border-bottom: 2px solid #e5e7eb !important;
+}
+
+.mqtt-listeners-table th {
+    padding: 0.9rem 1rem !important;
+    text-align: left !important;
+    font-size: 0.8rem !important;
+    color: #6b7280 !important;
+    text-transform: uppercase !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.5px !important;
+}
+
+.mqtt-listeners-table td {
+    padding: 0.9rem 1rem !important;
+}
+
+.mqtt-table-body-row {
+    border-bottom: 1px solid #e5e7eb !important;
+}
+
+.mqtt-user-info {
+    font-weight: 600 !important;
+    color: #1f2937 !important;
+}
+
+.mqtt-user-meta {
+    font-size: 0.8rem !important;
+    color: #6b7280 !important;
+    margin-top: 0.25rem !important;
+}
+
+.mqtt-project-name {
+    font-weight: 600 !important;
+    color: #1e40af !important;
+}
+
+.mqtt-project-id {
+    font-size: 0.75rem !important;
+    color: #9ca3af !important;
+    margin-top: 0.25rem !important;
+}
+
+.mqtt-state-badge {
+    display: inline-block !important;
+    padding: 0.25rem 0.6rem !important;
+    border-radius: 999px !important;
+    font-size: 0.75rem !important;
+    font-weight: 700 !important;
+}
+
+.mqtt-state-running {
+    background: #dcfce7 !important;
+    color: #166534 !important;
+}
+
+.mqtt-state-stopped {
+    background: #fee2e2 !important;
+    color: #991b1b !important;
+}
+
+.mqtt-state-unknown {
+    background: #fef3c7 !important;
+    color: #92400e !important;
+}
+
+/* Subscription Add-ons Pages */
+.addon-admin-page {
+    display: grid !important;
+    gap: 1rem !important;
+}
+
+.addon-header {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    gap: 1rem !important;
+}
+
+.addon-header h1 {
+    margin: 0 !important;
+}
+
+.addon-header p {
+    margin: 0.35rem 0 0 !important;
+    color: #666 !important;
+}
+
+.btn-primary {
+    background: #2563eb !important;
+    color: #fff !important;
+    text-decoration: none !important;
+    padding: 0.6rem 1rem !important;
+    border-radius: 6px !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    border: none !important;
+    display: inline-block !important;
+    transition: all 0.2s ease !important;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3) !important;
+}
+
+.addon-table-wrap {
+    background: #fff !important;
+    border: 1px solid #e5e7eb !important;
+    border-radius: 8px !important;
+    overflow-x: auto !important;
+}
+
+.addon-table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+}
+
+.addon-table th,
+.addon-table td {
+    text-align: left !important;
+    padding: 0.75rem !important;
+    border-bottom: 1px solid #f1f5f9 !important;
+}
+
+.addon-table thead th {
+    background: #f8fafc !important;
+    font-size: 0.85rem !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.03em !important;
+    font-weight: 600 !important;
+}
+
+.addon-table tbody tr:hover {
+    background: #f9fafb !important;
+}
+
+.addon-actions {
+    display: flex !important;
+    gap: 0.75rem !important;
+    align-items: center !important;
+}
+
+.addon-actions form {
+    margin: 0 !important;
+    display: inline !important;
+}
+
+.addon-actions button {
+    border: none !important;
+    background: transparent !important;
+    color: #b91c1c !important;
+    cursor: pointer !important;
+    padding: 0 !important;
+    text-decoration: none !important;
+    transition: all 0.2s ease !important;
+}
+
+.addon-actions button:hover {
+    color: #991b1b !important;
+}
+
+.addon-actions a {
+    color: #1d4ed8 !important;
+    text-decoration: none !important;
+    transition: all 0.2s ease !important;
+}
+
+.addon-actions a:hover {
+    color: #1e40af !important;
+}
+
+.addon-empty-row {
+    text-align: center !important;
+    color: #64748b !important;
+}
+
+.addon-form-page {
+    display: grid !important;
+    gap: 1rem !important;
+    max-width: 720px !important;
+}
+
+.addon-form {
+    background: #fff !important;
+    border: 1px solid #e5e7eb !important;
+    border-radius: 8px !important;
+    padding: 1.25rem !important;
+    display: grid !important;
+    gap: 1rem !important;
+}
+
+.addon-form-actions {
+    display: flex !important;
+    gap: 0.75rem !important;
+}
+
+.addon-form-actions button {
+    background: #2563eb !important;
+    color: #fff !important;
+    border: none !important;
+    padding: 0.6rem 1rem !important;
+    border-radius: 6px !important;
+    cursor: pointer !important;
+    font-weight: 600 !important;
+    transition: all 0.2s ease !important;
+}
+
+.addon-form-actions button:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3) !important;
+}
+
+.addon-form-actions a {
+    padding: 0.6rem 1rem !important;
+    text-decoration: none !important;
+    color: #334155 !important;
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 6px !important;
+    display: inline-block !important;
+    transition: all 0.2s ease !important;
+}
+
+.addon-form-actions a:hover {
+    border-color: #64748b !important;
+    color: #1e293b !important;
+}
+
+.grid-two {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 1rem !important;
+}
+
+.grid-two label {
+    display: grid !important;
+    gap: 0.35rem !important;
+    font-weight: 600 !important;
+    color: #374151 !important;
+}
+
+.grid-two input[type="text"],
+.grid-two input[type="number"],
+.grid-two select {
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 6px !important;
+    padding: 0.55rem !important;
+    font-size: 0.95rem !important;
+    font-family: inherit !important;
+    transition: all 0.2s ease !important;
+}
+
+.grid-two input[type="text"]:focus,
+.grid-two input[type="number"]:focus,
+.grid-two select:focus {
+    outline: none !important;
+    border-color: #2563eb !important;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1) !important;
+}
+
+.addon-checkbox-wrap {
+    display: grid !important;
+    gap: 0.5rem !important;
+    align-content: center !important;
+}
+
+.addon-checkbox-item {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+}
+
+.addon-checkbox-item input[type="checkbox"] {
+    cursor: pointer !important;
+}
+
+@media (max-width: 800px) {
+    .grid-two {
+        grid-template-columns: 1fr !important;
+    }
+}
+
 .btn-small {
     display: inline-block !important;
     padding: 0.4rem 0.75rem !important;
