@@ -403,6 +403,202 @@ select:focus {
     text-decoration: underline !important;
 }
 
+/* Subscription Page Styles */
+.subscription-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    color: white !important;
+    padding: 2rem !important;
+    border-radius: 8px !important;
+    margin-bottom: 2rem !important;
+}
+
+.subscription-header h1 {
+    margin: 0 !important;
+    font-size: 2rem !important;
+}
+
+.subscription-tier-badge {
+    display: inline-block !important;
+    padding: 0.5rem 1rem !important;
+    background: rgba(255, 255, 255, 0.2) !important;
+    border-radius: 20px !important;
+    font-size: 0.9rem !important;
+    font-weight: 600 !important;
+    margin-top: 0.5rem !important;
+}
+
+.tier-free { background: #6c757d !important; }
+.tier-starter { background: #17a2b8 !important; }
+.tier-professional { background: #667eea !important; }
+.tier-enterprise { background: #764ba2 !important; }
+
+.subscription-header p {
+    margin-top: 1rem !important;
+    opacity: 0.9 !important;
+}
+
+.stats-grid {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)) !important;
+    gap: 1.5rem !important;
+    margin-bottom: 2rem !important;
+}
+
+.stat-title {
+    font-size: 0.85rem !important;
+    color: #666 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+    margin-bottom: 0.5rem !important;
+}
+
+.progress-fill.warning {
+    background: #ffc107 !important;
+}
+
+.progress-fill.danger {
+    background: #dc3545 !important;
+}
+
+.features-section {
+    background: white !important;
+    padding: 2rem !important;
+    border-radius: 8px !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+    margin-bottom: 2rem !important;
+}
+
+.features-section h2 {
+    margin-bottom: 1rem !important;
+}
+
+.features-grid {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)) !important;
+    gap: 1rem !important;
+    margin-top: 1rem !important;
+}
+
+.feature-item {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+}
+
+.feature-enabled {
+    color: #28a745 !important;
+}
+
+.feature-disabled {
+    color: #dc3545 !important;
+    opacity: 0.6 !important;
+}
+
+.action-buttons {
+    display: flex !important;
+    gap: 1rem !important;
+    margin-top: 2rem !important;
+}
+
+.btn-upgrade {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    color: white !important;
+    padding: 0.75rem 2rem !important;
+    border-radius: 6px !important;
+    text-decoration: none !important;
+    font-weight: 600 !important;
+    border: none !important;
+    cursor: pointer !important;
+    transition: transform 0.2s !important;
+}
+
+.btn-upgrade:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4) !important;
+}
+
+.btn-cancel {
+    background: #dc3545 !important;
+    color: white !important;
+    padding: 0.75rem 2rem !important;
+    border-radius: 6px !important;
+    text-decoration: none !important;
+    font-weight: 600 !important;
+    border: none !important;
+    cursor: pointer !important;
+}
+
+.subscription-table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+}
+
+.subscription-table thead {
+    border-bottom: 2px solid #e0e0e0 !important;
+}
+
+.subscription-table th {
+    text-align: left !important;
+    padding: 0.75rem !important;
+    text-align: center !important;
+}
+
+.subscription-table td {
+    padding: 0.75rem !important;
+    border-bottom: 1px solid #f0f0f0 !important;
+}
+
+.subscription-table tbody tr:hover {
+    background: #f9fafb !important;
+}
+
+.table-tier-highlight {
+    background: #f0f0ff !important;
+    font-weight: bold !important;
+}
+
+.status-badge {
+    padding: 0.25rem 0.75rem !important;
+    border-radius: 12px !important;
+    font-size: 0.85rem !important;
+    display: inline-block !important;
+}
+
+.status-paid {
+    background: #d4edda !important;
+    color: #155724 !important;
+}
+
+.status-pending {
+    background: #fff3cd !important;
+    color: #856404 !important;
+}
+
+.status-expired {
+    background: #f8d7da !important;
+    color: #721c24 !important;
+}
+
+.status-failed {
+    background: #f8d7da !important;
+    color: #721c24 !important;
+}
+
+.expiry-notice.expired {
+    background: #f8d7da !important;
+    color: #721c24 !important;
+}
+
+.payment-link {
+    color: #667eea !important;
+    text-decoration: none !important;
+    font-size: 0.9rem !important;
+}
+
+.payment-link:hover {
+    text-decoration: underline !important;
+}
+
 .btn-small {
     display: inline-block !important;
     padding: 0.4rem 0.75rem !important;

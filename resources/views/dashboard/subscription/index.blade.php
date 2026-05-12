@@ -3,167 +3,13 @@
 @section('title', 'My Subscription')
 
 @section('content')
-<style>
-    .subscription-header {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        padding: 2rem;
-        border-radius: 8px;
-        margin-bottom: 2rem;
-    }
-
-    .subscription-tier-badge {
-        display: inline-block;
-        padding: 0.5rem 1rem;
-        background: rgba(255, 255, 255, 0.2);
-        border-radius: 20px;
-        font-size: 0.9rem;
-        font-weight: 600;
-        margin-top: 0.5rem;
-    }
-
-    .tier-free { background: #6c757d; }
-    .tier-starter { background: #17a2b8; }
-    .tier-professional { background: #667eea; }
-    .tier-enterprise { background: #764ba2; }
-
-    .stats-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 1.5rem;
-        margin-bottom: 2rem;
-    }
-
-    .stat-card {
-        background: white;
-        padding: 1.5rem;
-        border-radius: 8px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-
-    .stat-title {
-        font-size: 0.85rem;
-        color: #666;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        margin-bottom: 0.5rem;
-    }
-
-    .stat-value {
-        font-size: 2rem;
-        font-weight: bold;
-        color: #333;
-        margin-bottom: 0.5rem;
-    }
-
-    .stat-limit {
-        font-size: 0.9rem;
-        color: #999;
-    }
-
-    .progress-bar {
-        width: 100%;
-        height: 8px;
-        background: #e0e0e0;
-        border-radius: 4px;
-        overflow: hidden;
-        margin-top: 0.5rem;
-    }
-
-    .progress-fill {
-        height: 100%;
-        background: #667eea;
-        transition: width 0.3s;
-    }
-
-    .progress-fill.warning {
-        background: #ffc107;
-    }
-
-    .progress-fill.danger {
-        background: #dc3545;
-    }
-
-    .features-section {
-        background: white;
-        padding: 2rem;
-        border-radius: 8px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        margin-bottom: 2rem;
-    }
-
-    .features-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 1rem;
-        margin-top: 1rem;
-    }
-
-    .feature-item {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    .feature-enabled {
-        color: #28a745;
-    }
-
-    .feature-disabled {
-        color: #dc3545;
-        opacity: 0.6;
-    }
-
-    .action-buttons {
-        display: flex;
-        gap: 1rem;
-        margin-top: 2rem;
-    }
-
-    .btn-upgrade {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        padding: 0.75rem 2rem;
-        border-radius: 6px;
-        text-decoration: none;
-        font-weight: 600;
-        border: none;
-        cursor: pointer;
-        transition: transform 0.2s;
-    }
-
-    .btn-upgrade:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-    }
-
-    .btn-cancel {
-        background: #dc3545;
-        color: white;
-        padding: 0.75rem 2rem;
-        border-radius: 6px;
-        text-decoration: none;
-        font-weight: 600;
-        border: none;
-        cursor: pointer;
-    }
-
-    .expiry-notice {
-        background: #fff3cd;
-        color: #856404;
-        padding: 1rem;
-        border-radius: 6px;
-        margin-bottom: 1rem;
-    }
-</style>
-
 <div class="subscription-header">
-    <h1 style="margin: 0; font-size: 2rem;">My Subscription</h1>
+    <h1>My Subscription</h1>
     <div class="subscription-tier-badge tier-{{ $user->subscription_tier }}">
         {{ strtoupper($user->subscription_tier) }} Plan
     </div>
     @if($user->subscription_expires_at)
-        <p style="margin-top: 1rem; opacity: 0.9;">
+        <p>
             @if($user->hasActiveSubscription())
                 Renews on {{ $user->subscription_expires_at->format('F j, Y') }}
             @else
@@ -181,12 +27,12 @@
 @endif
 
 @if(!$user->hasActiveSubscription() && $user->subscription_tier !== 'free')
-    <div class="expiry-notice" style="background: #f8d7da; color: #721c24;">
+    <div class="expiry-notice expired">
         ❌ Your subscription has expired. You've been downgraded to the Free plan. Please upgrade to restore your premium features.
     </div>
 @endif
 
-<h2 style="margin-bottom: 1rem;">Usage Statistics</h2>
+<h2>Usage Statistics</h2>
 <div class="stats-grid">
     <div class="stat-card">
         <div class="stat-title">Projects</div>
@@ -283,7 +129,7 @@
 </div>
 
 <div class="features-section">
-    <h2 style="margin-bottom: 1rem;">Your Features</h2>
+    <h2>Your Features</h2>
     <div class="features-grid">
         <div class="feature-item {{ $currentLimits['analytics_enabled'] ? 'feature-enabled' : 'feature-disabled' }}">
             {{ $currentLimits['analytics_enabled'] ? '✅' : '❌' }} Analytics Dashboard
@@ -333,25 +179,25 @@
 
 @if(isset($activeAddons) && $activeAddons->count() > 0)
 <div class="features-section">
-    <h2 style="margin-bottom: 1rem;">Active Add-ons</h2>
-    <table style="width: 100%; border-collapse: collapse;">
+    <h2>Active Add-ons</h2>
+    <table class="subscription-table">
         <thead>
-            <tr style="border-bottom: 2px solid #e0e0e0; text-align: left;">
-                <th style="padding: 0.75rem;">Add-on</th>
-                <th style="padding: 0.75rem;">Code</th>
-                <th style="padding: 0.75rem;">Quantity</th>
-                <th style="padding: 0.75rem;">Unit Type</th>
-                <th style="padding: 0.75rem;">Expires</th>
+            <tr>
+                <th>Add-on</th>
+                <th>Code</th>
+                <th>Quantity</th>
+                <th>Unit Type</th>
+                <th>Expires</th>
             </tr>
         </thead>
         <tbody>
             @foreach($activeAddons as $addon)
-                <tr style="border-bottom: 1px solid #f0f0f0;">
-                    <td style="padding: 0.75rem;">{{ $addon->addon?->name ?? $addon->addon_code }}</td>
-                    <td style="padding: 0.75rem;">{{ $addon->addon_code }}</td>
-                    <td style="padding: 0.75rem;">{{ $addon->quantity }}</td>
-                    <td style="padding: 0.75rem;">{{ \App\Models\SubscriptionAddon::labelFor($addon->addon?->unit_type) }}</td>
-                    <td style="padding: 0.75rem;">{{ $addon->expires_at ? \Carbon\Carbon::parse($addon->expires_at)->format('d M Y') : 'No Expiry' }}</td>
+                <tr>
+                    <td>{{ $addon->addon?->name ?? $addon->addon_code }}</td>
+                    <td>{{ $addon->addon_code }}</td>
+                    <td>{{ $addon->quantity }}</td>
+                    <td>{{ \App\Models\SubscriptionAddon::labelFor($addon->addon?->unit_type) }}</td>
+                    <td>{{ $addon->expires_at ? \Carbon\Carbon::parse($addon->expires_at)->format('d M Y') : 'No Expiry' }}</td>
                 </tr>
             @endforeach
         </tbody>
@@ -360,136 +206,136 @@
 @endif
 
 <div class="features-section">
-    <h2 style="margin-bottom: 1rem;">Compare Plans</h2>
-    <table style="width: 100%; border-collapse: collapse;">
+    <h2>Compare Plans</h2>
+    <table class="subscription-table">
         <thead>
-            <tr style="border-bottom: 2px solid #e0e0e0;">
-                <th style="text-align: left; padding: 1rem;">Feature</th>
-                <th style="text-align: center; padding: 1rem;">Free</th>
-                <th style="text-align: center; padding: 1rem;">Starter</th>
-                <th style="text-align: center; padding: 1rem;">Professional</th>
-                <th style="text-align: center; padding: 1rem;">Enterprise</th>
+            <tr>
+                <th>Feature</th>
+                <th>Free</th>
+                <th>Starter</th>
+                <th>Professional</th>
+                <th>Enterprise</th>
             </tr>
         </thead>
         <tbody>
             @foreach($allPlans as $tier => $limits)
                 @if($tier === array_key_first($allPlans))
-                    <tr style="border-bottom: 1px solid #f0f0f0;">
-                        <td style="padding: 0.75rem;">Max Projects</td>
+                    <tr>
+                        <td>Max Projects</td>
                         @foreach($allPlans as $t => $l)
-                            <td style="text-align: center; padding: 0.75rem; {{ $user->subscription_tier === $t ? 'background: #f0f0ff; font-weight: bold;' : '' }}">
+                            <td class="{{ $user->subscription_tier === $t ? 'table-tier-highlight' : '' }}">
                                 {{ $l['max_projects'] == -1 ? 'Unlimited' : $l['max_projects'] }}
                             </td>
                         @endforeach
                     </tr>
-                    <tr style="border-bottom: 1px solid #f0f0f0;">
-                        <td style="padding: 0.75rem;">Devices per Project</td>
+                    <tr>
+                        <td>Devices per Project</td>
                         @foreach($allPlans as $t => $l)
-                            <td style="text-align: center; padding: 0.75rem; {{ $user->subscription_tier === $t ? 'background: #f0f0ff; font-weight: bold;' : '' }}">
+                            <td class="{{ $user->subscription_tier === $t ? 'table-tier-highlight' : '' }}">
                                 {{ $l['max_devices_per_project'] == -1 ? 'Unlimited' : $l['max_devices_per_project'] }}
                             </td>
                         @endforeach
                     </tr>
-                    <tr style="border-bottom: 1px solid #f0f0f0;">
-                        <td style="padding: 0.75rem;">Topics per Project</td>
+                    <tr>
+                        <td>Topics per Project</td>
                         @foreach($allPlans as $t => $l)
-                            <td style="text-align: center; padding: 0.75rem; {{ $user->subscription_tier === $t ? 'background: #f0f0ff; font-weight: bold;' : '' }}">
+                            <td class="{{ $user->subscription_tier === $t ? 'table-tier-highlight' : '' }}">
                                 {{ $l['max_topics_per_project'] == -1 ? 'Unlimited' : $l['max_topics_per_project'] }}
                             </td>
                         @endforeach
                     </tr>
-                    <tr style="border-bottom: 1px solid #f0f0f0;">
-                        <td style="padding: 0.75rem;">Monthly Messages</td>
+                    <tr>
+                        <td>Monthly Messages</td>
                         @foreach($allPlans as $t => $l)
-                            <td style="text-align: center; padding: 0.75rem; {{ $user->subscription_tier === $t ? 'background: #f0f0ff; font-weight: bold;' : '' }}">
+                            <td class="{{ $user->subscription_tier === $t ? 'table-tier-highlight' : '' }}">
                                 {{ $l['max_monthly_messages'] == -1 ? 'Unlimited' : number_format($l['max_monthly_messages']) }}
                             </td>
                         @endforeach
                     </tr>
-                    <tr style="border-bottom: 1px solid #f0f0f0;">
-                        <td style="padding: 0.75rem;">API Keys</td>
+                    <tr>
+                        <td>API Keys</td>
                         @foreach($allPlans as $t => $l)
-                            <td style="text-align: center; padding: 0.75rem; {{ $user->subscription_tier === $t ? 'background: #f0f0ff; font-weight: bold;' : '' }}">
+                            <td class="{{ $user->subscription_tier === $t ? 'table-tier-highlight' : '' }}">
                                 {{ $l['max_api_keys'] == -1 ? 'Unlimited' : $l['max_api_keys'] }}
                             </td>
                         @endforeach
                     </tr>
-                    <tr style="border-bottom: 1px solid #f0f0f0;">
-                        <td style="padding: 0.75rem;">Webhooks per Project</td>
+                    <tr>
+                        <td>Webhooks per Project</td>
                         @foreach($allPlans as $t => $l)
-                            <td style="text-align: center; padding: 0.75rem; {{ $user->subscription_tier === $t ? 'background: #f0f0ff; font-weight: bold;' : '' }}">
+                            <td class="{{ $user->subscription_tier === $t ? 'table-tier-highlight' : '' }}">
                                 {{ $l['max_webhooks_per_project'] == -1 ? 'Unlimited' : $l['max_webhooks_per_project'] }}
                             </td>
                         @endforeach
                     </tr>
-                    <tr style="border-bottom: 1px solid #f0f0f0;">
-                        <td style="padding: 0.75rem;">Dashboard Widgets</td>
+                    <tr>
+                        <td>Dashboard Widgets</td>
                         @foreach($allPlans as $t => $l)
-                            <td style="text-align: center; padding: 0.75rem; {{ $user->subscription_tier === $t ? 'background: #f0f0ff; font-weight: bold;' : '' }}">
+                            <td class="{{ $user->subscription_tier === $t ? 'table-tier-highlight' : '' }}">
                                 {{ $l['max_advance_dashboard_widgets'] == -1 ? 'Unlimited' : $l['max_advance_dashboard_widgets'] }}
                             </td>
                         @endforeach
                     </tr>
-                    <tr style="border-bottom: 1px solid #f0f0f0;">
-                        <td style="padding: 0.75rem;">API RPM</td>
+                    <tr>
+                        <td>API RPM</td>
                         @foreach($allPlans as $t => $l)
-                            <td style="text-align: center; padding: 0.75rem; {{ $user->subscription_tier === $t ? 'background: #f0f0ff; font-weight: bold;' : '' }}">
+                            <td class="{{ $user->subscription_tier === $t ? 'table-tier-highlight' : '' }}">
                                 {{ $l['api_rpm'] == -1 ? 'Unlimited' : number_format($l['api_rpm']) }}
                             </td>
                         @endforeach
                     </tr>
-                    <tr style="border-bottom: 1px solid #f0f0f0;">
-                        <td style="padding: 0.75rem;">Data Retention</td>
+                    <tr>
+                        <td>Data Retention</td>
                         @foreach($allPlans as $t => $l)
-                            <td style="text-align: center; padding: 0.75rem; {{ $user->subscription_tier === $t ? 'background: #f0f0ff; font-weight: bold;' : '' }}">
+                            <td class="{{ $user->subscription_tier === $t ? 'table-tier-highlight' : '' }}">
                                 {{ $l['data_retention_days'] == -1 ? 'Unlimited' : $l['data_retention_days'] . ' days' }}
                             </td>
                         @endforeach
                     </tr>
-                    <tr style="border-bottom: 1px solid #f0f0f0;">
-                        <td style="padding: 0.75rem;">Analytics</td>
+                    <tr>
+                        <td>Analytics</td>
                         @foreach($allPlans as $t => $l)
-                            <td style="text-align: center; padding: 0.75rem; {{ $user->subscription_tier === $t ? 'background: #f0f0ff; font-weight: bold;' : '' }}">
+                            <td class="{{ $user->subscription_tier === $t ? 'table-tier-highlight' : '' }}">
                                 {{ $l['analytics_enabled'] ? '✅' : '❌' }}
                             </td>
                         @endforeach
                     </tr>
-                    <tr style="border-bottom: 1px solid #f0f0f0;">
-                        <td style="padding: 0.75rem;">Advanced Dashboard</td>
+                    <tr>
+                        <td>Advanced Dashboard</td>
                         @foreach($allPlans as $t => $l)
-                            <td style="text-align: center; padding: 0.75rem; {{ $user->subscription_tier === $t ? 'background: #f0f0ff; font-weight: bold;' : '' }}">
+                            <td class="{{ $user->subscription_tier === $t ? 'table-tier-highlight' : '' }}">
                                 {{ !empty($l['advanced_analytics_enabled']) ? '✅' : '❌' }}
                             </td>
                         @endforeach
                     </tr>
-                    <tr style="border-bottom: 1px solid #f0f0f0;">
-                        <td style="padding: 0.75rem;">Webhooks Access</td>
+                    <tr>
+                        <td>Webhooks Access</td>
                         @foreach($allPlans as $t => $l)
-                            <td style="text-align: center; padding: 0.75rem; {{ $user->subscription_tier === $t ? 'background: #f0f0ff; font-weight: bold;' : '' }}">
+                            <td class="{{ $user->subscription_tier === $t ? 'table-tier-highlight' : '' }}">
                                 {{ $l['webhooks_enabled'] ? '✅' : '❌' }}
                             </td>
                         @endforeach
                     </tr>
-                    <tr style="border-bottom: 1px solid #f0f0f0;">
-                        <td style="padding: 0.75rem;">API Access</td>
+                    <tr>
+                        <td>API Access</td>
                         @foreach($allPlans as $t => $l)
-                            <td style="text-align: center; padding: 0.75rem; {{ $user->subscription_tier === $t ? 'background: #f0f0ff; font-weight: bold;' : '' }}">
+                            <td class="{{ $user->subscription_tier === $t ? 'table-tier-highlight' : '' }}">
                                 {{ !empty($l['api_access']) ? '✅' : '❌' }}
                             </td>
                         @endforeach
                     </tr>
-                    <tr style="border-bottom: 1px solid #f0f0f0;">
-                        <td style="padding: 0.75rem;">Priority Support</td>
+                    <tr>
+                        <td>Priority Support</td>
                         @foreach($allPlans as $t => $l)
-                            <td style="text-align: center; padding: 0.75rem; {{ $user->subscription_tier === $t ? 'background: #f0f0ff; font-weight: bold;' : '' }}">
+                            <td class="{{ $user->subscription_tier === $t ? 'table-tier-highlight' : '' }}">
                                 {{ !empty($l['priority_support']) ? '✅' : '❌' }}
                             </td>
                         @endforeach
                     </tr>
-                    <tr style="border-bottom: 1px solid #f0f0f0;">
-                        <td style="padding: 0.75rem;">Secure Connection (SSL/TLS)</td>
+                    <tr>
+                        <td>Secure Connection (SSL/TLS)</td>
                         @foreach($allPlans as $t => $l)
-                            <td style="text-align: center; padding: 0.75rem; {{ $user->subscription_tier === $t ? 'background: #f0f0ff; font-weight: bold;' : '' }}">
+                            <td class="{{ $user->subscription_tier === $t ? 'table-tier-highlight' : '' }}">
                                 ✅
                             </td>
                         @endforeach
@@ -502,37 +348,37 @@
 
 @if($payments->count() > 0)
 <div class="features-section">
-    <h2 style="margin-bottom: 1rem;">Payment History</h2>
-    <table style="width: 100%; border-collapse: collapse;">
+    <h2>Payment History</h2>
+    <table class="subscription-table">
         <thead>
-            <tr style="border-bottom: 2px solid #e0e0e0; text-align: left;">
-                <th style="padding: 0.75rem;">Date</th>
-                <th style="padding: 0.75rem;">Plan</th>
-                <th style="padding: 0.75rem;">Amount</th>
-                <th style="padding: 0.75rem;">Status</th>
-                <th style="padding: 0.75rem;">Action</th>
+            <tr>
+                <th>Date</th>
+                <th>Plan</th>
+                <th>Amount</th>
+                <th>Status</th>
+                <th>Action</th>
             </tr>
         </thead>
         <tbody>
             @foreach($payments as $payment)
-            <tr style="border-bottom: 1px solid #f0f0f0;">
-                <td style="padding: 0.75rem;">{{ $payment->created_at->format('d M Y, H:i') }}</td>
-                <td style="padding: 0.75rem;">{{ ucfirst($payment->tier) }}</td>
-                <td style="padding: 0.75rem;">Rp {{ number_format($payment->amount, 0, ',', '.') }}</td>
-                <td style="padding: 0.75rem;">
+            <tr>
+                <td>{{ $payment->created_at->format('d M Y, H:i') }}</td>
+                <td>{{ ucfirst($payment->tier) }}</td>
+                <td>Rp {{ number_format($payment->amount, 0, ',', '.') }}</td>
+                <td>
                     @if($payment->status === 'paid')
-                        <span style="background: #d4edda; color: #155724; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.85rem;">✓ Paid</span>
+                        <span class="status-badge status-paid">✓ Paid</span>
                     @elseif($payment->status === 'pending')
-                        <span style="background: #fff3cd; color: #856404; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.85rem;">⏳ Pending</span>
+                        <span class="status-badge status-pending">⏳ Pending</span>
                     @elseif($payment->status === 'expired')
-                        <span style="background: #f8d7da; color: #721c24; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.85rem;">⌛ Expired</span>
+                        <span class="status-badge status-expired">⌛ Expired</span>
                     @else
-                        <span style="background: #f8d7da; color: #721c24; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.85rem;">✗ Failed</span>
+                        <span class="status-badge status-failed">✗ Failed</span>
                     @endif
                 </td>
-                <td style="padding: 0.75rem;">
+                <td>
                     @if($payment->status === 'pending' && $payment->invoice_url)
-                        <a href="{{ $payment->invoice_url }}" target="_blank" style="color: #667eea; text-decoration: none; font-size: 0.9rem;">
+                        <a href="{{ $payment->invoice_url }}" target="_blank" class="payment-link">
                             Continue Payment →
                         </a>
                     @elseif($payment->status === 'paid')
