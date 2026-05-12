@@ -33,7 +33,12 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
-            return redirect()->route('home.dashboard')->with('success', 'Welcome back!');
+
+            if (Auth::user()?->hasVerifiedEmail()) {
+                return redirect()->route('home.dashboard')->with('success', 'Welcome back!');
+            }
+
+            return redirect()->route('verification.notice')->with('success', 'Please verify your email address before continuing.');
         }
 
         return back()

@@ -49,18 +49,27 @@ Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->n
 // Email verification routes
 Route::middleware('auth')->group(function () {
     Route::get('/email/verify', function () {
+        if (request()->user()->hasVerifiedEmail()) {
+            return redirect()->route('home.dashboard');
+        }
+
         return view('auth.verify-email');
     })->name('verification.notice');
 
     Route::get('/email/verify/{id}/{hash}', function (\Illuminate\Foundation\Auth\EmailVerificationRequest $request) {
+        if ($request->user()->hasVerifiedEmail()) {
+            return redirect()->route('home.dashboard')->with('success', 'Email already verified.');
+        }
+
         $request->fulfill();
+
         return redirect()->route('home.dashboard')->with('success', 'Email verified! Welcome aboard.');
-    })->middleware('signed')->name('verification.verify');
+    })->middleware(['signed', 'throttle:6,1'])->name('verification.verify');
 
     Route::post('/email/verification-notification', function (\Illuminate\Http\Request $request) {
         $request->user()->sendEmailVerificationNotification();
         return back()->with('success', 'Verification link sent to your email.');
-    })->middleware('throttle:6,1')->name('verification.send');
+    })->middleware(['throttle:6,1'])->name('verification.send');
 });
 
 // Protected routes (require authentication + email verification)

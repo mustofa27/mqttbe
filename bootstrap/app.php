@@ -17,6 +17,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'enforce.plan.limits' => \App\Http\Middleware\EnforcePlanLimits::class,
             'check.subscription.limit' => \App\Http\Middleware\CheckSubscriptionLimit::class,
             'admin' => \App\Http\Middleware\IsAdmin::class,
+            'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
