@@ -1,185 +1,94 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-        <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>ICMQTT - Contact Us</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background: #f5f7fb;
-            color: #2d2f33;
-            line-height: 1.7;
-        }
-        .navbar {
-            background: #ffffff;
-            border-bottom: 1px solid #e6e8ef;
-            padding: 1rem 2rem;
-            position: sticky;
-            top: 0;
-            z-index: 10;
-        }
-        .navbar-inner {
-            max-width: 1100px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .brand {
-            font-weight: 700;
-            font-size: 1.25rem;
-            color: #2d2f33;
-            text-decoration: none;
-        }
-        .nav-links { display: flex; gap: 1rem; }
-        .menu-toggle {
-            display: none;
-            align-items: center;
-            gap: 0.5rem;
-            background: #eef2ff;
-            border: 1px solid #c7d2fe;
-            color: #1f2937;
-            padding: 0.45rem 0.85rem;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-        .nav-links a {
-            text-decoration: none;
-            color: #475569;
-            font-weight: 500;
-            padding: 0.4rem 0.75rem;
-            border-radius: 6px;
-            transition: all 0.2s ease;
-        }
-        .nav-links a:hover { background: #eef2ff; color: #4f46e5; }
-        .wrapper { max-width: 900px; margin: 0 auto; padding: 2.5rem 2rem 4rem; }
-        .card {
-            background: #ffffff;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
-            padding: 2rem;
-        }
-        h1 { font-size: 2rem; margin-bottom: 0.5rem; color: #111827; }
-        p { color: #6b7280; margin-bottom: 1.5rem; }
-        .form-group { margin-bottom: 1rem; }
-        label { display: block; margin-bottom: 0.4rem; font-weight: 600; }
-        input, textarea {
-            width: 100%;
-            padding: 0.75rem;
-            border: 1px solid #e6e8ef;
-            border-radius: 8px;
-            font-size: 1rem;
-            font-family: inherit;
-        }
-        textarea { min-height: 140px; resize: vertical; }
-        .btn {
-            display: inline-block;
-            padding: 0.75rem 1.25rem;
-            border: none;
-            border-radius: 8px;
-            background: #4f46e5;
-            color: #ffffff;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-        .btn:hover { background: #4338ca; }
-        .alert {
-            padding: 0.75rem 1rem;
-            border-radius: 8px;
-            margin-bottom: 1rem;
-            font-weight: 500;
-        }
-        .alert-success { background: #ecfdf3; color: #047857; border: 1px solid #a7f3d0; }
-        .alert-error { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
-        .footer { text-align: center; color: #94a3b8; font-size: 0.9rem; padding: 2rem 1rem 3rem; }
-        @media (max-width: 768px) {
-            .navbar-inner { flex-direction: column; gap: 0.75rem; }
-            .nav-links {
-                width: 100%;
-                flex-direction: column;
-                align-items: center;
-                display: none;
-                padding: 0.5rem 0 0.75rem;
-            }
-            .nav-links.is-open { display: flex; }
-            .menu-toggle { display: inline-flex; }
-        }
-    </style>
+
+    <link rel="preconnect" href="https://fonts.bunny.net">
+    <link href="https://fonts.bunny.net/css?family=manrope:400,500,600,700,800" rel="stylesheet" />
+
+    @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
+        @vite(['resources/css/guest-pages.css'])
+    @else
+        <link rel="stylesheet" href="{{ asset('css/guest-pages.css') }}">
+    @endif
 </head>
-<body>
-    <nav class="navbar">
-        <div class="navbar-inner">
-            <a class="brand" href="{{ route('home') }}">ICMQTT</a>
-            <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="primary-menu">
-                ☰ Menu
+<body class="guest-page">
+    <header class="guest-header">
+        <div class="guest-shell guest-nav">
+            <a class="guest-brand" href="{{ route('home') }}">ICMQTT</a>
+            <button class="guest-menu-toggle" type="button" aria-expanded="false" aria-controls="primary-menu">
+                Menu
             </button>
-            <div id="primary-menu" class="nav-links">
+            <div id="primary-menu" class="guest-links">
                 <a href="{{ route('home') }}">Beranda</a>
                 <a href="{{ route('legal.policies') }}">Syarat & Kebijakan</a>
                 <a href="{{ route('contact.show') }}">Contact</a>
                 @auth
-                    <a href="{{ route('dashboard') }}">Dashboard</a>
+                    <a class="guest-highlight" href="{{ route('home.dashboard') }}">Dashboard</a>
                 @else
-                    <a href="{{ route('login') }}">Masuk</a>
+                    <a class="guest-highlight" href="{{ route('login') }}">Masuk</a>
                 @endauth
             </div>
         </div>
-    </nav>
+    </header>
 
-    <main class="wrapper">
-        <div class="card">
-            <h1>Contact Us</h1>
-            <p>Isi formulir di bawah ini, tim ICMQTT akan menghubungi Anda secepatnya.</p>
+    <main class="guest-main">
+        <div class="guest-shell guest-shell-narrow">
+            <div class="page-intro">
+                <h1>Contact Us</h1>
+                <p>Isi formulir di bawah ini, tim ICMQTT akan menghubungi Anda secepatnya.</p>
+            </div>
 
-            @if (session('success'))
-                <div class="alert alert-success">{{ session('success') }}</div>
-            @endif
+            <div class="guest-card">
 
-            @if ($errors->any())
-                <div class="alert alert-error">
-                    <ul style="margin-left: 1.25rem;">
-                        @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            @endif
+                @if (session('success'))
+                    <div class="guest-alert guest-alert-success">{{ session('success') }}</div>
+                @endif
 
-            <form method="POST" action="{{ route('contact.send') }}">
-                @csrf
-                <div class="form-group">
-                    <label for="name">Nama</label>
-                    <input id="name" name="name" type="text" value="{{ old('name') }}" required>
-                </div>
-                <div class="form-group">
-                    <label for="email">Email</label>
-                    <input id="email" name="email" type="email" value="{{ old('email') }}" required>
-                </div>
-                <div class="form-group">
-                    <label for="subject">Subjek</label>
-                    <input id="subject" name="subject" type="text" value="{{ old('subject') }}" required>
-                </div>
-                <div class="form-group">
-                    <label for="message">Pesan</label>
-                    <textarea id="message" name="message" required>{{ old('message') }}</textarea>
-                </div>
-                <button class="btn" type="submit">Kirim Pesan</button>
-            </form>
+                @if ($errors->any())
+                    <div class="guest-alert guest-alert-error">
+                        <ul>
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+
+                <form method="POST" action="{{ route('contact.send') }}">
+                    @csrf
+                    <div class="form-group">
+                        <label for="name">Nama</label>
+                        <input id="name" name="name" type="text" value="{{ old('name') }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input id="email" name="email" type="email" value="{{ old('email') }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="subject">Subjek</label>
+                        <input id="subject" name="subject" type="text" value="{{ old('subject') }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="message">Pesan</label>
+                        <textarea id="message" name="message" required>{{ old('message') }}</textarea>
+                    </div>
+                    <button class="guest-btn" type="submit">Kirim Pesan</button>
+                </form>
+            </div>
         </div>
     </main>
 
-    <footer class="footer">
+    <footer class="guest-footer">
         © {{ now()->year }} ICMQTT. Semua hak dilindungi.
     </footer>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const toggle = document.querySelector('.menu-toggle');
+            const toggle = document.querySelector('.guest-menu-toggle');
             const menu = document.getElementById('primary-menu');
 
             if (!toggle || !menu) {
