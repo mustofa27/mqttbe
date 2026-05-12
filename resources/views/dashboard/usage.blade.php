@@ -4,9 +4,9 @@
 
 @section('content')
 <div class="container">
-    <div style="margin-bottom: 2rem;">
-        <h1 style="margin-bottom: 0.5rem;">Welcome, {{ Auth::user()->name }}! 👋</h1>
-        <p style="color: #666;">Here's your MQTT management overview</p>
+    <div>
+        <h1 class="page-title">Welcome, {{ Auth::user()->name }}! 👋</h1>
+        <p class="page-subtitle">Here's your MQTT management overview</p>
     </div>
 
     <div id="setupGuideCard" class="setup-guide-card">
@@ -70,7 +70,7 @@
                 </div>
                 <div class="stat-label">messages</div>
                 @if($rateLimit !== -1 && $currentHourUsage >= $rateLimit)
-                    <div class="alert alert-warning" style="margin-top: 0.75rem;">
+                    <div class="alert alert-warning alert-margin-top">
                         ⚠️ Rate limit reached
                     </div>
                 @endif
@@ -185,14 +185,14 @@
             </div>
         </div>
     </div>
-    <div class="card" style="text-align: center; padding: 3rem;">
+    <div class="card">
         <h2>Welcome to ICMQTT</h2>
-        <p style="margin: 1rem 0; color: #666;">
+        <p>
             Manage your MQTT projects, devices, and topics from a single dashboard.
         </p>
     </div>
     <!-- Plan Limits Reference -->
-    <div class="card" style="margin-top: 2rem;">
+    <div class="card">
         <h2>Plan Features & Limits</h2>
         <div class="limits-grid">
             <div class="limit-item">
@@ -254,282 +254,17 @@
         </div>
 
         @if($user->subscription_tier === 'free')
-            <div style="margin-top: 1.5rem; padding: 1rem; background: #f0f4ff; border-radius: 8px; border-left: 4px solid #4f46e5;">
-                <p style="margin: 0; color: #2d2f33;">
+            <div class="upgrade-notice">
+                <p>
                     <strong>Upgrade for more features</strong><br>
                     Get access to Advanced Dashboard, webhooks, and higher rate limits.
-                    <a href="{{ route('subscription.upgrade') }}" style="color: #4f46e5; text-decoration: none; font-weight: 600;">View plans →</a>
+                    <a href="{{ route('subscription.upgrade') }}" class="upgrade-link">View plans →</a>
                 </p>
             </div>
         @endif
     </div>
 </div>
 
-<style>
-    .page-title {
-        font-size: 2rem;
-        margin-bottom: 0.5rem;
-        color: #1f2937;
-    }
-
-    .page-subtitle {
-        color: #6b7280;
-        margin-bottom: 2rem;
-    }
-
-    .setup-guide-card {
-        background: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
-        border: 1px solid #dbeafe;
-        border-left: 4px solid #2563eb;
-        border-radius: 12px;
-        padding: 1.25rem;
-        margin-bottom: 1.5rem;
-    }
-
-    .setup-guide-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 0.5rem;
-    }
-
-    .setup-guide-header h2 {
-        margin: 0;
-        font-size: 1.1rem;
-        color: #1e3a8a;
-    }
-
-    .setup-guide-dismiss {
-        border: none;
-        background: transparent;
-        color: #64748b;
-        font-size: 1rem;
-        cursor: pointer;
-        padding: 0.25rem 0.5rem;
-    }
-
-    .setup-guide-text {
-        margin: 0 0 0.75rem;
-        color: #334155;
-    }
-
-    .setup-guide-steps {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.5rem;
-        margin-bottom: 0.9rem;
-    }
-
-    .setup-guide-steps span {
-        background: #ffffff;
-        border: 1px solid #cbd5e1;
-        border-radius: 999px;
-        padding: 0.3rem 0.7rem;
-        font-size: 0.85rem;
-        color: #334155;
-    }
-
-    .setup-guide-actions {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.6rem;
-    }
-
-    .setup-guide-secondary {
-        background: #0f172a;
-    }
-
-    .setup-guide-secondary:hover {
-        background: #020617;
-    }
-
-    .dashboard-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 1.5rem;
-        margin-bottom: 2rem;
-    }
-
-    .stat-card {
-        background: white;
-        border-radius: 12px;
-        padding: 1.5rem;
-        box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
-    }
-
-    .stat-header {
-        margin-bottom: 1rem;
-    }
-
-    .stat-header h3 {
-        font-size: 0.95rem;
-        color: #6b7280;
-        margin: 0;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        font-weight: 600;
-    }
-
-    .stat-content {
-        margin-bottom: 1rem;
-    }
-
-    .stat-value {
-        font-size: 2rem;
-        font-weight: 700;
-        color: #1f2937;
-        margin: 0.5rem 0;
-    }
-
-    .stat-label {
-        color: #9ca3af;
-        font-size: 0.9rem;
-    }
-
-    .stat-info {
-        font-size: 0.85rem;
-        color: #059669;
-        margin-top: 0.5rem;
-    }
-
-    .progress-bar {
-        height: 8px;
-        background: #e5e7eb;
-        border-radius: 4px;
-        overflow: hidden;
-    }
-
-    .progress-fill {
-        height: 100%;
-        background: linear-gradient(90deg, #667eea, #764ba2);
-        transition: width 0.3s ease;
-    }
-
-    .card {
-        background: white;
-        border-radius: 12px;
-        padding: 2rem;
-        box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
-    }
-
-    .card h2 {
-        font-size: 1.4rem;
-        margin: 0 0 1.5rem;
-        color: #1f2937;
-    }
-
-    .table-responsive {
-        overflow-x: auto;
-    }
-
-    .usage-table {
-        width: 100%;
-        border-collapse: collapse;
-    }
-
-    .usage-table thead {
-        border-bottom: 2px solid #e5e7eb;
-    }
-
-    .usage-table th {
-        text-align: left;
-        padding: 0.75rem;
-        font-weight: 600;
-        color: #6b7280;
-        font-size: 0.9rem;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-
-    .usage-table td {
-        padding: 1rem 0.75rem;
-        border-bottom: 1px solid #e5e7eb;
-    }
-
-    .usage-table tbody tr:hover {
-        background: #f9fafb;
-    }
-
-    .btn-small {
-        display: inline-block;
-        padding: 0.4rem 0.75rem;
-        background: #4f46e5;
-        color: white;
-        border-radius: 6px;
-        text-decoration: none;
-        font-size: 0.85rem;
-        font-weight: 600;
-        transition: all 0.2s ease;
-    }
-
-    .btn-small:hover {
-        background: #4338ca;
-    }
-
-    .limits-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 1rem;
-    }
-
-    .limit-item {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 0.75rem;
-        border: 1px solid #e5e7eb;
-        border-radius: 8px;
-    }
-
-    .limit-label {
-        font-weight: 600;
-        color: #6b7280;
-    }
-
-    .limit-value {
-        color: #1f2937;
-        font-weight: 700;
-    }
-
-    .alert {
-        padding: 0.75rem 1rem;
-        border-radius: 8px;
-        font-size: 0.9rem;
-        margin: 0;
-    }
-
-    .alert-warning {
-        background: #fef3c7;
-        color: #92400e;
-        border: 1px solid #fde68a;
-    }
-
-    @media (max-width: 768px) {
-        .page-title {
-            font-size: 1.5rem;
-        }
-
-        .setup-guide-actions {
-            flex-direction: column;
-        }
-
-        .dashboard-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .limits-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .usage-table {
-            font-size: 0.9rem;
-        }
-
-        .usage-table th, .usage-table td {
-            padding: 0.5rem;
-        }
-    }
-</style>
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {

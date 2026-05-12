@@ -1,0 +1,444 @@
+:root {
+    --app-deep: #0b1320;
+    --app-soft: #132238;
+    --app-surface: #f3f8ff;
+    --app-panel: #ffffff;
+    --app-line: #d7e3f0;
+    --app-ink: #0f172a;
+    --app-muted: #5b6b84;
+    --app-brand: #0ea5a4;
+    --app-brand-strong: #0f766e;
+    --app-brand-soft: #ecfeff;
+    --app-sidebar-bg: rgba(12, 23, 38, 0.95);
+    --app-sidebar-line: rgba(148, 163, 184, 0.22);
+    --app-sidebar-text: #dbe7fb;
+    --app-sidebar-muted: #9fb1cb;
+}
+
+body {
+    font-family: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+    color: var(--app-ink) !important;
+    background:
+        radial-gradient(920px 560px at 10% -18%, rgba(14, 165, 164, 0.23), transparent 70%),
+        radial-gradient(760px 520px at 96% 0%, rgba(245, 158, 11, 0.16), transparent 74%),
+        linear-gradient(180deg, var(--app-deep) 0%, var(--app-soft) 24%, var(--app-surface) 24%, var(--app-surface) 100%) !important;
+}
+
+.navbar {
+    background: rgba(11, 19, 32, 0.78) !important;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.22) !important;
+    box-shadow: none !important;
+    backdrop-filter: blur(8px);
+}
+
+.navbar-brand {
+    color: #f8fafc !important;
+    font-weight: 800 !important;
+    letter-spacing: 0.02em;
+}
+
+.navbar-brand::before {
+    content: '◆';
+    color: #f59e0b;
+    margin-right: 0.35rem;
+    font-size: 1rem;
+}
+
+.sidebar-toggle {
+    background: rgba(15, 23, 42, 0.82) !important;
+    border: 1px solid rgba(148, 163, 184, 0.45) !important;
+    color: #e2e8f0 !important;
+}
+
+.sidebar-toggle:hover {
+    background: rgba(15, 23, 42, 1) !important;
+    color: #ffffff !important;
+    border-color: rgba(148, 163, 184, 0.7) !important;
+}
+
+.user-menu-toggle {
+    background: rgba(15, 23, 42, 0.75) !important;
+    border-color: rgba(14, 165, 164, 0.45) !important;
+    color: #9cf6e6 !important;
+}
+
+.user-menu-icon {
+    background: linear-gradient(130deg, var(--app-brand) 0%, var(--app-brand-strong) 100%) !important;
+}
+
+.user-menu-dropdown {
+    border-color: var(--app-line) !important;
+    box-shadow: 0 12px 28px rgba(2, 6, 23, 0.14) !important;
+}
+
+.sidebar {
+    background: var(--app-sidebar-bg) !important;
+    border-right: 1px solid var(--app-sidebar-line) !important;
+    box-shadow: none !important;
+}
+
+.sidebar-section-title {
+    color: var(--app-sidebar-muted) !important;
+}
+
+.sidebar-menu a {
+    color: var(--app-sidebar-text) !important;
+    border-left-color: transparent !important;
+}
+
+.sidebar-menu a:hover {
+    background: rgba(148, 163, 184, 0.16) !important;
+    color: #ffffff !important;
+    border-left-color: rgba(14, 165, 164, 0.8) !important;
+}
+
+.sidebar-menu a.active {
+    background: linear-gradient(90deg, rgba(14, 165, 164, 0.22) 0%, rgba(148, 163, 184, 0.08) 100%) !important;
+    color: #e6fffa !important;
+    border-left-color: #2dd4bf !important;
+}
+
+.content-wrapper {
+    background: transparent !important;
+}
+
+.container {
+    max-width: 1380px !important;
+    padding: 1.7rem !important;
+}
+
+.card,
+.stat-card {
+    background: var(--app-panel) !important;
+    border: 1px solid var(--app-line) !important;
+    border-radius: 1rem !important;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.07) !important;
+}
+
+h1, h2, h3 {
+    color: var(--app-ink);
+}
+
+p,
+.stat-label,
+.stat-limit,
+.page-subtitle,
+.limit-label {
+    color: var(--app-muted) !important;
+}
+
+.btn-primary,
+.btn-small,
+.btn-upgrade {
+    background: linear-gradient(130deg, var(--app-brand) 0%, var(--app-brand-strong) 100%) !important;
+    color: #ecfeff !important;
+    border: none !important;
+}
+
+.btn-primary:hover,
+.btn-small:hover,
+.btn-upgrade:hover {
+    background: linear-gradient(130deg, #0ea5a4 0%, #115e59 100%) !important;
+    box-shadow: 0 10px 22px rgba(13, 148, 136, 0.28) !important;
+}
+
+.btn-secondary {
+    background: #f0f7ff !important;
+    color: #0f2a4a !important;
+    border: 1px solid #c6d5ea !important;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+textarea,
+select {
+    border: 1px solid #d4e0ed !important;
+    border-radius: 0.65rem !important;
+    background: #fff !important;
+    color: #0f172a !important;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+textarea:focus,
+select:focus {
+    border-color: var(--app-brand) !important;
+    box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.16) !important;
+}
+
+.alert,
+.expiry-notice {
+    border-radius: 0.7rem !important;
+    border: 1px solid #fde68a !important;
+    background: #fffbeb !important;
+    color: #92400e !important;
+}
+
+.alert-warning {
+    background: #fef3c7 !important;
+    color: #92400e !important;
+    border: 1px solid #fde68a !important;
+}
+
+.alert-margin-top {
+    margin-top: 0.75rem !important;
+}
+
+/* Dashboard Page Styles */
+.page-title {
+    font-size: 2rem !important;
+    margin-bottom: 0.5rem !important;
+    color: #1f2937 !important;
+}
+
+.page-subtitle {
+    color: #6b7280 !important;
+    margin-bottom: 2rem !important;
+}
+
+.setup-guide-card {
+    background: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%) !important;
+    border: 1px solid #dbeafe !important;
+    border-left: 4px solid #2563eb !important;
+    border-radius: 12px !important;
+    padding: 1.25rem !important;
+    margin-bottom: 1.5rem !important;
+}
+
+.setup-guide-header {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    margin-bottom: 0.5rem !important;
+}
+
+.setup-guide-header h2 {
+    margin: 0 !important;
+    font-size: 1.1rem !important;
+    color: #1e3a8a !important;
+}
+
+.setup-guide-dismiss {
+    border: none !important;
+    background: transparent !important;
+    color: #64748b !important;
+    font-size: 1rem !important;
+    cursor: pointer !important;
+    padding: 0.25rem 0.5rem !important;
+}
+
+.setup-guide-text {
+    margin: 0 0 0.75rem !important;
+    color: #334155 !important;
+}
+
+.setup-guide-steps {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 0.5rem !important;
+    margin-bottom: 0.9rem !important;
+}
+
+.setup-guide-steps span {
+    background: #ffffff !important;
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 999px !important;
+    padding: 0.3rem 0.7rem !important;
+    font-size: 0.85rem !important;
+    color: #334155 !important;
+}
+
+.setup-guide-actions {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 0.6rem !important;
+}
+
+.setup-guide-secondary {
+    background: #0f172a !important;
+}
+
+.setup-guide-secondary:hover {
+    background: #020617 !important;
+}
+
+.dashboard-grid {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)) !important;
+    gap: 1.5rem !important;
+    margin-bottom: 2rem !important;
+}
+
+.stat-header {
+    margin-bottom: 1rem !important;
+}
+
+.stat-header h3 {
+    font-size: 0.95rem !important;
+    color: #6b7280 !important;
+    margin: 0 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+    font-weight: 600 !important;
+}
+
+.stat-content {
+    margin-bottom: 1rem !important;
+}
+
+.stat-value {
+    font-size: 2rem !important;
+    font-weight: 700 !important;
+    color: #1f2937 !important;
+    margin: 0.5rem 0 !important;
+}
+
+.stat-label {
+    color: #9ca3af !important;
+    font-size: 0.9rem !important;
+}
+
+.stat-info {
+    font-size: 0.85rem !important;
+    color: #059669 !important;
+    margin-top: 0.5rem !important;
+}
+
+.stat-progress {
+    display: block !important;
+}
+
+.progress-bar {
+    height: 8px !important;
+    background: #e5e7eb !important;
+    border-radius: 4px !important;
+    overflow: hidden !important;
+}
+
+.progress-fill {
+    height: 100% !important;
+    background: linear-gradient(90deg, #667eea, #764ba2) !important;
+    transition: width 0.3s ease !important;
+}
+
+.table-responsive {
+    overflow-x: auto !important;
+}
+
+.usage-table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+}
+
+.usage-table thead {
+    border-bottom: 2px solid #e5e7eb !important;
+}
+
+.usage-table th {
+    text-align: left !important;
+    padding: 0.75rem !important;
+    font-weight: 600 !important;
+    color: #6b7280 !important;
+    font-size: 0.9rem !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+}
+
+.usage-table td {
+    padding: 1rem 0.75rem !important;
+    border-bottom: 1px solid #e5e7eb !important;
+}
+
+.usage-table tbody tr:hover {
+    background: #f9fafb !important;
+}
+
+.limits-grid {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)) !important;
+    gap: 1rem !important;
+}
+
+.limit-item {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    padding: 0.75rem !important;
+    border: 1px solid #e5e7eb !important;
+    border-radius: 8px !important;
+}
+
+.limit-label {
+    font-weight: 600 !important;
+    color: #6b7280 !important;
+}
+
+.limit-value {
+    color: #1f2937 !important;
+    font-weight: 700 !important;
+}
+
+.upgrade-notice {
+    margin-top: 1.5rem !important;
+    padding: 1rem !important;
+    background: #f0f4ff !important;
+    border-radius: 8px !important;
+    border-left: 4px solid #4f46e5 !important;
+}
+
+.upgrade-notice p {
+    margin: 0 !important;
+    color: #2d2f33 !important;
+}
+
+.upgrade-link {
+    color: #4f46e5 !important;
+    text-decoration: none !important;
+    font-weight: 600 !important;
+}
+
+.upgrade-link:hover {
+    text-decoration: underline !important;
+}
+
+.btn-small {
+    display: inline-block !important;
+    padding: 0.4rem 0.75rem !important;
+    border-radius: 6px !important;
+    text-decoration: none !important;
+    font-size: 0.85rem !important;
+    font-weight: 600 !important;
+    transition: all 0.2s ease !important;
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 1rem !important;
+    }
+
+    .page-title {
+        font-size: 1.5rem !important;
+    }
+
+    .setup-guide-actions {
+        flex-direction: column !important;
+    }
+
+    .dashboard-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    .limits-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    .usage-table {
+        font-size: 0.9rem !important;
+    }
+
+    .usage-table th, .usage-table td {
+        padding: 0.5rem !important;
+    }
+}
