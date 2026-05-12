@@ -312,8 +312,11 @@
         .container {
             max-width: 1400px;
             margin: 0 auto;
-            padding: 2rem;
+            padding: 2rem 2rem 4rem 2rem;
             width: 100%;
+            display: flex;
+            flex-direction: column;
+            min-height: 100%;
         }
 
         .btn {
