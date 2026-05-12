@@ -1611,6 +1611,408 @@ select:focus {
     }
 }
 
+/* Admin Form Pages (Users, Plans) */
+.admin-form-container {
+    padding: 2rem 0 !important;
+    max-width: 600px !important;
+}
+
+.admin-form-header {
+    margin-bottom: 2rem !important;
+}
+
+.admin-form-header h1 {
+    font-size: 2rem !important;
+    font-weight: 700 !important;
+    color: #1f2937 !important;
+    margin-bottom: 0.25rem !important;
+    margin: 0 !important;
+}
+
+.admin-form-header p {
+    color: #9ca3af !important;
+    font-size: 0.9rem !important;
+    margin: 0.25rem 0 0 !important;
+}
+
+.admin-form-card {
+    background: white !important;
+    border-radius: 10px !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08) !important;
+    padding: 2rem !important;
+    border: 1px solid #e5e7eb !important;
+}
+
+.admin-form-group {
+    margin-bottom: 1.5rem !important;
+}
+
+.admin-form-label {
+    display: block !important;
+    color: #374151 !important;
+    font-weight: 600 !important;
+    margin-bottom: 0.5rem !important;
+    font-size: 0.95rem !important;
+}
+
+.admin-form-label-hint {
+    color: #9ca3af !important;
+    font-weight: 400 !important;
+    font-size: 0.85rem !important;
+    display: inline !important;
+}
+
+.admin-form-input,
+.admin-form-select {
+    width: 100% !important;
+    padding: 0.75rem !important;
+    border: 1px solid #d1d5db !important;
+    border-radius: 6px !important;
+    font-size: 1rem !important;
+    font-family: inherit !important;
+    transition: all 0.2s ease !important;
+    background: white !important;
+}
+
+.admin-form-input:focus,
+.admin-form-select:focus {
+    outline: none !important;
+    border-color: #667eea !important;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1) !important;
+}
+
+.admin-form-input::placeholder {
+    color: #9ca3af !important;
+}
+
+.admin-form-help {
+    color: #9ca3af !important;
+    font-size: 0.8rem !important;
+    margin-top: 0.25rem !important;
+}
+
+.admin-form-error {
+    color: #dc2626 !important;
+    font-size: 0.85rem !important;
+    margin-top: 0.25rem !important;
+}
+
+.admin-form-checkbox-group {
+    margin-bottom: 1.5rem !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.75rem !important;
+}
+
+.admin-form-checkbox {
+    width: 18px !important;
+    height: 18px !important;
+    cursor: pointer !important;
+}
+
+.admin-form-checkbox-label {
+    color: #374151 !important;
+    font-weight: 500 !important;
+    cursor: pointer !important;
+    margin: 0 !important;
+}
+
+.admin-form-section {
+    margin-bottom: 2rem !important;
+    padding-bottom: 2rem !important;
+    border-bottom: 1px solid #e5e7eb !important;
+}
+
+.admin-form-section h3 {
+    font-size: 1.1rem !important;
+    font-weight: 700 !important;
+    color: #1f2937 !important;
+    margin-bottom: 1.5rem !important;
+    margin: 0 0 1.5rem 0 !important;
+}
+
+.admin-form-grid {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 1.5rem !important;
+}
+
+.admin-form-buttons {
+    display: flex !important;
+    gap: 1rem !important;
+}
+
+.admin-btn-submit {
+    flex: 1 !important;
+    padding: 0.75rem 1.5rem !important;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 8px !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    font-size: 1rem !important;
+}
+
+.admin-btn-submit:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3) !important;
+}
+
+.admin-btn-cancel {
+    flex: 1 !important;
+    padding: 0.75rem 1.5rem !important;
+    background: #f3f4f6 !important;
+    color: #374151 !important;
+    border: none !important;
+    border-radius: 8px !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    font-size: 1rem !important;
+    text-align: center !important;
+    text-decoration: none !important;
+    display: inline-block !important;
+}
+
+.admin-btn-cancel:hover {
+    background: #e5e7eb !important;
+}
+
+.admin-form-checkbox-card {
+    display: flex !important;
+    align-items: center !important;
+    padding: 1rem !important;
+    background: #f9fafb !important;
+    border: 1px solid #e5e7eb !important;
+    border-radius: 8px !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+}
+
+.admin-form-checkbox-card:hover {
+    background: #f3f4f6 !important;
+}
+
+.admin-form-checkbox-card input[type="checkbox"] {
+    margin-right: 0.75rem !important;
+}
+
+.admin-form-checkbox-card span {
+    color: #374151 !important;
+    font-weight: 500 !important;
+}
+
+/* Statistics Pages */
+.stats-container {
+    padding: 2rem 0 !important;
+}
+
+.stats-header {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    margin-bottom: 2rem !important;
+}
+
+.stats-header h1 {
+    font-size: 2rem !important;
+    font-weight: 700 !important;
+    color: #1f2937 !important;
+    margin-bottom: 0.25rem !important;
+    margin: 0 !important;
+}
+
+.stats-header p {
+    color: #9ca3af !important;
+    font-size: 0.9rem !important;
+    margin: 0.25rem 0 0 !important;
+}
+
+.stats-back-btn {
+    background: #f3f4f6 !important;
+    color: #374151 !important;
+    padding: 0.65rem 1.5rem !important;
+    border-radius: 8px !important;
+    text-decoration: none !important;
+    font-weight: 600 !important;
+    transition: all 0.2s ease !important;
+}
+
+.stats-back-btn:hover {
+    background: #e5e7eb !important;
+}
+
+.stats-grid {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)) !important;
+    gap: 1.5rem !important;
+    margin-bottom: 2rem !important;
+}
+
+.stats-card {
+    border-radius: 10px !important;
+    padding: 2rem !important;
+    color: white !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08) !important;
+}
+
+.stats-card-free {
+    background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%) !important;
+    color: #1f2937 !important;
+}
+
+.stats-card-starter {
+    background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%) !important;
+}
+
+.stats-card-professional {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+}
+
+.stats-card-enterprise {
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%) !important;
+}
+
+.stats-card-label {
+    font-size: 0.9rem !important;
+    font-weight: 600 !important;
+    opacity: 0.9 !important;
+    margin-bottom: 0.5rem !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+}
+
+.stats-card-value {
+    font-size: 3rem !important;
+    font-weight: 700 !important;
+    line-height: 1 !important;
+}
+
+.stats-card-unit {
+    font-size: 0.85rem !important;
+    margin-top: 0.5rem !important;
+    opacity: 0.85 !important;
+}
+
+.stats-summary-card {
+    background: white !important;
+    border-radius: 10px !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08) !important;
+    padding: 2rem !important;
+    border: 1px solid #e5e7eb !important;
+}
+
+.stats-summary-title {
+    font-size: 1.3rem !important;
+    font-weight: 700 !important;
+    color: #1f2937 !important;
+    margin-bottom: 1.5rem !important;
+}
+
+.stats-breakdown-grid {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 2rem !important;
+}
+
+.stats-breakdown-item {
+    margin-bottom: 1.5rem !important;
+}
+
+.stats-breakdown-label {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    margin-bottom: 0.5rem !important;
+}
+
+.stats-breakdown-name {
+    color: #6b7280 !important;
+    font-weight: 600 !important;
+}
+
+.stats-breakdown-value {
+    font-size: 1.8rem !important;
+    font-weight: 700 !important;
+    color: #667eea !important;
+}
+
+.stats-stat-box {
+    margin-bottom: 1.5rem !important;
+    padding: 1.25rem !important;
+    background: #f9fafb !important;
+    border-radius: 8px !important;
+    border-left: 4px solid #f3f4f6 !important;
+}
+
+.stats-stat-box-label {
+    color: #6b7280 !important;
+    font-size: 0.9rem !important;
+    margin-bottom: 0.25rem !important;
+    font-weight: 600 !important;
+}
+
+.stats-stat-box-value {
+    font-size: 1.5rem !important;
+    font-weight: 700 !important;
+    color: #1f2937 !important;
+}
+
+.stats-stat-box-percent {
+    color: #9ca3af !important;
+    font-size: 0.85rem !important;
+    margin-top: 0.25rem !important;
+}
+
+.stats-distribution-chart {
+    margin-top: 2rem !important;
+    padding-top: 2rem !important;
+    border-top: 1px solid #e5e7eb !important;
+}
+
+.stats-distribution-title {
+    font-size: 1rem !important;
+    font-weight: 600 !important;
+    color: #1f2937 !important;
+    margin-bottom: 1rem !important;
+}
+
+.stats-distribution-item {
+    margin-bottom: 1rem !important;
+}
+
+.stats-distribution-header {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    margin-bottom: 0.5rem !important;
+}
+
+.stats-distribution-name {
+    color: #6b7280 !important;
+    font-weight: 500 !important;
+    font-size: 0.95rem !important;
+}
+
+.stats-distribution-percent {
+    color: #1f2937 !important;
+    font-weight: 700 !important;
+}
+
+.stats-progress-bar {
+    height: 8px !important;
+    background: #e5e7eb !important;
+    border-radius: 4px !important;
+    overflow: hidden !important;
+}
+
+.stats-progress-fill {
+    height: 100% !important;
+    transition: width 0.3s ease !important;
+}
+
 .btn-small {
     display: inline-block !important;
     padding: 0.4rem 0.75rem !important;
