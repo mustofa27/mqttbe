@@ -479,6 +479,54 @@
                         @endforeach
                     </tr>
                     <tr style="border-bottom: 1px solid #f0f0f0;">
+                        <td style="padding: 0.75rem;">Monthly Messages</td>
+                        @foreach($allPlans as $t => $l)
+                            <td style="text-align: center; padding: 0.75rem; {{ $user->subscription_tier === $t ? 'background: #f0f0ff; font-weight: bold;' : '' }}">
+                                {{ $l['max_monthly_messages'] == -1 ? 'Unlimited' : number_format($l['max_monthly_messages']) }}
+                            </td>
+                        @endforeach
+                    </tr>
+                    <tr style="border-bottom: 1px solid #f0f0f0;">
+                        <td style="padding: 0.75rem;">API Keys</td>
+                        @foreach($allPlans as $t => $l)
+                            <td style="text-align: center; padding: 0.75rem; {{ $user->subscription_tier === $t ? 'background: #f0f0ff; font-weight: bold;' : '' }}">
+                                {{ $l['max_api_keys'] == -1 ? 'Unlimited' : $l['max_api_keys'] }}
+                            </td>
+                        @endforeach
+                    </tr>
+                    <tr style="border-bottom: 1px solid #f0f0f0;">
+                        <td style="padding: 0.75rem;">Webhooks per Project</td>
+                        @foreach($allPlans as $t => $l)
+                            <td style="text-align: center; padding: 0.75rem; {{ $user->subscription_tier === $t ? 'background: #f0f0ff; font-weight: bold;' : '' }}">
+                                {{ $l['max_webhooks_per_project'] == -1 ? 'Unlimited' : $l['max_webhooks_per_project'] }}
+                            </td>
+                        @endforeach
+                    </tr>
+                    <tr style="border-bottom: 1px solid #f0f0f0;">
+                        <td style="padding: 0.75rem;">Dashboard Widgets</td>
+                        @foreach($allPlans as $t => $l)
+                            <td style="text-align: center; padding: 0.75rem; {{ $user->subscription_tier === $t ? 'background: #f0f0ff; font-weight: bold;' : '' }}">
+                                {{ $l['max_advance_dashboard_widgets'] == -1 ? 'Unlimited' : $l['max_advance_dashboard_widgets'] }}
+                            </td>
+                        @endforeach
+                    </tr>
+                    <tr style="border-bottom: 1px solid #f0f0f0;">
+                        <td style="padding: 0.75rem;">API RPM</td>
+                        @foreach($allPlans as $t => $l)
+                            <td style="text-align: center; padding: 0.75rem; {{ $user->subscription_tier === $t ? 'background: #f0f0ff; font-weight: bold;' : '' }}">
+                                {{ $l['api_rpm'] == -1 ? 'Unlimited' : number_format($l['api_rpm']) }}
+                            </td>
+                        @endforeach
+                    </tr>
+                    <tr style="border-bottom: 1px solid #f0f0f0;">
+                        <td style="padding: 0.75rem;">Data Retention</td>
+                        @foreach($allPlans as $t => $l)
+                            <td style="text-align: center; padding: 0.75rem; {{ $user->subscription_tier === $t ? 'background: #f0f0ff; font-weight: bold;' : '' }}">
+                                {{ $l['data_retention_days'] == -1 ? 'Unlimited' : $l['data_retention_days'] . ' days' }}
+                            </td>
+                        @endforeach
+                    </tr>
+                    <tr style="border-bottom: 1px solid #f0f0f0;">
                         <td style="padding: 0.75rem;">Analytics</td>
                         @foreach($allPlans as $t => $l)
                             <td style="text-align: center; padding: 0.75rem; {{ $user->subscription_tier === $t ? 'background: #f0f0ff; font-weight: bold;' : '' }}">
@@ -495,10 +543,26 @@
                         @endforeach
                     </tr>
                     <tr style="border-bottom: 1px solid #f0f0f0;">
-                        <td style="padding: 0.75rem;">Webhooks</td>
+                        <td style="padding: 0.75rem;">Webhooks Access</td>
                         @foreach($allPlans as $t => $l)
                             <td style="text-align: center; padding: 0.75rem; {{ $user->subscription_tier === $t ? 'background: #f0f0ff; font-weight: bold;' : '' }}">
                                 {{ $l['webhooks_enabled'] ? '✅' : '❌' }}
+                            </td>
+                        @endforeach
+                    </tr>
+                    <tr style="border-bottom: 1px solid #f0f0f0;">
+                        <td style="padding: 0.75rem;">API Access</td>
+                        @foreach($allPlans as $t => $l)
+                            <td style="text-align: center; padding: 0.75rem; {{ $user->subscription_tier === $t ? 'background: #f0f0ff; font-weight: bold;' : '' }}">
+                                {{ !empty($l['api_access']) ? '✅' : '❌' }}
+                            </td>
+                        @endforeach
+                    </tr>
+                    <tr style="border-bottom: 1px solid #f0f0f0;">
+                        <td style="padding: 0.75rem;">Priority Support</td>
+                        @foreach($allPlans as $t => $l)
+                            <td style="text-align: center; padding: 0.75rem; {{ $user->subscription_tier === $t ? 'background: #f0f0ff; font-weight: bold;' : '' }}">
+                                {{ !empty($l['priority_support']) ? '✅' : '❌' }}
                             </td>
                         @endforeach
                     </tr>

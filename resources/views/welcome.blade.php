@@ -608,9 +608,22 @@
                                 <li>{{ $plan->max_devices_per_project == -1 ? 'High Fair Use devices' : $plan->max_devices_per_project . ' Devices per project' }}</li>
                                 <li>{{ $plan->max_topics_per_project == -1 ? 'High Fair Use topics' : $plan->max_topics_per_project . ' Topics per project' }}</li>
                                 <li>{{ $plan->rate_limit_per_hour == -1 ? 'High Fair Use rate limit' : number_format($plan->rate_limit_per_hour) . ' msg/hour' }}</li>
+                                <li>{{ $plan->max_monthly_messages == -1 ? 'High Fair Use monthly messages' : number_format($plan->max_monthly_messages) . ' monthly messages' }}</li>
                                 @if ($plan->data_retention_days != 0)
                                     <li>{{ $plan->data_retention_days == -1 ? 'High Fair Use retention' : $plan->data_retention_days . ' days retention' }}</li>
                                 @endif
+                                <li>
+                                    {{ $plan->webhooks_enabled ? (($plan->max_webhooks_per_project == -1 ? 'High Fair Use' : $plan->max_webhooks_per_project) . ' webhooks per project') : 'Webhooks not included' }}
+                                </li>
+                                <li>
+                                    {{ $plan->advanced_analytics_enabled ? (($plan->max_advance_dashboard_widgets == -1 ? 'High Fair Use' : $plan->max_advance_dashboard_widgets) . ' dashboard widgets') : 'Advanced dashboard widgets not included' }}
+                                </li>
+                                <li>
+                                    {{ $plan->api_access ? (($plan->max_api_keys == -1 ? 'High Fair Use' : $plan->max_api_keys) . ' API keys') : 'API keys not included' }}
+                                </li>
+                                <li>
+                                    {{ $plan->api_access ? (($plan->api_rpm == -1 ? 'High Fair Use' : number_format($plan->api_rpm)) . ' API RPM') : 'API access not included' }}
+                                </li>
                                 @if ($plan->analytics_enabled)
                                     <li>Analytics dashboard</li>
                                 @endif
