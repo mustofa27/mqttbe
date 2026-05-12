@@ -94,4 +94,9 @@
 
     <!-- Pagination -->
     @if ($users->count() > 0)
-        <div class="pagination-wrapper
+        <div class="pagination-wrapper">
+            {{ $users->links() }}
+        </div>
+    @endif
+</div>
+@endsection
