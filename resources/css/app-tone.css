@@ -794,6 +794,424 @@ select:focus {
     background: #dc2626 !important;
 }
 
+/* Admin Pages */
+.admin-header {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    margin-bottom: 2rem !important;
+    padding: 0 !important;
+}
+
+.admin-header-title {
+    margin: 0 !important;
+    font-size: 2rem !important;
+    font-weight: 700 !important;
+    color: #1f2937 !important;
+    margin-bottom: 0.25rem !important;
+}
+
+.admin-header-subtitle {
+    color: #9ca3af !important;
+    font-size: 0.9rem !important;
+}
+
+.btn-admin-action {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    color: white !important;
+    padding: 0.65rem 1.5rem !important;
+    border-radius: 8px !important;
+    text-decoration: none !important;
+    font-weight: 600 !important;
+    transition: all 0.2s ease !important;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3) !important;
+    border: none !important;
+    cursor: pointer !important;
+}
+
+.btn-admin-action:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4) !important;
+}
+
+.alert-success {
+    background: #f0fdf4 !important;
+    border: 1px solid #86efac !important;
+    border-radius: 8px !important;
+    padding: 1rem !important;
+    margin-bottom: 1.5rem !important;
+    color: #166534 !important;
+}
+
+.alert-error {
+    background: #fef2f2 !important;
+    border: 1px solid #fecaca !important;
+    border-radius: 8px !important;
+    padding: 1rem !important;
+    margin-bottom: 1.5rem !important;
+    color: #991b1b !important;
+}
+
+.table-card {
+    background: white !important;
+    border-radius: 10px !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08) !important;
+    overflow: hidden !important;
+}
+
+.table-card-header {
+    padding: 1.5rem !important;
+    border-bottom: 1px solid #e5e7eb !important;
+    background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%) !important;
+}
+
+.table-card-header h2 {
+    font-size: 1.1rem !important;
+    font-weight: 600 !important;
+    color: #374151 !important;
+}
+
+.admin-table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+}
+
+.admin-table thead tr {
+    background: #f9fafb !important;
+    border-bottom: 2px solid #e5e7eb !important;
+}
+
+.admin-table th {
+    padding: 1rem 1.5rem !important;
+    text-align: left !important;
+    font-weight: 600 !important;
+    color: #6b7280 !important;
+    font-size: 0.85rem !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+}
+
+.admin-table tbody tr {
+    border-bottom: 1px solid #e5e7eb !important;
+    transition: all 0.2s ease !important;
+}
+
+.admin-table tbody tr:hover {
+    background: #f9fafb !important;
+}
+
+.admin-table td {
+    padding: 1.25rem 1.5rem !important;
+}
+
+.badge-tier {
+    display: inline-block !important;
+    padding: 0.35rem 0.75rem !important;
+    border-radius: 6px !important;
+    font-size: 0.8rem !important;
+    font-weight: 600 !important;
+}
+
+.badge-tier-free {
+    background: #f3f4f6 !important;
+    color: #6b7280 !important;
+}
+
+.badge-tier-starter {
+    background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%) !important;
+    color: white !important;
+}
+
+.badge-tier-professional {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    color: white !important;
+}
+
+.badge-tier-enterprise {
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%) !important;
+    color: white !important;
+}
+
+.badge-admin {
+    display: inline-block !important;
+    padding: 0.35rem 0.75rem !important;
+    border-radius: 6px !important;
+    font-size: 0.8rem !important;
+    font-weight: 600 !important;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+    color: white !important;
+}
+
+.badge-user {
+    display: inline-block !important;
+    padding: 0.35rem 0.75rem !important;
+    border-radius: 6px !important;
+    font-size: 0.8rem !important;
+    font-weight: 600 !important;
+    background: #e5e7eb !important;
+    color: #6b7280 !important;
+}
+
+.badge-inactive {
+    display: inline-block !important;
+    padding: 0.35rem 0.75rem !important;
+    border-radius: 6px !important;
+    font-size: 0.8rem !important;
+    font-weight: 600 !important;
+    background: #fee2e2 !important;
+    color: #991b1b !important;
+    margin-top: 0.25rem !important;
+}
+
+.action-cell {
+    text-align: center !important;
+}
+
+.btn-admin {
+    display: inline-block !important;
+    padding: 0.5rem 1rem !important;
+    border-radius: 6px !important;
+    text-decoration: none !important;
+    font-size: 0.85rem !important;
+    font-weight: 600 !important;
+    margin: 0 0.25rem !important;
+    border: none !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    color: white !important;
+}
+
+.btn-admin-edit {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
+}
+
+.btn-admin-edit:hover {
+    transform: translateY(-2px) !important;
+}
+
+.btn-admin-toggle {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
+}
+
+.btn-admin-toggle.active {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+}
+
+.btn-admin-toggle:hover {
+    transform: translateY(-2px) !important;
+}
+
+.btn-admin-delete {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+}
+
+.btn-admin-delete:hover {
+    transform: translateY(-2px) !important;
+}
+
+.empty-table-state {
+    padding: 3rem 1.5rem !important;
+    text-align: center !important;
+    color: #9ca3af !important;
+}
+
+.empty-table-state p {
+    font-size: 1rem !important;
+    margin-bottom: 0.5rem !important;
+}
+
+.empty-table-link {
+    color: #667eea !important;
+    text-decoration: none !important;
+    font-weight: 600 !important;
+}
+
+.empty-table-link:hover {
+    text-decoration: underline !important;
+}
+
+.pagination-wrapper {
+    margin-top: 2rem !important;
+    display: flex !important;
+    justify-content: center !important;
+}
+
+/* Plan Cards */
+.plans-grid {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)) !important;
+    gap: 1.5rem !important;
+}
+
+.plan-card {
+    background: white !important;
+    border-radius: 10px !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08) !important;
+    overflow: hidden !important;
+    border: 1px solid #e5e7eb !important;
+    transition: all 0.3s ease !important;
+}
+
+.plan-card:hover {
+    transform: translateY(-4px) !important;
+    box-shadow: 0 12px 24px rgba(0,0,0,0.15) !important;
+}
+
+.plan-card-header {
+    padding: 1.5rem !important;
+    color: white !important;
+}
+
+.plan-card-header-free {
+    background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%) !important;
+    color: #1f2937 !important;
+}
+
+.plan-card-header-starter {
+    background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%) !important;
+}
+
+.plan-card-header-professional {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+}
+
+.plan-card-header-enterprise {
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%) !important;
+    color: white !important;
+}
+
+.plan-card-header h2 {
+    font-size: 1.5rem !important;
+    font-weight: 700 !important;
+    margin: 0 !important;
+}
+
+.plan-card-body {
+    padding: 1.5rem !important;
+}
+
+.plan-details-grid {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 0.75rem !important;
+    margin-bottom: 1.5rem !important;
+    font-size: 0.9rem !important;
+}
+
+.plan-detail-item {
+    grid-column: span 2 !important;
+    margin-bottom: 1rem !important;
+}
+
+.plan-detail-label {
+    color: #6b7280 !important;
+    font-size: 0.8rem !important;
+    font-weight: 600 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+    margin-bottom: 0.25rem !important;
+    display: block !important;
+}
+
+.plan-detail-value {
+    font-weight: 700 !important;
+    color: #059669 !important;
+    font-size: 1.1rem !important;
+}
+
+.plan-detail-value-text {
+    font-weight: 700 !important;
+    color: #1f2937 !important;
+    font-size: 1.1rem !important;
+}
+
+.plan-details-divider {
+    border-top: 1px solid #e5e7eb !important;
+    padding-top: 1rem !important;
+    margin-bottom: 1rem !important;
+}
+
+.plan-feature-tags {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 0.5rem !important;
+    margin-bottom: 1.5rem !important;
+}
+
+.feature-tag {
+    display: inline-block !important;
+    padding: 0.35rem 0.75rem !important;
+    border-radius: 6px !important;
+    font-size: 0.75rem !important;
+    font-weight: 600 !important;
+}
+
+.feature-tag-analytics {
+    background: #dbeafe !important;
+    color: #1e40af !important;
+}
+
+.feature-tag-advanced {
+    background: #ede9fe !important;
+    color: #5b21b6 !important;
+}
+
+.feature-tag-webhooks {
+    background: #d1fae5 !important;
+    color: #065f46 !important;
+}
+
+.feature-tag-api {
+    background: #fce7f3 !important;
+    color: #831843 !important;
+}
+
+.feature-tag-support {
+    background: #fef3c7 !important;
+    color: #92400e !important;
+}
+
+.feature-tag-security {
+    background: #e0f2fe !important;
+    color: #0369a1 !important;
+}
+
+.plan-actions {
+    display: flex !important;
+    gap: 0.75rem !important;
+}
+
+.plan-action-btn {
+    flex: 1 !important;
+    display: block !important;
+    text-align: center !important;
+    padding: 0.65rem !important;
+    border-radius: 6px !important;
+    text-decoration: none !important;
+    font-size: 0.85rem !important;
+    font-weight: 600 !important;
+    border: none !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    color: white !important;
+}
+
+.plan-action-edit {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
+}
+
+.plan-action-edit:hover {
+    transform: translateY(-2px) !important;
+}
+
+.plan-action-reset {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
+}
+
+.plan-action-reset:hover {
+    transform: translateY(-2px) !important;
+}
+
 .btn-small {
     display: inline-block !important;
     padding: 0.4rem 0.75rem !important;
