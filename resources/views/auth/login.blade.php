@@ -44,6 +44,12 @@
             @enderror
         </div>
 
+        <div class="auth-divider">or</div>
+
+        <a href="{{ route('google.redirect') }}" class="btn btn-google">
+            Continue with Google
+        </a>
+
         <div style="text-align: right; margin-bottom: 1rem;">
             <a href="{{ route('password.request') }}" style="color: #667eea; text-decoration: none; font-size: 0.9rem;">
                 Forgot your password?

@@ -44,6 +44,37 @@
 
         .btn { display:inline-block; padding:0.75rem 1rem; border-radius:6px; text-decoration:none; border:none; cursor:pointer; }
         .btn-primary { background:#667eea; color:white; width:100%; }
+        .btn-google {
+            background: #ffffff;
+            color: #111827;
+            border: 1px solid #d1d5db;
+            width: 100%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            font-weight: 600;
+        }
+        .btn-google:hover {
+            background: #f9fafb;
+        }
+
+        .auth-divider {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin: 1rem 0;
+            color: #9ca3af;
+            font-size: 0.85rem;
+        }
+
+        .auth-divider::before,
+        .auth-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #e5e7eb;
+        }
 
         .form-footer { text-align:center; margin-top:1rem; color:#666; }
 

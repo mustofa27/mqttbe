@@ -79,6 +79,12 @@
             @enderror
         </div>
 
+        <div class="auth-divider">or</div>
+
+        <a href="{{ route('google.redirect') }}" class="btn btn-google">
+            Continue with Google
+        </a>
+
         <button type="submit" class="btn btn-primary" style="width: 100%;">Register</button>
 
         <div class="form-footer">
