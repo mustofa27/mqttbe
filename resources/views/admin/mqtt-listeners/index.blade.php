@@ -1,8 +1,8 @@
 @extends('layouts.app')
 
 @section('content')
-<div style="padding: 2rem 0;">
-    <div class="mqtt-header">
+<div class="mqtt-listeners-page">
+    <div class="mqtt-admin-header">
         <div>
             <h1 class="admin-header-title">🛰️ MQTT Listener Monitor</h1>
             <p class="admin-header-subtitle">Admin visibility into per-user listener processes and limits</p>
