@@ -50,7 +50,7 @@
                                     {{ ucfirst($user->subscription_tier) }}
                                 </span>
                             </td>
-                            <td class="action-cell">
+                            <td class="status-cell">
                                 @if ($user->is_admin)
                                     <span class="badge-admin">👑 Admin</span>
                                 @else
