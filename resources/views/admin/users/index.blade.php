@@ -65,14 +65,14 @@
                                 <a href="{{ route('admin.users.edit', $user) }}" class="btn-admin btn-admin-edit">
                                     ✏️ Edit
                                 </a>
-                                <form action="{{ route('admin.users.toggle-admin', $user) }}" method="POST" style="display: inline;">
+                                <form action="{{ route('admin.users.toggle-admin', $user) }}" method="POST" class="form-inline">
                                     @csrf
                                     @method('PATCH')
                                     <button type="submit" class="btn-admin btn-admin-toggle {{ $user->is_admin ? 'active' : '' }}">
                                         {{ $user->is_admin ? '👑 Remove' : '👑 Make' }}
                                     </button>
                                 </form>
-                                <form action="{{ route('admin.users.destroy', $user) }}" method="POST" style="display: inline;" onsubmit="return confirm('Delete {{ $user->name }}? This action cannot be undone.');">
+                                <form action="{{ route('admin.users.destroy', $user) }}" method="POST" class="form-inline" onsubmit="return confirm('Delete {{ $user->name }}? This action cannot be undone.');">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="btn-admin btn-admin-delete">

@@ -809,6 +809,7 @@ select:focus {
     display: flex !important;
     justify-content: space-between !important;
     align-items: center !important;
+    gap: 1rem !important;
     margin-bottom: 2rem !important;
     padding: 2rem !important;
     background: linear-gradient(135deg, #1f2937 0%, #374151 100%) !important;
@@ -982,21 +983,35 @@ select:focus {
 }
 
 .action-cell {
-    text-align: center !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0.5rem !important;
+    flex-wrap: wrap !important;
+    padding: 1.25rem 1.5rem !important;
+}
+
+.form-inline {
+    display: inline !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    background: none !important;
 }
 
 .btn-admin {
     display: inline-block !important;
-    padding: 0.5rem 1rem !important;
+    padding: 0.4rem 0.75rem !important;
     border-radius: 6px !important;
     text-decoration: none !important;
-    font-size: 0.85rem !important;
+    font-size: 0.8rem !important;
     font-weight: 600 !important;
-    margin: 0 0.25rem !important;
+    margin: 0 !important;
     border: none !important;
     cursor: pointer !important;
     transition: all 0.2s ease !important;
     color: white !important;
+    white-space: nowrap !important;
 }
 
 .btn-admin-edit {
