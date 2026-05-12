@@ -1955,24 +1955,70 @@ select:focus {
 
 .stats-breakdown-grid {
     display: grid !important;
-    grid-template-columns: 1fr 1fr !important;
-    gap: 2rem !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 1.5rem !important;
+    margin-bottom: 2rem !important;
 }
 
 .stats-breakdown-item {
-    margin-bottom: 1.5rem !important;
+    padding: 1.5rem !important;
+    border-radius: 10px !important;
+    border-left: 5px solid !important;
+    background: white !important;
+    border: 1px solid #e5e7eb !important;
+    transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+}
+
+.stats-breakdown-item:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1) !important;
+}
+
+.stats-breakdown-free {
+    border-left-color: #9ca3af !important;
+    background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%) !important;
+}
+
+.stats-breakdown-starter {
+    border-left-color: #06b6d4 !important;
+    background: linear-gradient(135deg, #ecfdf5 0%, #f0fdfa 100%) !important;
+}
+
+.stats-breakdown-professional {
+    border-left-color: #667eea !important;
+    background: linear-gradient(135deg, #f5f3ff 0%, #faf5ff 100%) !important;
+}
+
+.stats-breakdown-enterprise {
+    border-left-color: #fbbf24 !important;
+    background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%) !important;
 }
 
 .stats-breakdown-label {
     display: flex !important;
     justify-content: space-between !important;
     align-items: center !important;
-    margin-bottom: 0.5rem !important;
+    margin-bottom: 1rem !important;
 }
 
 .stats-breakdown-name {
+    color: #1f2937 !important;
+    font-weight: 700 !important;
+    font-size: 1rem !important;
+}
+
+.stats-breakdown-count {
+    font-size: 2.5rem !important;
+    font-weight: 700 !important;
+    color: #1f2937 !important;
+    line-height: 1 !important;
+    margin: 0.5rem 0 !important;
+}
+
+.stats-breakdown-percentage {
+    font-size: 0.9rem !important;
     color: #6b7280 !important;
-    font-weight: 600 !important;
+    font-weight: 500 !important;
 }
 
 .stats-breakdown-value {
@@ -2009,9 +2055,21 @@ select:focus {
 }
 
 .stats-distribution-chart {
-    margin-top: 2rem !important;
-    padding-top: 2rem !important;
-    border-top: 1px solid #e5e7eb !important;
+    margin-top: 2.5rem !important;
+    padding: 2rem !important;
+    background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%) !important;
+    border-radius: 10px !important;
+    border: 1px solid #e5e7eb !important;
+}
+
+.stats-distribution-chart h3 {
+    font-size: 1.1rem !important;
+    font-weight: 700 !important;
+    color: #1f2937 !important;
+    margin-bottom: 1.5rem !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
 }
 
 .stats-distribution-title {
@@ -2022,37 +2080,68 @@ select:focus {
 }
 
 .stats-distribution-item {
-    margin-bottom: 1rem !important;
+    margin-bottom: 1.5rem !important;
+}
+
+.stats-distribution-bar {
+    margin-bottom: 1.5rem !important;
 }
 
 .stats-distribution-header {
     display: flex !important;
     justify-content: space-between !important;
     align-items: center !important;
-    margin-bottom: 0.5rem !important;
+    margin-bottom: 0.6rem !important;
+}
+
+.stats-distribution-label {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    margin-bottom: 0.6rem !important;
 }
 
 .stats-distribution-name {
-    color: #6b7280 !important;
-    font-weight: 500 !important;
+    color: #1f2937 !important;
+    font-weight: 600 !important;
     font-size: 0.95rem !important;
 }
 
 .stats-distribution-percent {
     color: #1f2937 !important;
     font-weight: 700 !important;
+    font-size: 0.95rem !important;
+    min-width: 50px !important;
+    text-align: right !important;
 }
 
 .stats-progress-bar {
-    height: 8px !important;
+    height: 10px !important;
     background: #e5e7eb !important;
-    border-radius: 4px !important;
+    border-radius: 5px !important;
     overflow: hidden !important;
+}
+
+.stats-progress-free .stats-progress-fill {
+    background: linear-gradient(90deg, #9ca3af 0%, #6b7280 100%) !important;
+}
+
+.stats-progress-starter .stats-progress-fill {
+    background: linear-gradient(90deg, #06b6d4 0%, #0891b2 100%) !important;
+}
+
+.stats-progress-professional .stats-progress-fill {
+    background: linear-gradient(90deg, #667eea 0%, #764ba2 100%) !important;
+}
+
+.stats-progress-enterprise .stats-progress-fill {
+    background: linear-gradient(90deg, #fbbf24 0%, #f59e0b 100%) !important;
 }
 
 .stats-progress-fill {
     height: 100% !important;
-    transition: width 0.3s ease !important;
+    transition: width 0.5s ease !important;
+    border-radius: 5px !important;
 }
 
 .btn-small {
