@@ -116,7 +116,7 @@
         <a href="{{ route('subscription.index') }}" class="btn btn-primary">
             View Subscription
         </a>
-        <a href="{{ route('usage.dashboard') }}" class="btn btn-secondary">
+        <a href="{{ route('home.dashboard') }}" class="btn btn-secondary">
             Go to Home
         </a>
     </div>

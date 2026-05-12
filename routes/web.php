@@ -67,9 +67,9 @@ Route::middleware('auth')->group(function () {
     // Permission CRUD routes
     Route::resource('permissions', PermissionController::class);
 
-    // Usage and Analytics routes
-    Route::get('/usage', [UsageController::class, 'dashboard'])->name('usage.dashboard');
-    Route::get('/usage/project/{project}', [UsageController::class, 'projectUsage'])->name('usage.project');
+    // Home/Dashboard routes
+    Route::get('/home', [UsageController::class, 'dashboard'])->name('home.dashboard');
+    Route::get('/home/project/{project}', [UsageController::class, 'projectUsage'])->name('home.project');
     Route::view('/setup-guide', 'dashboard.setup-guide')->name('setup.guide');
 
     // API Key management routes

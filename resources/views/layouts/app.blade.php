@@ -543,7 +543,7 @@
                     <div class="sidebar-section-title">Dashboard</div>
                 </li>
                 <li>
-                    <a href="{{ route('usage.dashboard') }}" class="@if(Route::currentRouteName() === 'usage.dashboard' || Route::currentRouteName() === 'dashboard') active @endif">
+                    <a href="{{ route('home.dashboard') }}" class="@if(Route::currentRouteName() === 'home.dashboard' || Route::currentRouteName() === 'dashboard') active @endif">
                         🏠 Home
                     </a>
                 </li>

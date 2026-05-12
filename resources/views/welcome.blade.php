@@ -476,7 +476,7 @@
                         <a href="{{ route('legal.policies') }}">Syarat & Kebijakan</a>
                         <a href="{{ route('contact.show') }}">Contact</a>
                         @auth
-                            <a href="{{ route('usage.dashboard') }}">Dashboard</a>
+                            <a href="{{ route('home.dashboard') }}">Dashboard</a>
                             <form method="POST" action="{{ route('logout') }}" style="display: inline;">
                                 @csrf
                                 <button type="submit">Logout</button>
@@ -645,7 +645,7 @@
                                     {{ $plan->price == 0 ? 'Start Free' : ($plan->tier === 'enterprise' ? 'Contact Sales' : 'Get Started') }}
                                 </a>
                             @else
-                                <a href="{{ $plan->price == 0 ? url('/') : route('subscription.upgrade') }}" class="btn btn-{{ $plan->price == 0 ? 'secondary' : 'primary' }}">
+                                <a href="{{ $plan->price == 0 ? route('home.dashboard') : route('subscription.upgrade') }}" class="btn btn-{{ $plan->price == 0 ? 'secondary' : 'primary' }}">
                                     {{ $plan->price == 0 ? 'Go to Home' : 'Upgrade' }}
                                 </a>
                             @endguest

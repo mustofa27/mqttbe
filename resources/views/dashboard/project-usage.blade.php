@@ -5,7 +5,7 @@
 @section('content')
 <div class="container">
     <div style="margin-bottom: 2rem;">
-        <a href="{{ route('usage.dashboard') }}" style="color: #4f46e5; text-decoration: none; font-weight: 600;">← Back to Usage Dashboard</a>
+        <a href="{{ route('home.dashboard') }}" style="color: #4f46e5; text-decoration: none; font-weight: 600;">← Back to Home</a>
     </div>
 
     <h1 class="page-title">{{ $project->name }} - Usage Details</h1>
