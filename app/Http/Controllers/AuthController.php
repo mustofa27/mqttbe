@@ -177,12 +177,22 @@ class AuthController extends Controller
         $user = User::where('google_id', $googleId)->orWhere('email', $googleEmail)->first();
 
         if ($user) {
+            $updates = [];
+
             if (! $user->google_id) {
-                $user->forceFill([
-                    'google_id' => $googleId,
-                    'email_verified_at' => $user->email_verified_at ?? now(),
-                    'name' => $user->name ?: $googleName,
-                ])->save();
+                $updates['google_id'] = $googleId;
+            }
+
+            if (! $user->email_verified_at) {
+                $updates['email_verified_at'] = now();
+            }
+
+            if (! $user->name && $googleName) {
+                $updates['name'] = $googleName;
+            }
+
+            if (! empty($updates)) {
+                $user->forceFill($updates)->save();
             }
         } else {
             $user = User::create([
