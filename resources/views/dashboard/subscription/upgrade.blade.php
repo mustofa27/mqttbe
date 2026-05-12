@@ -289,6 +289,87 @@
     @endforeach
 </div>
 
+<div style="margin: 3rem 0; background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 4px 6px rgba(0,0,0,0.08);">
+    <h2 style="margin-bottom: 1rem; color: #1f2937;">Plan Limits Comparison</h2>
+    @php
+        $comparePlans = \App\Models\SubscriptionPlan::whereIn('tier', \App\Models\SubscriptionPlan::getTiers())
+            ->orderByRaw("FIELD(tier, 'free', 'starter', 'professional', 'enterprise')")
+            ->get()
+            ->keyBy('tier');
+    @endphp
+    <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse; min-width: 900px;">
+            <thead>
+                <tr style="border-bottom: 2px solid #e5e7eb; text-align: left;">
+                    <th style="padding: 0.75rem;">Feature</th>
+                    @foreach(['free', 'starter', 'professional', 'enterprise'] as $tier)
+                        <th style="padding: 0.75rem; text-align: center;">{{ ucfirst($tier) }}</th>
+                    @endforeach
+                </tr>
+            </thead>
+            <tbody>
+                @php
+                    $rows = [
+                        ['label' => 'Projects', 'key' => 'max_projects', 'format' => 'count'],
+                        ['label' => 'Devices per Project', 'key' => 'max_devices_per_project', 'format' => 'count'],
+                        ['label' => 'Topics per Project', 'key' => 'max_topics_per_project', 'format' => 'count'],
+                        ['label' => 'Monthly Messages', 'key' => 'max_monthly_messages', 'format' => 'number'],
+                        ['label' => 'API Keys', 'key' => 'max_api_keys', 'format' => 'count'],
+                        ['label' => 'Webhooks', 'key' => 'max_webhooks_per_project', 'format' => 'count'],
+                        ['label' => 'Dashboard Widgets', 'key' => 'max_advance_dashboard_widgets', 'format' => 'count'],
+                        ['label' => 'API RPM', 'key' => 'api_rpm', 'format' => 'number'],
+                        ['label' => 'Data Retention', 'key' => 'data_retention_days', 'format' => 'days'],
+                    ];
+
+                    $featureRows = [
+                        ['label' => 'Analytics Dashboard', 'key' => 'analytics_enabled'],
+                        ['label' => 'Advanced Dashboard', 'key' => 'advanced_analytics_enabled'],
+                        ['label' => 'API Access', 'key' => 'api_access'],
+                        ['label' => 'Priority Support', 'key' => 'priority_support'],
+                    ];
+                @endphp
+                @foreach($rows as $row)
+                    <tr style="border-bottom: 1px solid #f0f0f0;">
+                        <td style="padding: 0.75rem;">{{ $row['label'] }}</td>
+                        @foreach(['free', 'starter', 'professional', 'enterprise'] as $tier)
+                            @php $plan = $comparePlans->get($tier); @endphp
+                            <td style="text-align: center; padding: 0.75rem; {{ $currentTier === $tier ? 'background: #f0f0ff; font-weight: bold;' : '' }}">
+                                @if(!$plan)
+                                    -
+                                @else
+                                    @php
+                                        $value = $plan->{$row['key']} ?? null;
+                                    @endphp
+                                    @if($value === -1)
+                                        Unlimited
+                                    @elseif($row['format'] === 'days')
+                                        {{ $value }} days
+                                    @elseif($row['format'] === 'number')
+                                        {{ number_format((int) $value) }}
+                                    @else
+                                        {{ $value }}
+                                    @endif
+                                @endif
+                            </td>
+                        @endforeach
+                    </tr>
+                @endforeach
+                @foreach($featureRows as $row)
+                    <tr style="border-bottom: 1px solid #f0f0f0;">
+                        <td style="padding: 0.75rem;">{{ $row['label'] }}</td>
+                        @foreach(['free', 'starter', 'professional', 'enterprise'] as $tier)
+                            @php $plan = $comparePlans->get($tier); @endphp
+                            <td style="text-align: center; padding: 0.75rem; {{ $currentTier === $tier ? 'background: #f0f0ff; font-weight: bold;' : '' }}">
+                                {{ !empty($plan?->{$row['key']}) ? '✓ Enabled' : '✗ Disabled' }}
+                            </td>
+                        @endforeach
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
+</div>
+
 <div style="text-align: center; margin-top: 3rem; padding: 2rem; background: #f8f9fa; border-radius: 8px;">
     <p style="color: #666; margin-bottom: 1rem;">All plans include:</p>
     <div style="display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap;">
@@ -343,6 +424,7 @@
                                 <span>
                                     <strong>{{ $addon->name }}</strong>
                                     <small>
+                                        {{ $addon->unit_type_label }} - +{{ $addon->included_units }}
                                         ({{ $addon->code }}) - Rp {{ number_format($addon->price, 0, ',', '.') }}
                                         {{ $addon->is_recurring ? '/bulan' : 'sekali bayar' }}
                                     </small>
