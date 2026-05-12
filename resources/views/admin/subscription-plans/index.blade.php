@@ -61,6 +61,74 @@
                     </div>
 
                     <div style="border-top: 1px solid #e5e7eb; padding-top: 1rem; margin-bottom: 1rem;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1rem; font-size: 0.85rem;">
+                            <div>
+                                <span style="color: #6b7280; font-weight: 600;">Devices/Project:</span>
+                                <span style="color: #1f2937;">{{ $details['max_devices_per_project'] == -1 ? '∞' : $details['max_devices_per_project'] }}</span>
+                            </div>
+                            <div>
+                                <span style="color: #6b7280; font-weight: 600;">Topics/Project:</span>
+                                <span style="color: #1f2937;">{{ $details['max_topics_per_project'] == -1 ? '∞' : $details['max_topics_per_project'] }}</span>
+                            </div>
+                            <div>
+                                <span style="color: #6b7280; font-weight: 600;">Monthly Messages:</span>
+                                <span style="color: #1f2937;">{{ $details['max_monthly_messages'] == -1 ? '∞' : number_format($details['max_monthly_messages']) }}</span>
+                            </div>
+                            <div>
+                                <span style="color: #6b7280; font-weight: 600;">Rate Limit/Hr:</span>
+                                <span style="color: #1f2937;">{{ $details['rate_limit_per_hour'] == -1 ? '∞' : number_format($details['rate_limit_per_hour']) }}</span>
+                            </div>
+                            <div>
+                                <span style="color: #6b7280; font-weight: 600;">API Keys:</span>
+                                <span style="color: #1f2937;">{{ $details['max_api_keys'] == -1 ? '∞' : $details['max_api_keys'] }}</span>
+                            </div>
+                            <div>
+                                <span style="color: #6b7280; font-weight: 600;">Webhooks:</span>
+                                <span style="color: #1f2937;">{{ $details['max_webhooks_per_project'] == -1 ? '∞' : $details['max_webhooks_per_project'] }}</span>
+                            </div>
+                            <div>
+                                <span style="color: #6b7280; font-weight: 600;">Widgets:</span>
+                                <span style="color: #1f2937;">{{ $details['max_advance_dashboard_widgets'] == -1 ? '∞' : $details['max_advance_dashboard_widgets'] }}</span>
+                            </div>
+                            <div>
+                                <span style="color: #6b7280; font-weight: 600;">API RPM:</span>
+                                <span style="color: #1f2937;">{{ $details['api_rpm'] == -1 ? '∞' : number_format($details['api_rpm']) }}</span>
+                            </div>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1rem; font-size: 0.85rem;">
+                            <div>
+                                <span style="color: #6b7280; font-weight: 600;">Devices/Project:</span>
+                                <span style="color: #1f2937;">{{ $details['max_devices_per_project'] == -1 ? '∞' : $details['max_devices_per_project'] }}</span>
+                            </div>
+                            <div>
+                                <span style="color: #6b7280; font-weight: 600;">Topics/Project:</span>
+                                <span style="color: #1f2937;">{{ $details['max_topics_per_project'] == -1 ? '∞' : $details['max_topics_per_project'] }}</span>
+                            </div>
+                            <div>
+                                <span style="color: #6b7280; font-weight: 600;">Monthly Messages:</span>
+                                <span style="color: #1f2937;">{{ $details['max_monthly_messages'] == -1 ? '∞' : number_format($details['max_monthly_messages']) }}</span>
+                            </div>
+                            <div>
+                                <span style="color: #6b7280; font-weight: 600;">Rate Limit/Hr:</span>
+                                <span style="color: #1f2937;">{{ $details['rate_limit_per_hour'] == -1 ? '∞' : number_format($details['rate_limit_per_hour']) }}</span>
+                            </div>
+                            <div>
+                                <span style="color: #6b7280; font-weight: 600;">API Keys:</span>
+                                <span style="color: #1f2937;">{{ $details['max_api_keys'] == -1 ? '∞' : $details['max_api_keys'] }}</span>
+                            </div>
+                            <div>
+                                <span style="color: #6b7280; font-weight: 600;">Webhooks:</span>
+                                <span style="color: #1f2937;">{{ $details['max_webhooks_per_project'] == -1 ? '∞' : $details['max_webhooks_per_project'] }}</span>
+                            </div>
+                            <div>
+                                <span style="color: #6b7280; font-weight: 600;">Widgets:</span>
+                                <span style="color: #1f2937;">{{ $details['max_advance_dashboard_widgets'] == -1 ? '∞' : $details['max_advance_dashboard_widgets'] }}</span>
+                            </div>
+                            <div>
+                                <span style="color: #6b7280; font-weight: 600;">API RPM:</span>
+                                <span style="color: #1f2937;">{{ $details['api_rpm'] == -1 ? '∞' : number_format($details['api_rpm']) }}</span>
+                            </div>
+                        </div>
                         <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
                             @if ($details['analytics_enabled'])
                                 <span style="display: inline-block; padding: 0.35rem 0.75rem; border-radius: 6px; font-size: 0.75rem; font-weight: 600; background: #dbeafe; color: #1e40af;">✓ Analytics</span>
