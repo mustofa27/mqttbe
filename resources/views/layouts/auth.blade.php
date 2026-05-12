@@ -45,18 +45,48 @@
         .btn { display:inline-block; padding:0.75rem 1rem; border-radius:6px; text-decoration:none; border:none; cursor:pointer; }
         .btn-primary { background:#667eea; color:white; width:100%; }
         .btn-google {
+            position: relative;
             background: #ffffff;
             color: #111827;
             border: 1px solid #d1d5db;
             width: 100%;
+            min-height: 46px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 0.5rem;
-            font-weight: 600;
+            gap: 0.65rem;
+            font-weight: 700;
+            letter-spacing: 0.01em;
+            transition: background-color 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
+            box-shadow: 0 1px 2px rgba(17, 24, 39, 0.06);
         }
+
         .btn-google:hover {
-            background: #f9fafb;
+            background: #f8fafc;
+            box-shadow: 0 4px 10px rgba(17, 24, 39, 0.12);
+        }
+
+        .btn-google:active {
+            transform: translateY(1px);
+            box-shadow: 0 1px 3px rgba(17, 24, 39, 0.12);
+        }
+
+        .btn-google:focus-visible {
+            outline: 3px solid rgba(66, 133, 244, 0.35);
+            outline-offset: 2px;
+        }
+
+        .btn-google-icon {
+            width: 18px;
+            height: 18px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex: 0 0 18px;
+        }
+
+        .btn-google-text {
+            line-height: 1;
         }
 
         .auth-divider {
