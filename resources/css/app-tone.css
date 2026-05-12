@@ -599,6 +599,201 @@ select:focus {
     text-decoration: underline !important;
 }
 
+/* List Pages (Projects, Devices, Topics) */
+.page-header {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    margin-bottom: 2rem !important;
+}
+
+.page-header h1 {
+    font-size: 2rem !important;
+    font-weight: 700 !important;
+}
+
+.card-grid {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)) !important;
+    gap: 1.5rem !important;
+}
+
+.resource-card {
+    background: white !important;
+    border-radius: 12px !important;
+    padding: 1.5rem !important;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1) !important;
+    border: 1px solid #e5e7eb !important;
+}
+
+.resource-card h3 {
+    font-size: 1.25rem !important;
+    font-weight: 600 !important;
+    margin-bottom: 0.5rem !important;
+}
+
+.resource-card p {
+    color: #666 !important;
+    margin-bottom: 0.5rem !important;
+    font-size: 0.9rem !important;
+}
+
+.resource-card code {
+    background: #f3f4f6 !important;
+    padding: 0.25rem 0.5rem !important;
+    border-radius: 4px !important;
+}
+
+.card-actions {
+    display: flex !important;
+    gap: 0.5rem !important;
+    margin-top: 1rem !important;
+}
+
+.btn-action {
+    flex: 1 !important;
+    padding: 0.5rem !important;
+    text-align: center !important;
+    text-decoration: none !important;
+    border-radius: 6px !important;
+    font-size: 0.9rem !important;
+    border: none !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+}
+
+.btn-view {
+    background: #667eea !important;
+    color: white !important;
+}
+
+.btn-view:hover {
+    background: #5a67d8 !important;
+}
+
+.btn-edit {
+    background: #f59e0b !important;
+    color: white !important;
+}
+
+.btn-edit:hover {
+    background: #d97706 !important;
+}
+
+.btn-delete {
+    background: #ef4444 !important;
+    color: white !important;
+}
+
+.btn-delete:hover {
+    background: #dc2626 !important;
+}
+
+.empty-state {
+    background: #f3f4f6 !important;
+    border-radius: 12px !important;
+    padding: 2rem !important;
+    text-align: center !important;
+}
+
+.empty-state p {
+    color: #666 !important;
+    margin-bottom: 1rem !important;
+}
+
+/* List Table Styling */
+.table-container {
+    background: white !important;
+    border-radius: 12px !important;
+    overflow: hidden !important;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1) !important;
+}
+
+.list-table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+}
+
+.list-table thead {
+    background: #f3f4f6 !important;
+    border-bottom: 2px solid #e5e7eb !important;
+}
+
+.list-table th {
+    padding: 1rem !important;
+    text-align: left !important;
+    font-weight: 600 !important;
+}
+
+.list-table td {
+    padding: 1rem !important;
+    border-bottom: 1px solid #e5e7eb !important;
+}
+
+.list-table tbody tr:hover {
+    background: #f9fafb !important;
+}
+
+.status-active {
+    background: #10b981 !important;
+    color: white !important;
+    padding: 0.25rem 0.75rem !important;
+    border-radius: 20px !important;
+    font-size: 0.85rem !important;
+    display: inline-block !important;
+}
+
+.status-inactive {
+    background: #ef4444 !important;
+    color: white !important;
+    padding: 0.25rem 0.75rem !important;
+    border-radius: 20px !important;
+    font-size: 0.85rem !important;
+    display: inline-block !important;
+}
+
+.action-group {
+    display: flex !important;
+    gap: 0.5rem !important;
+}
+
+.btn-sm {
+    padding: 0.4rem 0.8rem !important;
+    border-radius: 4px !important;
+    font-size: 0.85rem !important;
+    text-decoration: none !important;
+    border: none !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+}
+
+.btn-sm-view {
+    background: #667eea !important;
+    color: white !important;
+}
+
+.btn-sm-view:hover {
+    background: #5a67d8 !important;
+}
+
+.btn-sm-edit {
+    background: #f59e0b !important;
+    color: white !important;
+}
+
+.btn-sm-edit:hover {
+    background: #d97706 !important;
+}
+
+.btn-sm-delete {
+    background: #ef4444 !important;
+    color: white !important;
+}
+
+.btn-sm-delete:hover {
+    background: #dc2626 !important;
+}
+
 .btn-small {
     display: inline-block !important;
     padding: 0.4rem 0.75rem !important;
