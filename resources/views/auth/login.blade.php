@@ -35,7 +35,6 @@
                     name="password" 
                     required
                     placeholder="Enter your password"
-                    style="padding-right: 2.5rem;"
                 >
                 <button type="button" class="password-toggle-btn" data-toggle="password" onclick="togglePasswordVisibility('password')">👁️</button>
             </div>
@@ -61,12 +60,12 @@
         </div>
 
         <div class="auth-helper">
-            <a href="{{ route('password.request') }}" style="color: #667eea; text-decoration: none; font-size: 0.9rem;">
+            <a href="{{ route('password.request') }}">
                 Forgot your password?
             </a>
         </div>
 
-        <button type="submit" class="btn btn-primary" style="width: 100%;">Login</button>
+        <button type="submit" class="btn btn-primary">Login</button>
 
         <div class="form-footer">
             Don't have an account? <a href="{{ route('register') }}">Register here</a>

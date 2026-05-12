@@ -7,12 +7,12 @@
     <form method="POST" action="{{ route('password.email') }}" class="auth-form">
         @csrf
         <h1>Reset Password</h1>
-        <p style="color: #666; margin-bottom: 1.5rem; font-size: 0.95rem;">
+        <p class="auth-subtitle">
             Enter your email address and we'll send you a link to reset your password.
         </p>
 
         @if (session('status'))
-            <div style="background: #d4edda; color: #155724; padding: 0.75rem; border-radius: 6px; margin-bottom: 1rem; border: 1px solid #c3e6cb;">
+            <div class="auth-alert auth-alert-success">
                 {{ session('status') }}
             </div>
         @endif
@@ -35,7 +35,7 @@
             @enderror
         </div>
 
-        <button type="submit" class="btn btn-primary" style="width: 100%;">Send Reset Link</button>
+        <button type="submit" class="btn btn-primary">Send Reset Link</button>
 
         <div class="form-footer">
             <a href="{{ route('login') }}">Back to Login</a>

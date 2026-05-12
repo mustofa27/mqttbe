@@ -52,7 +52,6 @@
                     name="password" 
                     required
                     placeholder="Minimum 8 characters"
-                    style="padding-right: 2.5rem;"
                 >
                 <button type="button" class="password-toggle-btn" data-toggle="password" onclick="togglePasswordVisibility('password')">👁️</button>
             </div>
@@ -70,7 +69,6 @@
                     name="password_confirmation" 
                     required
                     placeholder="Confirm your password"
-                    style="padding-right: 2.5rem;"
                 >
                 <button type="button" class="password-toggle-btn" data-toggle="password_confirmation" onclick="togglePasswordVisibility('password_confirmation')">👁️</button>
             </div>
@@ -95,7 +93,7 @@
             </a>
         </div>
 
-        <button type="submit" class="btn btn-primary" style="width: 100%;">Register</button>
+        <button type="submit" class="btn btn-primary">Register</button>
 
         <div class="form-footer">
             Already have an account? <a href="{{ route('login') }}">Login here</a>

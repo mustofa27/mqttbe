@@ -10,7 +10,7 @@
         <input type="hidden" name="email" value="{{ $email }}">
 
         <h1>Create New Password</h1>
-        <p style="color: #666; margin-bottom: 1.5rem; font-size: 0.95rem;">
+        <p class="auth-subtitle">
             Enter your new password below.
         </p>
 
@@ -24,7 +24,7 @@
                     value="{{ $email ?? old('email') }}"
                     required
                     readonly
-                    style="background: #f5f5f5;"
+                    class="input-readonly"
                 >
             </div>
             @error('email')
@@ -41,7 +41,6 @@
                     name="password" 
                     required
                     placeholder="Minimum 8 characters"
-                    style="padding-right: 2.5rem;"
                 >
                 <button type="button" class="password-toggle-btn" data-toggle="password" onclick="togglePasswordVisibility('password')">👁️</button>
             </div>
@@ -59,7 +58,6 @@
                     name="password_confirmation" 
                     required
                     placeholder="Confirm your password"
-                    style="padding-right: 2.5rem;"
                 >
                 <button type="button" class="password-toggle-btn" data-toggle="password_confirmation" onclick="togglePasswordVisibility('password_confirmation')">👁️</button>
             </div>
@@ -68,7 +66,7 @@
             @enderror
         </div>
 
-        <button type="submit" class="btn btn-primary" style="width: 100%;">Reset Password</button>
+        <button type="submit" class="btn btn-primary">Reset Password</button>
 
         <div class="form-footer">
             <a href="{{ route('login') }}">Back to Login</a>
