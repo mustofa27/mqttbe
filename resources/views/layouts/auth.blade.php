@@ -9,6 +9,8 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     @endif
     <style>
+        *, *::before, *::after { box-sizing: border-box; }
+
         html, body { height: 100%; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
@@ -42,8 +44,13 @@
             width:100%; padding:0.75rem; border:1px solid #e6e6e6; border-radius:6px; font-size:1rem;
         }
 
-        .btn { display:inline-block; padding:0.75rem 1rem; border-radius:6px; text-decoration:none; border:none; cursor:pointer; }
+        .btn { display:flex; padding:0.75rem 1rem; border-radius:6px; text-decoration:none; border:none; cursor:pointer; justify-content:center; align-items:center; }
         .btn-primary { background:#667eea; color:white; width:100%; }
+
+        .google-auth-wrap {
+            margin-bottom: 0.9rem;
+        }
+
         .btn-google {
             position: relative;
             background: #ffffff;
@@ -107,6 +114,11 @@
         }
 
         .form-footer { text-align:center; margin-top:1rem; color:#666; }
+
+        .auth-helper {
+            text-align: right;
+            margin-bottom: 1rem;
+        }
 
         .error { color:#dc3545; margin-top:0.25rem; font-size:0.9rem; }
 
