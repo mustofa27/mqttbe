@@ -43,6 +43,8 @@
             @enderror
         </div>
 
+        <button type="submit" class="btn btn-primary">Login</button>
+
         <div class="auth-divider">or</div>
 
         <div class="google-auth-wrap">
@@ -64,8 +66,6 @@
                 Forgot your password?
             </a>
         </div>
-
-        <button type="submit" class="btn btn-primary">Login</button>
 
         <div class="form-footer">
             Don't have an account? <a href="{{ route('register') }}">Register here</a>
