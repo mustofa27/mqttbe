@@ -625,7 +625,7 @@
                             </a>
                         </li>
                         <li>
-                            <a href="{{ route('admin.subscription-plans.index') }}" class="@if(strpos(Route::currentRouteName(), 'admin.subscription-plans') !== false) active @endif">
+                            <a href="{{ route('admin.subscription-plans.index') }}" class="@if(strpos(Route::currentRouteName(), 'admin.subscription-plans') !== false && Route::currentRouteName() !== 'admin.subscription-plans.statistics') active @endif">
                                 📋 Plans
                             </a>
                         </li>
