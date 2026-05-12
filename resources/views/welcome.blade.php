@@ -645,8 +645,8 @@
                                     {{ $plan->price == 0 ? 'Start Free' : ($plan->tier === 'enterprise' ? 'Contact Sales' : 'Get Started') }}
                                 </a>
                             @else
-                                <a href="{{ $plan->price == 0 ? url('/dashboard') : route('subscription.upgrade') }}" class="btn btn-{{ $plan->price == 0 ? 'secondary' : 'primary' }}">
-                                    {{ $plan->price == 0 ? 'Go to Dashboard' : 'Upgrade' }}
+                                <a href="{{ $plan->price == 0 ? url('/') : route('subscription.upgrade') }}" class="btn btn-{{ $plan->price == 0 ? 'secondary' : 'primary' }}">
+                                    {{ $plan->price == 0 ? 'Go to Home' : 'Upgrade' }}
                                 </a>
                             @endguest
                         </div>
