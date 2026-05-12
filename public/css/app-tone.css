@@ -24,9 +24,7 @@ body {
             var(--app-deep) 0,
             var(--app-soft) 120px,
             var(--app-surface) 120px,
-            var(--app-surface) calc(100% - 120px),
-            var(--app-soft) calc(100% - 120px),
-            var(--app-deep) 100%
+            var(--app-surface) 100%
         ) !important;
     background-repeat: no-repeat !important;
 }
