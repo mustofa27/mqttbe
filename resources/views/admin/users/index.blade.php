@@ -44,7 +44,7 @@
                     @foreach ($users as $user)
                         <tr>
                             <td>{{ $user->name }}</td>
-                            <td style="color: #6b7280; font-size: 0.9rem;">{{ $user->email }}</td>
+                            <td class="table-email">{{ $user->email }}</td>
                             <td>
                                 <span class="badge-tier badge-tier-{{ $user->subscription_tier }}">
                                     {{ ucfirst($user->subscription_tier) }}

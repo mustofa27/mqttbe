@@ -917,6 +917,11 @@ select:focus {
     padding: 1.25rem 1.5rem !important;
 }
 
+.table-email {
+    color: #6b7280 !important;
+    font-size: 0.9rem !important;
+}
+
 .badge-tier {
     display: inline-block !important;
     padding: 0.35rem 0.75rem !important;
@@ -1632,18 +1637,22 @@ select:focus {
 
 .admin-form-header {
     margin-bottom: 2rem !important;
+    padding: 2rem !important;
+    background: linear-gradient(135deg, #1f2937 0%, #374151 100%) !important;
+    border-radius: 12px !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
 }
 
 .admin-form-header h1 {
     font-size: 2rem !important;
     font-weight: 700 !important;
-    color: #1f2937 !important;
+    color: white !important;
     margin-bottom: 0.25rem !important;
     margin: 0 !important;
 }
 
 .admin-form-header p {
-    color: #9ca3af !important;
+    color: #d1d5db !important;
     font-size: 0.9rem !important;
     margin: 0.25rem 0 0 !important;
 }
