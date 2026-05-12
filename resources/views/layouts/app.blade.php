@@ -246,7 +246,6 @@
             overflow: hidden;
             box-shadow: none;
         }
-        }
 
         .sidebar-menu {
             list-style: none;

@@ -19,9 +19,16 @@ body {
     font-family: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
     color: var(--app-ink) !important;
     background:
-        radial-gradient(920px 560px at 10% -18%, rgba(14, 165, 164, 0.23), transparent 70%),
-        radial-gradient(760px 520px at 96% 0%, rgba(245, 158, 11, 0.16), transparent 74%),
-        linear-gradient(180deg, var(--app-deep) 0%, var(--app-soft) 24%, var(--app-surface) 24%, var(--app-surface) 100%) !important;
+        linear-gradient(
+            180deg,
+            var(--app-deep) 0,
+            var(--app-soft) 120px,
+            var(--app-surface) 120px,
+            var(--app-surface) calc(100% - 120px),
+            var(--app-soft) calc(100% - 120px),
+            var(--app-deep) 100%
+        ) !important;
+    background-repeat: no-repeat !important;
 }
 
 .navbar {
