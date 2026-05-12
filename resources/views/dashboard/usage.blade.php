@@ -4,7 +4,7 @@
 
 @section('content')
 <div class="container">
-    <div>
+    <div class="page-header">
         <h1 class="page-title">Welcome, {{ Auth::user()->name }}! 👋</h1>
         <p class="page-subtitle">Here's your MQTT management overview</p>
     </div>
