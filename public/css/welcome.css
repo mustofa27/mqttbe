@@ -371,6 +371,16 @@ body.landing-page {
     width: 100%;
 }
 
+.pricing-card .action-ghost {
+    background: #f4f8ff;
+    border-color: #c6d5ea;
+    color: #0f2a4a;
+}
+
+.pricing-card .action-ghost:hover {
+    background: #eaf2ff;
+}
+
 .cta-block {
     padding: 0 0 4rem;
 }
